@@ -1,0 +1,42 @@
+# PHD Smart Tools — production deployment
+#
+# This pulls the image built by .github/workflows/docker-publish.yml from
+# GitHub Container Registry. Run this on the PHD server (not in the repo's
+# build pipeline).
+#
+# First time setup:
+#   1. cp .env.example .env   and fill in the Microsoft Entra ID values
+#   2. docker compose pull
+#   3. docker compose up -d
+#
+# Updating to a newer build:
+#   docker compose pull && docker compose up -d
+
+services:
+  phd-smart-tools:
+    image: ghcr.io/phd-nigeria/phd-smart-tools:latest
+    container_name: phd-smart-tools
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    volumes:
+      - ./data/tessdata:/usr/share/tessdata:rw
+      - ./data/config:/configs:rw
+      - ./data/logs:/logs:rw
+      - ./data/customFiles:/customFiles:rw
+      - ./data/pipeline:/pipeline:rw
+      - ./data/storage:/storage:rw
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/api/v1/info/status || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 2G
