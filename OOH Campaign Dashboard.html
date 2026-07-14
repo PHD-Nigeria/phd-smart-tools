@@ -1,0 +1,1685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Golden Penny Pasta — OOH Campaign Monitor</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+:root {
+  --purple: #38008C;
+  --lavender: #9B83FF;
+  --pink: #FF70F2;
+  --coral: #FF7373;
+  --lime: #9FEA47;
+  --dark: #0D0020;
+  --card-bg: #160038;
+  --sidebar-bg: #12002E;
+  --border: rgba(155,131,255,0.18);
+  --text: #E8E0FF;
+  --muted: rgba(232,224,255,0.5);
+  --mono: 'IBM Plex Mono', monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Syne', sans-serif; background: var(--dark); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+
+/* ===== PAGES ===== */
+.page { display: none; min-height: 100vh; }
+.page.active { display: flex; }
+
+/* ========== COVER PAGE ========== */
+#cover {
+  flex-direction: column; align-items: center; justify-content: center;
+  position: relative; overflow: hidden; min-height: 100vh;
+  background: var(--dark);
+}
+.cover-bg {
+  position: absolute; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 70% 60% at 15% 50%, rgba(56,0,140,0.85) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 70% at 85% 30%, rgba(255,112,242,0.18) 0%, transparent 55%),
+    radial-gradient(ellipse 40% 40% at 70% 80%, rgba(159,234,71,0.12) 0%, transparent 50%);
+}
+.cover-grid {
+  position: absolute; inset: 0; z-index: 0;
+  background-image: linear-gradient(rgba(155,131,255,0.05) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(155,131,255,0.05) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+.cover-dots {
+  position: absolute; inset: 0; z-index: 0; overflow: hidden;
+}
+.dot {
+  position: absolute; border-radius: 50%;
+  animation: floatDot linear infinite;
+  opacity: 0;
+}
+@keyframes floatDot {
+  0% { transform: translateY(0) scale(1); opacity: 0; }
+  10% { opacity: 0.6; }
+  90% { opacity: 0.4; }
+  100% { transform: translateY(-60vh) scale(0.5); opacity: 0; }
+}
+.cover-content {
+  position: relative; z-index: 2; text-align: center;
+  padding: 60px 40px; max-width: 860px; width: 100%;
+}
+.cover-badge {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: rgba(159,234,71,0.1); border: 1px solid rgba(159,234,71,0.35);
+  color: var(--lime); font-family: var(--mono); font-size: 10px;
+  letter-spacing: 2.5px; text-transform: uppercase; padding: 7px 18px;
+  border-radius: 100px; margin-bottom: 36px;
+}
+.cover-badge-dot {
+  width: 7px; height: 7px; background: var(--lime); border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(159,234,71,0.6); }
+  50% { opacity: 0.8; transform: scale(1.3); box-shadow: 0 0 0 6px rgba(159,234,71,0); }
+}
+.cover-eyebrow {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 3px;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 16px;
+}
+.cover-title {
+  font-size: clamp(48px, 7.5vw, 92px); font-weight: 800;
+  line-height: 0.92; letter-spacing: -3px; margin-bottom: 8px;
+}
+.cover-title .t1 { display: block; color: #fff; }
+.cover-title .t2 {
+  display: block;
+  color: var(--lavender); /* solid fallback so "MONITORING" always renders in full */
+  background: linear-gradient(120deg, var(--lavender) 0%, var(--pink) 60%);
+  background-clip: text; -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+@supports not ((-webkit-background-clip: text) or (background-clip: text)) {
+  .cover-title .t2 { -webkit-text-fill-color: var(--lavender); color: var(--lavender); }
+}
+.cover-title .t3 {
+  display: block; color: var(--lime);
+  font-size: 0.42em; letter-spacing: 4px; font-weight: 600; margin-top: 10px;
+}
+.cover-sub {
+  color: var(--muted); font-family: var(--mono); font-size: 12px;
+  letter-spacing: 1.5px; margin: 28px auto 52px;
+  max-width: 520px; line-height: 1.6;
+}
+.cover-kpis {
+  display: flex; gap: 0; justify-content: center; align-items: stretch;
+  margin-bottom: 52px; flex-wrap: wrap;
+}
+.cover-kpi {
+  padding: 22px 36px; border-right: 1px solid var(--border);
+  text-align: center; min-width: 140px;
+}
+.cover-kpi:last-child { border-right: none; }
+.cover-kpi-val {
+  font-size: 34px; font-weight: 800; line-height: 1;
+  background: linear-gradient(135deg, var(--lime), var(--lavender));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.cover-kpi-label {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--muted); margin-top: 6px;
+}
+.cover-enter {
+  display: inline-flex; align-items: center; gap: 14px;
+  background: linear-gradient(135deg, var(--purple), #6600CC);
+  border: 1px solid rgba(155,131,255,0.5); color: #fff;
+  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px;
+  letter-spacing: 1.5px; text-transform: uppercase; padding: 16px 44px;
+  border-radius: 6px; cursor: pointer; transition: all 0.3s;
+}
+.cover-enter:hover {
+  background: linear-gradient(135deg, #5500CC, #8800FF);
+  transform: translateY(-3px);
+  box-shadow: 0 24px 48px rgba(56,0,140,0.7), 0 0 60px rgba(155,131,255,0.3);
+}
+.cover-enter-arrow { font-size: 18px; transition: transform 0.3s; }
+.cover-enter:hover .cover-enter-arrow { transform: translateX(5px); }
+.cover-footer {
+  position: absolute; bottom: 28px; left: 0; right: 0; z-index: 2;
+  display: flex; justify-content: center; align-items: center; gap: 30px;
+}
+.cover-footer-tag {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 2px;
+  text-transform: uppercase; color: rgba(232,224,255,0.25);
+}
+.cover-stripe {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 4px;
+  background: linear-gradient(90deg, var(--purple), var(--lavender), var(--pink), var(--coral), var(--lime));
+  z-index: 3;
+}
+
+/* ========== DASHBOARD ========== */
+#dashboard {
+  flex-direction: row; min-height: 100vh;
+}
+
+/* -- SIDEBAR -- */
+.sidebar {
+  width: 220px; min-height: 100vh; background: var(--sidebar-bg);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0;
+  z-index: 100; transition: width 0.3s;
+}
+.sidebar-logo {
+  padding: 22px 20px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-logo-top {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 3px;
+}
+.sidebar-icon {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--purple), var(--lavender));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; flex-shrink: 0;
+}
+.sidebar-brand { font-size: 13px; font-weight: 700; color: #fff; }
+.sidebar-sub { font-family: var(--mono); font-size: 9px; letter-spacing: 1.5px; color: var(--muted); text-transform: uppercase; }
+.sidebar-campaign {
+  margin: 12px 20px; padding: 10px 12px; background: rgba(56,0,140,0.4);
+  border: 1px solid rgba(155,131,255,0.2); border-radius: 8px;
+}
+.sidebar-campaign-label { font-family: var(--mono); font-size: 8px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+.sidebar-campaign-name { font-size: 11px; font-weight: 700; color: var(--lime); margin-top: 2px; }
+.sidebar-nav { flex: 1; padding: 8px 0; overflow-y: auto; }
+.nav-section-label {
+  font-family: var(--mono); font-size: 8px; letter-spacing: 2.5px; text-transform: uppercase;
+  color: rgba(232,224,255,0.25); padding: 14px 20px 6px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px; padding: 10px 20px;
+  cursor: pointer; border-radius: 0; transition: all 0.2s;
+  border-left: 3px solid transparent; color: var(--muted);
+  font-size: 12.5px; font-weight: 500;
+}
+.nav-item:hover { background: rgba(155,131,255,0.08); color: var(--text); }
+.nav-item.active { background: rgba(155,131,255,0.12); color: var(--lavender); border-left-color: var(--lavender); }
+.nav-item-icon { font-size: 15px; width: 18px; text-align: center; }
+.nav-item-badge {
+  margin-left: auto; background: var(--coral); color: #fff;
+  font-size: 9px; font-family: var(--mono); font-weight: 600;
+  padding: 1px 6px; border-radius: 10px;
+}
+.sidebar-footer {
+  padding: 16px 20px; border-top: 1px solid var(--border);
+}
+.sidebar-user {
+  display: flex; align-items: center; gap: 10px;
+}
+.user-avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--purple), var(--lavender));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: #fff; flex-shrink: 0;
+}
+.user-name { font-size: 11px; font-weight: 600; }
+.user-role { font-family: var(--mono); font-size: 8px; color: var(--muted); letter-spacing: 1px; }
+
+/* -- MAIN CONTENT -- */
+.main-content {
+  flex: 1; margin-left: 220px; min-height: 100vh;
+  background: #0A001E; display: flex; flex-direction: column;
+}
+
+/* -- TOPBAR -- */
+.topbar {
+  background: rgba(22,0,56,0.95); border-bottom: 1px solid var(--border);
+  padding: 0 28px; height: 58px; display: flex; align-items: center;
+  gap: 16px; position: sticky; top: 0; z-index: 50; backdrop-filter: blur(10px);
+}
+.topbar-title { font-size: 15px; font-weight: 700; flex: 1; }
+.topbar-sub { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 1px; }
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+.topbar-btn {
+  background: rgba(155,131,255,0.12); border: 1px solid var(--border);
+  color: var(--text); font-family: 'Syne', sans-serif; font-size: 11px;
+  font-weight: 600; padding: 7px 14px; border-radius: 6px; cursor: pointer;
+  transition: all 0.2s; display: flex; align-items: center; gap: 6px;
+}
+.topbar-btn:hover { background: rgba(155,131,255,0.22); border-color: var(--lavender); }
+.topbar-btn.primary {
+  background: linear-gradient(135deg, var(--purple), #5500CC);
+  border-color: rgba(155,131,255,0.4);
+}
+.topbar-btn.cover-pin {
+  position: fixed; top: 14px; right: 24px; z-index: 300;
+  box-shadow: 0 8px 20px rgba(56,0,140,0.5);
+}
+.status-pill {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(159,234,71,0.1); border: 1px solid rgba(159,234,71,0.3);
+  padding: 5px 12px; border-radius: 100px;
+  font-family: var(--mono); font-size: 9px; letter-spacing: 1.5px; color: var(--lime);
+}
+.status-pill-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--lime); animation: pulse 2s infinite; }
+
+/* -- VIEWS -- */
+.view { display: none; flex: 1; padding: 24px 28px; overflow-y: auto; }
+.view.active { display: block; }
+
+/* -- KPI STRIP -- */
+.kpi-strip {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 22px;
+}
+.kpi-card {
+  background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px;
+  padding: 18px 20px; position: relative; overflow: hidden; transition: transform 0.2s;
+}
+.kpi-card:hover { transform: translateY(-2px); }
+.kpi-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+}
+.kpi-card.c-lime::before { background: var(--lime); }
+.kpi-card.c-lav::before { background: var(--lavender); }
+.kpi-card.c-coral::before { background: var(--coral); }
+.kpi-card.c-pink::before { background: var(--pink); }
+.kpi-card.c-purple::before { background: linear-gradient(90deg, var(--purple), var(--lavender)); }
+.kpi-label { font-family: var(--mono); font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+.kpi-val { font-size: 28px; font-weight: 800; line-height: 1; }
+.kpi-val.c-lime { color: var(--lime); }
+.kpi-val.c-lav { color: var(--lavender); }
+.kpi-val.c-coral { color: var(--coral); }
+.kpi-val.c-pink { color: var(--pink); }
+.kpi-sub { font-family: var(--mono); font-size: 9px; color: var(--muted); margin-top: 6px; }
+.kpi-icon { position: absolute; top: 16px; right: 16px; font-size: 22px; opacity: 0.3; }
+
+/* -- GRID LAYOUTS -- */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.grid-12 { display: grid; grid-template-columns: 1fr 2fr; gap: 16px; margin-bottom: 16px; }
+.grid-21 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 16px; }
+.grid-13 { display: grid; grid-template-columns: 1fr 3fr; gap: 16px; margin-bottom: 16px; }
+
+/* -- PANELS -- */
+.panel {
+  background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px;
+  padding: 20px; position: relative;
+}
+.panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+.panel-title { font-size: 13px; font-weight: 700; }
+.panel-sub { font-family: var(--mono); font-size: 9px; color: var(--muted); margin-top: 2px; }
+.panel-badge {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 1px; text-transform: uppercase;
+  padding: 4px 10px; border-radius: 100px;
+}
+.panel-badge.lime { background: rgba(159,234,71,0.12); color: var(--lime); border: 1px solid rgba(159,234,71,0.3); }
+.panel-badge.lav { background: rgba(155,131,255,0.12); color: var(--lavender); border: 1px solid rgba(155,131,255,0.3); }
+
+/* -- NIGERIA MAP SVG -- */
+.map-wrap { position: relative; width: 100%; height: 340px; display: flex; align-items: center; justify-content: center; }
+.map-svg { width: 100%; height: 100%; }
+.map-legend {
+  position: absolute; bottom: 0; right: 0;
+  display: flex; flex-direction: column; gap: 6px;
+  background: rgba(13,0,32,0.85); padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border);
+}
+.map-legend-item { display: flex; align-items: center; gap: 8px; font-size: 10px; color: var(--muted); }
+.map-legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+/* -- DONUT CHARTS -- */
+.donut-wrap { display: flex; align-items: center; gap: 20px; }
+.donut-canvas-wrap { width: 140px; height: 140px; flex-shrink: 0; }
+.donut-legend { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.donut-legend-item { display: flex; align-items: center; justify-content: space-between; font-size: 11px; }
+.donut-legend-left { display: flex; align-items: center; gap: 8px; color: var(--muted); }
+.donut-legend-swatch { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+.donut-legend-val { font-weight: 700; font-family: var(--mono); font-size: 12px; }
+
+/* -- BAR CHARTS -- */
+.chart-wrap { position: relative; width: 100%; }
+
+/* -- SITE TABLE -- */
+.site-table-wrap { overflow-x: auto; }
+.filter-bar {
+  display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; align-items: center;
+}
+.filter-select {
+  background: rgba(155,131,255,0.08); border: 1px solid var(--border);
+  color: var(--text); font-family: 'Syne', sans-serif; font-size: 11px;
+  padding: 7px 12px; border-radius: 6px; outline: none; cursor: pointer;
+  appearance: none; min-width: 120px;
+}
+.filter-select option { background: #160038; }
+.filter-search {
+  background: rgba(155,131,255,0.08); border: 1px solid var(--border);
+  color: var(--text); font-family: 'Syne', sans-serif; font-size: 11px;
+  padding: 7px 12px 7px 32px; border-radius: 6px; outline: none; flex: 1;
+  min-width: 180px;
+}
+.filter-search::placeholder { color: var(--muted); }
+.search-wrap { position: relative; flex: 1; }
+.search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 13px; color: var(--muted); }
+.table-count { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-left: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+thead tr { border-bottom: 1px solid var(--border); }
+th {
+  padding: 8px 12px; text-align: left; font-family: var(--mono); font-size: 9px;
+  letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted);
+  font-weight: 500; white-space: nowrap;
+}
+tbody tr {
+  border-bottom: 1px solid rgba(155,131,255,0.08); transition: background 0.15s;
+}
+tbody tr:hover { background: rgba(155,131,255,0.06); }
+td { padding: 10px 12px; color: var(--text); }
+td.location-td { max-width: 240px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.status-tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 9px; border-radius: 100px; font-size: 9px;
+  font-family: var(--mono); letter-spacing: 1px; white-space: nowrap;
+}
+.status-tag.live { background: rgba(159,234,71,0.12); color: var(--lime); border: 1px solid rgba(159,234,71,0.3); }
+.status-tag.notposted { background: rgba(255,115,115,0.12); color: var(--coral); border: 1px solid rgba(255,115,115,0.3); }
+.status-tag::before { content: '●'; font-size: 6px; }
+.board-tag {
+  display: inline-block; padding: 2px 8px; border-radius: 4px;
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.5px;
+  background: rgba(155,131,255,0.12); color: var(--lavender); border: 1px solid rgba(155,131,255,0.2);
+}
+.skew-tag {
+  display: inline-block; padding: 2px 8px; border-radius: 4px;
+  font-family: var(--mono); font-size: 9px;
+}
+.skew-tag.high { background: rgba(255,112,242,0.1); color: var(--pink); border: 1px solid rgba(255,112,242,0.25); }
+.skew-tag.mid { background: rgba(155,131,255,0.08); color: var(--muted); border: 1px solid rgba(155,131,255,0.15); }
+.amount-td { font-family: var(--mono); font-size: 11px; }
+
+/* -- PROGRESS BARS -- */
+.prog-bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.prog-label { font-size: 11px; min-width: 110px; color: var(--muted); }
+.prog-track { flex: 1; height: 8px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 4px; transition: width 1s ease; }
+.prog-val { font-family: var(--mono); font-size: 10px; min-width: 36px; text-align: right; color: var(--text); }
+
+/* -- INSIGHT CARDS -- */
+.insight-cards { display: flex; flex-direction: column; gap: 10px; }
+.insight-card {
+  background: rgba(56,0,140,0.3); border: 1px solid rgba(155,131,255,0.15); border-radius: 10px;
+  padding: 12px 14px; display: flex; align-items: flex-start; gap: 10px;
+}
+.insight-icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+.insight-title { font-size: 12px; font-weight: 700; margin-bottom: 2px; }
+.insight-desc { font-size: 10.5px; color: var(--muted); line-height: 1.5; }
+
+/* -- SECTION LABEL -- */
+.sec-label {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 2.5px; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 14px; display: flex; align-items: center; gap: 10px;
+}
+.sec-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+
+/* ===== LEAFLET MAP ===== */
+#nigeriaMap { width:100%; height:400px; border-radius:10px; z-index:1; background:#0D0020; }
+.leaflet-container { background:#0D0020 !important; font-family:'Syne',sans-serif; }
+.leaflet-tile-pane { filter: saturate(0.7) brightness(0.85); }
+.ooh-pin { position:relative; cursor:pointer; }
+.ooh-pin svg { filter: drop-shadow(0 2px 6px rgba(0,0,0,0.7)); transition: transform 0.2s; }
+.ooh-pin:hover svg { transform: scale(1.2) translateY(-2px); }
+/* Popup */
+.leaflet-popup-content-wrapper {
+  background:#160038 !important; border:1px solid rgba(155,131,255,0.3) !important;
+  border-radius:12px !important; box-shadow:0 8px 32px rgba(0,0,0,0.6) !important;
+  padding:0 !important; color:#E8E0FF !important;
+}
+.leaflet-popup-content { margin:0 !important; width:280px !important; }
+.leaflet-popup-tip-container { display:none; }
+.leaflet-popup-close-button { color:rgba(232,224,255,0.5) !important; top:10px !important; right:12px !important; font-size:16px !important; }
+.leaflet-popup-close-button:hover { color:#fff !important; }
+/* Cluster */
+.marker-cluster-small,.marker-cluster-medium,.marker-cluster-large {
+  background:rgba(255,115,115,0.25) !important;
+}
+.marker-cluster-small div,.marker-cluster-medium div,.marker-cluster-large div {
+  background:rgba(255,115,115,0.7) !important;
+  color:#fff !important; font-family:'Syne',sans-serif !important;
+  font-weight:700 !important; font-size:13px !important;
+  border:2px solid #FF7373 !important;
+}
+/* location drawer */
+#mapDrawer {
+  display:none; margin-top:14px;
+  background:rgba(56,0,140,0.3); border:1px solid rgba(155,131,255,0.2);
+  border-radius:10px; padding:16px; animation:fadeIn 0.2s ease;
+}
+@keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+.map-filter-bar { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+.map-filter-btn {
+  font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:1.5px;
+  text-transform:uppercase; padding:5px 12px; border-radius:100px; cursor:pointer;
+  border:1px solid; transition:all 0.2s; background:transparent;
+}
+.map-filter-btn.all { color:var(--lavender); border-color:var(--lavender); }
+.map-filter-btn.all.active,.map-filter-btn.all:hover { background:var(--lavender); color:#0D0020; }
+.map-filter-btn.live-btn { color:var(--lime); border-color:var(--lime); }
+.map-filter-btn.live-btn.active,.map-filter-btn.live-btn:hover { background:var(--lime); color:#0D0020; }
+.map-filter-btn.np-btn { color:var(--coral); border-color:var(--coral); }
+.map-filter-btn.np-btn.active,.map-filter-btn.np-btn:hover { background:var(--coral); color:#fff; }
+
+/* -- TOOLTIP -- */
+.tooltip-custom { display: none; }
+
+/* -- SCROLLBAR -- */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(155,131,255,0.3); border-radius: 2px; }
+
+/* -- PERFORMANCE METER -- */
+.perf-meter {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 4px; padding: 10px 0;
+}
+.perf-pct { font-size: 48px; font-weight: 800; line-height: 1; }
+.perf-label { font-family: var(--mono); font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+
+/* mini stats row */
+.mini-stats { display: flex; gap: 0; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-top: 14px; }
+.mini-stat { flex: 1; padding: 12px; text-align: center; border-right: 1px solid var(--border); }
+.mini-stat:last-child { border-right: none; }
+.mini-stat-val { font-size: 18px; font-weight: 800; font-family: var(--mono); }
+.mini-stat-label { font-family: var(--mono); font-size: 8px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-top: 3px; }
+</style>
+</head>
+<body>
+
+<!-- =================== COVER PAGE =================== -->
+<div id="cover" class="page active">
+  <div class="cover-bg"></div>
+  <div class="cover-grid"></div>
+  <div class="cover-dots" id="coverDots"></div>
+  <div class="cover-stripe"></div>
+
+  <div class="cover-content">
+    <div class="cover-badge"><div class="cover-badge-dot"></div>Live Campaign Monitor</div>
+    <p class="cover-eyebrow">Golden Penny Pasta · June 2026</p>
+    <h1 class="cover-title">
+      <span class="t1">OOH CAMPAIGN</span>
+      <span class="t2">MONITORING</span>
+      <span class="t3">INTELLIGENCE DASHBOARD</span>
+    </h1>
+    <p class="cover-sub">
+      End-to-end visibility over every outdoor site — from posting confirmation and site audits
+      to real-time performance metrics and proof-of-delivery reporting.
+    </p>
+
+    <div class="cover-kpis">
+      <div class="cover-kpi">
+        <div class="cover-kpi-val">72</div>
+        <div class="cover-kpi-label">Total Sites</div>
+      </div>
+      <div class="cover-kpi">
+        <div class="cover-kpi-val">54</div>
+        <div class="cover-kpi-label">Live Boards</div>
+      </div>
+      <div class="cover-kpi">
+        <div class="cover-kpi-val">18</div>
+        <div class="cover-kpi-label">Not Posted</div>
+      </div>
+      <div class="cover-kpi">
+        <div class="cover-kpi-val">75%</div>
+        <div class="cover-kpi-label">Posting Rate</div>
+      </div>
+      <div class="cover-kpi">
+        <div class="cover-kpi-val">6</div>
+        <div class="cover-kpi-label">Regions</div>
+      </div>
+    </div>
+
+    <button class="cover-enter" onclick="enterDashboard()">
+      Enter Dashboard <span class="cover-enter-arrow">→</span>
+    </button>
+  </div>
+
+  <div class="cover-footer">
+    <span class="cover-footer-tag">Confidential · Internal Use</span>
+    <span class="cover-footer-tag">·</span>
+    <span class="cover-footer-tag">PHD Nigeria Ltd</span>
+    <span class="cover-footer-tag">·</span>
+    <span class="cover-footer-tag">OOH Monitor v1.0</span>
+  </div>
+</div>
+
+<!-- =================== DASHBOARD PAGE =================== -->
+<div id="dashboard" class="page">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-top">
+        <div class="sidebar-icon">📍</div>
+        <div>
+          <div class="sidebar-brand">OOH Monitor</div>
+        </div>
+      </div>
+      <div class="sidebar-sub">Campaign Intelligence</div>
+    </div>
+
+    <div class="sidebar-campaign">
+      <div class="sidebar-campaign-label">Active Campaign</div>
+      <div class="sidebar-campaign-name">Golden Penny Pasta</div>
+    </div>
+
+    <div class="sidebar-nav">
+      <div class="nav-section-label">Analytics</div>
+      <div class="nav-item active" onclick="switchView('overview', this)">
+        <span class="nav-item-icon">📊</span> Overview
+      </div>
+      <div class="nav-item" onclick="switchView('sites', this)">
+        <span class="nav-item-icon">🗺️</span> Site Map
+      </div>
+      <div class="nav-item" onclick="switchView('performance', this)">
+        <span class="nav-item-icon">📈</span> Performance
+      </div>
+
+      <div class="nav-section-label">Campaign</div>
+      <div class="nav-item" onclick="switchView('sitelist', this)">
+        <span class="nav-item-icon">📋</span> Site List
+        <span class="nav-item-badge">72</span>
+      </div>
+      <div class="nav-item" onclick="switchView('issues', this)">
+        <span class="nav-item-icon">⚠️</span> Issues
+        <span class="nav-item-badge">18</span>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar">PH</div>
+        <div>
+          <div class="user-name">PHD Nigeria</div>
+          <div class="user-role">Account Manager</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">Campaign Intelligence Dashboard</div>
+        <div class="topbar-sub">GOLDEN PENNY PASTA · OOH CAMPAIGN · JUN 2026</div>
+      </div>
+      <div class="topbar-right">
+        <div class="status-pill"><div class="status-pill-dot"></div>54 SITES LIVE</div>
+        <button class="topbar-btn">⬇ Export</button>
+        <button class="topbar-btn primary cover-pin" onclick="goToCover()">🏠 Cover</button>
+      </div>
+    </div>
+
+    <!-- ===== OVERVIEW VIEW ===== -->
+    <div id="view-overview" class="view active">
+
+      <!-- KPI STRIP -->
+      <div class="kpi-strip">
+        <div class="kpi-card c-lime">
+          <div class="kpi-icon">📍</div>
+          <div class="kpi-label">Total Sites</div>
+          <div class="kpi-val c-lime">72</div>
+          <div class="kpi-sub">Across 6 regions</div>
+        </div>
+        <div class="kpi-card c-lav">
+          <div class="kpi-icon">✅</div>
+          <div class="kpi-label">Live Boards</div>
+          <div class="kpi-val c-lav">54</div>
+          <div class="kpi-sub">75% posting rate</div>
+        </div>
+        <div class="kpi-card c-coral">
+          <div class="kpi-icon">⏳</div>
+          <div class="kpi-label">Not Posted</div>
+          <div class="kpi-val c-coral">18</div>
+          <div class="kpi-sub">Pending deployment</div>
+        </div>
+        <div class="kpi-card c-pink">
+          <div class="kpi-icon">💰</div>
+          <div class="kpi-label">Gross Spend</div>
+          <div class="kpi-val c-pink" style="font-size:20px;">₦2.50B</div>
+          <div class="kpi-sub">Total media value</div>
+        </div>
+        <div class="kpi-card c-purple">
+          <div class="kpi-icon">📊</div>
+          <div class="kpi-label">Net Investment</div>
+          <div class="kpi-val" style="font-size:20px; color:var(--lavender);">₦441.6M</div>
+          <div class="kpi-sub">Negotiated total</div>
+        </div>
+      </div>
+
+      <!-- ROW 1 -->
+      <div class="grid-21">
+        <!-- NIGERIA MAP -->
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">🗺 Site Distribution — Nigeria</div>
+              <div class="panel-sub">72 OOH sites · click any pin to inspect location · scroll to zoom</div>
+            </div>
+            <span class="panel-badge lime">LIVE MAP</span>
+          </div>
+          <!-- Real Leaflet Map -->
+          <div class="map-filter-bar">
+            <button class="map-filter-btn all active" onclick="mapFilter('all',this)">All Sites (72)</button>
+            <button class="map-filter-btn live-btn" onclick="mapFilter('Live',this)">✓ Live (54)</button>
+            <button class="map-filter-btn np-btn" onclick="mapFilter('Not Posted',this)">⏳ Not Posted (18)</button>
+          </div>
+          <div id="nigeriaMap"></div>
+          <div id="mapDrawer"></div>
+        </div>
+
+        <!-- RIGHT: Status + Skew -->
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div class="panel">
+            <div class="panel-header">
+              <div><div class="panel-title">📡 Posting Status</div><div class="panel-sub">Board deployment progress</div></div>
+            </div>
+            <div class="donut-wrap">
+              <div class="donut-canvas-wrap"><canvas id="statusChart"></canvas></div>
+              <div class="donut-legend">
+                <div class="donut-legend-item">
+                  <div class="donut-legend-left"><div class="donut-legend-swatch" style="background:var(--lime)"></div>Live</div>
+                  <div class="donut-legend-val" style="color:var(--lime)">54</div>
+                </div>
+                <div class="donut-legend-item">
+                  <div class="donut-legend-left"><div class="donut-legend-swatch" style="background:var(--coral)"></div>Not Posted</div>
+                  <div class="donut-legend-val" style="color:var(--coral)">18</div>
+                </div>
+                <div style="margin-top:10px; padding-top:10px; border-top:1px solid var(--border);">
+                  <div class="perf-pct" style="color:var(--lime); font-size:36px;">75%</div>
+                  <div class="kpi-label" style="margin-top:4px;">DEPLOYMENT RATE</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <div><div class="panel-title">🏙️ Location Skew</div><div class="panel-sub">Audience segment targeting</div></div>
+            </div>
+            <div class="donut-wrap">
+              <div class="donut-canvas-wrap"><canvas id="skewChart"></canvas></div>
+              <div class="donut-legend">
+                <div class="donut-legend-item">
+                  <div class="donut-legend-left"><div class="donut-legend-swatch" style="background:var(--lavender)"></div>Middle Class</div>
+                  <div class="donut-legend-val" style="color:var(--lavender)">55</div>
+                </div>
+                <div class="donut-legend-item">
+                  <div class="donut-legend-left"><div class="donut-legend-swatch" style="background:var(--pink)"></div>High Brow</div>
+                  <div class="donut-legend-val" style="color:var(--pink)">17</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ROW 2 -->
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-header">
+            <div><div class="panel-title">🌍 Sites by Region</div><div class="panel-sub">Geographic distribution of 72 boards</div></div>
+            <span class="panel-badge lav">6 REGIONS</span>
+          </div>
+          <div class="chart-wrap" style="height:220px;"><canvas id="regionChart"></canvas></div>
+        </div>
+        <div class="panel">
+          <div class="panel-header">
+            <div><div class="panel-title">🪧 Board Type Breakdown</div><div class="panel-sub">Format distribution across all sites</div></div>
+            <span class="panel-badge lav">11 TYPES</span>
+          </div>
+          <div class="chart-wrap" style="height:220px;"><canvas id="boardChart"></canvas></div>
+        </div>
+      </div>
+
+      <!-- ROW 3 -->
+      <div class="grid-3">
+        <!-- region performance -->
+        <div class="panel">
+          <div class="panel-header">
+            <div><div class="panel-title">📶 Posting Rate by Region</div></div>
+          </div>
+          <div id="regionProgress"></div>
+        </div>
+
+        <!-- Net spend by region -->
+        <div class="panel">
+          <div class="panel-header">
+            <div><div class="panel-title">💵 Net Spend by Region</div><div class="panel-sub">Negotiated investment (₦)</div></div>
+          </div>
+          <div class="chart-wrap" style="height:200px;"><canvas id="spendChart"></canvas></div>
+        </div>
+
+        <!-- Key Insights -->
+        <div class="panel">
+          <div class="panel-header">
+            <div><div class="panel-title">💡 Key Insights</div></div>
+          </div>
+          <div class="insight-cards">
+            <div class="insight-card">
+              <div class="insight-icon">🟢</div>
+              <div>
+                <div class="insight-title" style="color:var(--lime)">Strong North Central deployment</div>
+                <div class="insight-desc">All 11 North Central sites (Abuja) are live — 100% deployment rate in the capital.</div>
+              </div>
+            </div>
+            <div class="insight-card">
+              <div class="insight-icon">🔴</div>
+              <div>
+                <div class="insight-title" style="color:var(--coral)">South East needs attention</div>
+                <div class="insight-desc">8 of 14 South East sites are not yet posted — lowest regional rate at 43%.</div>
+              </div>
+            </div>
+            <div class="insight-card">
+              <div class="insight-icon">📊</div>
+              <div>
+                <div class="insight-title" style="color:var(--lavender)">Eye Catcher dominates</div>
+                <div class="insight-desc">33% of all boards are Eye Catchers (24 sites), offering high-traffic impact.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SITE MAP VIEW ===== -->
+    <div id="view-sites" class="view">
+      <div class="sec-label">Geographic Deployment</div>
+      <div class="panel" style="margin-bottom:16px;">
+        <div class="panel-header">
+          <div><div class="panel-title">🗺 Full Site Geo-Distribution</div><div class="panel-sub">All 72 sites — hover for details</div></div>
+          <span class="panel-badge lime">72 SITES TRACKED</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:18px;">
+          <div class="kpi-card c-lime" style="padding:14px 16px;">
+            <div class="kpi-label">South South</div>
+            <div class="kpi-val c-lime" style="font-size:22px;">23</div>
+            <div class="kpi-sub">Most sites</div>
+          </div>
+          <div class="kpi-card c-lav" style="padding:14px 16px;">
+            <div class="kpi-label">Lagos</div>
+            <div class="kpi-val c-lav" style="font-size:22px;">17</div>
+            <div class="kpi-sub">Commercial hub</div>
+          </div>
+          <div class="kpi-card c-pink" style="padding:14px 16px;">
+            <div class="kpi-label">South East</div>
+            <div class="kpi-val c-pink" style="font-size:22px;">14</div>
+            <div class="kpi-sub">Needs attention</div>
+          </div>
+          <div class="kpi-card c-coral" style="padding:14px 16px;">
+            <div class="kpi-label">North Central</div>
+            <div class="kpi-val c-coral" style="font-size:22px;">11</div>
+            <div class="kpi-sub">100% live</div>
+          </div>
+          <div class="kpi-card c-lime" style="padding:14px 16px;">
+            <div class="kpi-label">North West</div>
+            <div class="kpi-val c-lime" style="font-size:22px;">4</div>
+            <div class="kpi-sub">Kano</div>
+          </div>
+          <div class="kpi-card c-lav" style="padding:14px 16px;">
+            <div class="kpi-label">South West</div>
+            <div class="kpi-val c-lav" style="font-size:22px;">3</div>
+            <div class="kpi-sub">Ibadan</div>
+          </div>
+        </div>
+
+        <!-- Town breakdown -->
+        <div class="panel-title" style="margin-bottom:12px;">Town-level Breakdown</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;" id="townBreakdown"></div>
+      </div>
+    </div>
+
+    <!-- ===== PERFORMANCE VIEW ===== -->
+    <div id="view-performance" class="view">
+      <div class="sec-label">Campaign Performance Analytics</div>
+      <div class="kpi-strip">
+        <div class="kpi-card c-lime">
+          <div class="kpi-label">Overall Posting Rate</div>
+          <div class="kpi-val c-lime">75%</div>
+          <div class="kpi-sub">54 of 72 boards live</div>
+        </div>
+        <div class="kpi-card c-lav">
+          <div class="kpi-label">Gross Media Value</div>
+          <div class="kpi-val c-lav" style="font-size:20px;">₦2.50B</div>
+          <div class="kpi-sub">Total contracted value</div>
+        </div>
+        <div class="kpi-card c-pink">
+          <div class="kpi-label">Net Investment</div>
+          <div class="kpi-val c-pink" style="font-size:20px;">₦441.6M</div>
+          <div class="kpi-sub">After negotiations</div>
+        </div>
+        <div class="kpi-card c-coral">
+          <div class="kpi-label">Avg Discount</div>
+          <div class="kpi-val c-coral">24%</div>
+          <div class="kpi-sub">Media buying efficiency</div>
+        </div>
+        <div class="kpi-card c-purple">
+          <div class="kpi-label">High Brow Sites</div>
+          <div class="kpi-val" style="color:var(--pink); font-size:22px;">17</div>
+          <div class="kpi-sub">Premium locations</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-header">
+            <div><div class="panel-title">📈 Status by Board Type</div><div class="panel-sub">Live vs Not Posted per format</div></div>
+          </div>
+          <div class="chart-wrap" style="height:260px;"><canvas id="boardStatusChart"></canvas></div>
+        </div>
+        <div class="panel">
+          <div class="panel-header">
+            <div><div class="panel-title">💰 Gross Value by Region</div><div class="panel-sub">Media investment distribution</div></div>
+          </div>
+          <div class="chart-wrap" style="height:300px; display:flex; align-items:center; justify-content:center;"><canvas id="grossRegionChart"></canvas></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div><div class="panel-title">🏆 Regional Performance Scorecard</div></div>
+        </div>
+        <div id="perfScorecard"></div>
+      </div>
+    </div>
+
+    <!-- ===== SITE LIST VIEW ===== -->
+    <div id="view-sitelist" class="view">
+      <div class="sec-label">Full Site Register</div>
+      <div class="panel">
+        <div class="panel-header">
+          <div><div class="panel-title">📋 All Campaign Sites</div><div class="panel-sub">72 OOH locations — Golden Penny Pasta 2026</div></div>
+        </div>
+        <div class="filter-bar">
+          <div class="search-wrap">
+            <span class="search-icon">🔍</span>
+            <input class="filter-search" type="text" id="searchInput" placeholder="Search by location or town..." oninput="filterTable()">
+          </div>
+          <select class="filter-select" id="regionFilter" onchange="filterTable()">
+            <option value="">All Regions</option>
+            <option>Lagos</option>
+            <option>North Central</option>
+            <option>North West</option>
+            <option>South East</option>
+            <option>South South</option>
+            <option>South West</option>
+          </select>
+          <select class="filter-select" id="statusFilter" onchange="filterTable()">
+            <option value="">All Status</option>
+            <option>Live</option>
+            <option>Not Posted</option>
+          </select>
+          <select class="filter-select" id="boardFilter" onchange="filterTable()">
+            <option value="">All Board Types</option>
+            <option>Eye Catcher</option>
+            <option>Gantry</option>
+            <option>Unipole</option>
+            <option>Portrait</option>
+            <option>Mega site</option>
+            <option>Walldrape</option>
+            <option>Bridge Panel</option>
+            <option>LED</option>
+            <option>Powa Towa</option>
+            <option>Landscape</option>
+            <option>Wall mount</option>
+          </select>
+          <span class="table-count" id="tableCount">Showing 72 sites</span>
+        </div>
+        <div class="site-table-wrap">
+          <table id="siteTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Town</th>
+                <th>Region</th>
+                <th>Location</th>
+                <th>Status</th>
+                <th>Board Type</th>
+                <th>Skew</th>
+                <th>Gross (₦)</th>
+                <th>Net (₦)</th>
+                <th>Months</th>
+                <th>Total Net (₦)</th>
+              </tr>
+            </thead>
+            <tbody id="siteTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ISSUES VIEW ===== -->
+    <div id="view-issues" class="view">
+      <div class="sec-label">Issue Tracker — Not Posted Sites</div>
+      <div class="kpi-strip" style="grid-template-columns:repeat(4,1fr);">
+        <div class="kpi-card c-coral">
+          <div class="kpi-label">Pending Sites</div>
+          <div class="kpi-val c-coral">18</div>
+          <div class="kpi-sub">Require deployment</div>
+        </div>
+        <div class="kpi-card c-pink">
+          <div class="kpi-label">Gross at Risk</div>
+          <div class="kpi-val c-pink" style="font-size:20px;">₦1.03B</div>
+          <div class="kpi-sub">Undeployed spend</div>
+        </div>
+        <div class="kpi-card c-lav">
+          <div class="kpi-label">Regions Affected</div>
+          <div class="kpi-val c-lav">4</div>
+          <div class="kpi-sub">Lagos, SE, SS, SW</div>
+        </div>
+        <div class="kpi-card c-lime">
+          <div class="kpi-label">Resolution Target</div>
+          <div class="kpi-val c-lime">100%</div>
+          <div class="kpi-sub">Campaign completion</div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <div><div class="panel-title">⚠️ Not Posted Sites — Action Required</div></div>
+          <span class="panel-badge" style="background:rgba(255,115,115,0.12);color:var(--coral);border:1px solid rgba(255,115,115,0.3);">18 PENDING</span>
+        </div>
+        <div class="site-table-wrap" id="issuesTable"></div>
+      </div>
+    </div>
+
+  </div><!-- /main-content -->
+</div><!-- /dashboard -->
+
+<script>
+// ===== DATA =====
+const DATA = [{"TOWN":"Lagos","REGION":"Lagos","LOCATION":"Along Ikorodu road by Maryland busstop FTF Anthony","STATUS":"Live","BOARD TYPE":"Wall mount","GROSS":20000000,"NET":1283333,"TOTAL NET RATE":2566667,"MONTHS":2,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"Lagos","REGION":"Lagos","LOCATION":"Along Airport road at the MMA International Airport FTT Local Airport & Ikeja, Lagos","STATUS":"Not Posted","BOARD TYPE":"Mega site","GROSS":240000000,"NET":15400000,"TOTAL NET RATE":46200000,"MONTHS":3,"LOCATION SKEW":"HIGH BROW"},{"TOWN":"Lagos","REGION":"Lagos","LOCATION":"Along Commercial Avenue by E Centre FTT Sabo Market","STATUS":"Live","BOARD TYPE":"Portrait","GROSS":15300000,"NET":969000,"TOTAL NET RATE":2907000,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"Lagos","REGION":"Lagos","LOCATION":"Along Muri okunola, opposite kings college, Victoria island","STATUS":"Not Posted","BOARD TYPE":"Eye Catcher","GROSS":60000000,"NET":3391667,"TOTAL NET RATE":10175000,"MONTHS":3,"LOCATION SKEW":"HIGH BROW"},{"TOWN":"Lagos","REGION":"Lagos","LOCATION":"Along Lagos Abeokuta expressway by Iyana Dopemu bustop FTT Iyana Ipaja, Lagos","STATUS":"Live","BOARD TYPE":"Unipole","GROSS":26100000,"NET":1435500,"TOTAL NET RATE":4306500,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"Lagos","REGION":"Lagos","LOCATION":"Along Apapa Oshodi expressway by Mile 2 bustop FTT Amudo Odofin","STATUS":"Not Posted","BOARD TYPE":"Gantry","GROSS":50100000,"NET":2755500,"TOTAL NET RATE":8266500,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"Lagos","REGION":"Lagos","LOCATION":"Along Ojuwoye market by Agege motor road, FTT Oshodi Lagos","STATUS":"Live","BOARD TYPE":"Gantry","GROSS":52300000,"NET":2875000,"TOTAL NET RATE":8625000,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"Lagos","REGION":"Lagos","LOCATION":"Along 3rd mainland bridge by Adeniji Adele bustop FTT Lagos Island axis","STATUS":"Live","BOARD TYPE":"Unipole","GROSS":53000000,"NET":3400833,"TOTAL NET RATE":10202500,"MONTHS":3,"LOCATION SKEW":"HIGH BROW"},{"TOWN":"Lagos","REGION":"Lagos","LOCATION":"Along Western Avenue opposite Abatti barracks FTT Teslim Balogun Stadium","STATUS":"Live","BOARD TYPE":"Walldrape","GROSS":30000000,"NET":1925000,"TOTAL NET RATE":3850000,"MONTHS":2,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"Lagos","REGION":"Lagos","LOCATION":"Along Western Avenue opposite Abatti barracks FTT Teslim Balogun Stadium (2)","STATUS":"Live","BOARD TYPE":"Walldrape","GROSS":30000000,"NET":1925000,"TOTAL NET RATE":3850000,"MONTHS":2,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"Lagos","REGION":"Lagos","LOCATION":"Along Femi okunu beside supersavers FTT osapa london","STATUS":"Not Posted","BOARD TYPE":"Eye Catcher","GROSS":231000000,"NET":14435361,"TOTAL NET RATE":43306083,"MONTHS":3,"LOCATION SKEW":"HIGH BROW"},{"TOWN":"Lagos","REGION":"Lagos","LOCATION":"Along Oba Akran road by Empire Building FTT Airport, Ikeja GRA","STATUS":"Not Posted","BOARD TYPE":"LED","GROSS":60000000,"NET":3850000,"TOTAL NET RATE":11550000,"MONTHS":3,"LOCATION SKEW":"HIGH BROW"},{"TOWN":"Lagos","REGION":"Lagos","LOCATION":"Along Gbagada Oworo expressway by Harvesters Church FTT 3rd mainland bridge","STATUS":"Live","BOARD TYPE":"Gantry","GROSS":80000000,"NET":4800000,"TOTAL NET RATE":14400000,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"Lagos","REGION":"Lagos","LOCATION":"Along MBA Opebi link bridge by Balmora Convention Centre FTT Opebi","STATUS":"Live","BOARD TYPE":"Eye Catcher","GROSS":240000000,"NET":14400000,"TOTAL NET RATE":43200000,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"Lagos","REGION":"Lagos","LOCATION":"Along Lagos Abeokuta expressway by Abule egba FTT Iyana Ipaja","STATUS":"Live","BOARD TYPE":"Bridge Panel","GROSS":20000000,"NET":1200000,"TOTAL NET RATE":3600000,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"Lagos","REGION":"Lagos","LOCATION":"Along Badagry Expressway by Agbara market FTT Badagry roundabout","STATUS":"Not Posted","BOARD TYPE":"Unipole","GROSS":15300000,"NET":969000,"TOTAL NET RATE":2907000,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"Lagos","REGION":"Lagos","LOCATION":"Along Ogba road by LSDPC intersection FTF Excellence hotel Ogba","STATUS":"Live","BOARD TYPE":"Powa Towa","GROSS":50000000,"NET":3208333,"TOTAL NET RATE":6416667,"MONTHS":2,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"Federal Capital Territory","REGION":"North Central","LOCATION":"Along Aminu Kano way by 3:45 Night club FTF Bannex plaza, Maitama, Abuja","STATUS":"Live","BOARD TYPE":"Gantry","GROSS":45000000,"NET":2387500,"TOTAL NET RATE":7162500,"MONTHS":3,"LOCATION SKEW":"HIGH BROW"},{"TOWN":"Federal Capital Territory","REGION":"North Central","LOCATION":"Along Wole Soyinka Avenue by Apple Store FTT Gwarinpa, Abuja","STATUS":"Live","BOARD TYPE":"Eye Catcher","GROSS":20000001,"NET":1120000,"TOTAL NET RATE":3360000,"MONTHS":3,"LOCATION SKEW":"HIGH BROW"},{"TOWN":"Federal Capital Territory","REGION":"North Central","LOCATION":"Along Bala Mohammed way by Hill Park, Guzape FTT INEC Quarters, Abuja","STATUS":"Live","BOARD TYPE":"Eye Catcher","GROSS":35000001,"NET":1997917,"TOTAL NET RATE":5993750,"MONTHS":3,"LOCATION SKEW":"HIGH BROW"},{"TOWN":"Federal Capital Territory","REGION":"North Central","LOCATION":"Along Solomon Lar way by motorpark FTT Musa Yaradua","STATUS":"Live","BOARD TYPE":"Eye Catcher","GROSS":35000001,"NET":1997917,"TOTAL NET RATE":5993750,"MONTHS":3,"LOCATION SKEW":"HIGH BROW"},{"TOWN":"Federal Capital Territory","REGION":"North Central","LOCATION":"Along Mohammed Buhari Way PDP Building Central Business District Abuja","STATUS":"Live","BOARD TYPE":"Mega site","GROSS":150000000,"NET":9625000,"TOTAL NET RATE":28875000,"MONTHS":3,"LOCATION SKEW":"HIGH BROW"},{"TOWN":"Federal Capital Territory","REGION":"North Central","LOCATION":"Along Sanni Abacha way by National Mosque FTF Labour House","STATUS":"Live","BOARD TYPE":"Unipole","GROSS":45000000,"NET":2512500,"TOTAL NET RATE":7537500,"MONTHS":3,"LOCATION SKEW":"HIGH BROW"},{"TOWN":"Federal Capital Territory","REGION":"North Central","LOCATION":"Along AMAC junction by INEC Junction central FTT Apo Legislative Quarters","STATUS":"Live","BOARD TYPE":"Eye Catcher","GROSS":45000000,"NET":2512500,"TOTAL NET RATE":7537500,"MONTHS":3,"LOCATION SKEW":"HIGH BROW"},{"TOWN":"Federal Capital Territory","REGION":"North Central","LOCATION":"By Femi Kuti way by Defence Headquarters FTT Garki International market","STATUS":"Live","BOARD TYPE":"Eye Catcher","GROSS":45000000,"NET":2512500,"TOTAL NET RATE":7537500,"MONTHS":3,"LOCATION SKEW":"HIGH BROW"},{"TOWN":"Kaduna","REGION":"North Central","LOCATION":"Along Kachia road by Queen Amina College FTF Railway market Kaduna","STATUS":"Live","BOARD TYPE":"Eye Catcher","GROSS":25900000,"NET":1467667,"TOTAL NET RATE":4403000,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"Kaduna","REGION":"North Central","LOCATION":"Along Sabo road by Refinery junction FTF Sabo market to Kaduna Refinery","STATUS":"Live","BOARD TYPE":"Portrait","GROSS":8000000,"NET":480000,"TOTAL NET RATE":1440000,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"Kaduna","REGION":"North Central","LOCATION":"Along Zaria Zamaru road opposite Ahmadu Bello Campus FTT Shika Township","STATUS":"Live","BOARD TYPE":"Portrait","GROSS":8000000,"NET":480000,"TOTAL NET RATE":1440000,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"Kano","REGION":"North West","LOCATION":"Along Aminu Kano way by Kofar Kansakali, Kano","STATUS":"Live","BOARD TYPE":"Unipole","GROSS":20000000,"NET":1200000,"TOTAL NET RATE":3600000,"MONTHS":3,"LOCATION SKEW":"HIGH BROW"},{"TOWN":"Kano","REGION":"North West","LOCATION":"Along Airport road by Murtala Mohammed way bridge FTT Wambai market, Kano","STATUS":"Live","BOARD TYPE":"Bridge Panel","GROSS":20000000,"NET":1200000,"TOTAL NET RATE":3600000,"MONTHS":3,"LOCATION SKEW":"HIGH BROW"},{"TOWN":"Kano","REGION":"North West","LOCATION":"Along Western Bypass by The Light Intl School FTT Maiduguiri road, Kano","STATUS":"Live","BOARD TYPE":"Unipole","GROSS":20000000,"NET":1200000,"TOTAL NET RATE":3600000,"MONTHS":3,"LOCATION SKEW":"HIGH BROW"},{"TOWN":"Kano","REGION":"North West","LOCATION":"Along France road by Kano Pillar junction FTT Sabon Gari market, Kano","STATUS":"Live","BOARD TYPE":"Gantry","GROSS":20000000,"NET":1200000,"TOTAL NET RATE":3600000,"MONTHS":3,"LOCATION SKEW":"HIGH BROW"},{"TOWN":"Enugu","REGION":"South East","LOCATION":"Along Okpara Avenue road by First Bank FTT Old park, Enugu","STATUS":"Live","BOARD TYPE":"Gantry","GROSS":29000000,"NET":1740000,"TOTAL NET RATE":5220000,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"Enugu","REGION":"South East","LOCATION":"Along Ogui road by ABC transport Enugu FTT Ogbette market Enugu","STATUS":"Live","BOARD TYPE":"Eye Catcher","GROSS":29000000,"NET":1740000,"TOTAL NET RATE":5220000,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"Enugu","REGION":"South East","LOCATION":"Along Presidential road by Rangers junction FTF Independence Layout","STATUS":"Live","BOARD TYPE":"Gantry","GROSS":29000000,"NET":1740000,"TOTAL NET RATE":5220000,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"Enugu","REGION":"South East","LOCATION":"Along Enugu Abakiliki road by Shoprite FTT Old park & Ogbette market","STATUS":"Live","BOARD TYPE":"Gantry","GROSS":8000000,"NET":480000,"TOTAL NET RATE":1440000,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"Abia","REGION":"South East","LOCATION":"Along Umuwaya road by Ochendo park FTF Umuhia main mkt","STATUS":"Live","BOARD TYPE":"Eye Catcher","GROSS":11500000,"NET":647721,"TOTAL NET RATE":1943162,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"Abia","REGION":"South East","LOCATION":"Along Aba Owerri road by Osisioma junction FTT Aba City Center and Ariaria","STATUS":"Live","BOARD TYPE":"Unipole","GROSS":8500000,"NET":478750,"TOTAL NET RATE":1436250,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"Abia","REGION":"South East","LOCATION":"Along 33 Aba Owerri road by Brass Junction opposite Abia Poly","STATUS":"Live","BOARD TYPE":"Unipole","GROSS":8500000,"NET":478750,"TOTAL NET RATE":1436250,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"ONITSHA","REGION":"South East","LOCATION":"Along Iweka road by Ochanja market roundabout FTT Ozomagana Onitsha","STATUS":"Not Posted","BOARD TYPE":"Eye Catcher","GROSS":16000000,"NET":1000000,"TOTAL NET RATE":3000000,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"ONITSHA","REGION":"South East","LOCATION":"Along Akwa road by Savoy junction FTT Borromeo & Limca road, Onitsha","STATUS":"Not Posted","BOARD TYPE":"Gantry","GROSS":8000000,"NET":500000,"TOTAL NET RATE":1500000,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"AKWA","REGION":"South East","LOCATION":"Along Ziks Avenue by Eke Awka Main market FTT Unizik gate, Akwa","STATUS":"Not Posted","BOARD TYPE":"Eye Catcher","GROSS":8000000,"NET":500000,"TOTAL NET RATE":1500000,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"AKWA","REGION":"South East","LOCATION":"Along Esther Obiakor Street, before Divine Shopping Mall, Awka","STATUS":"Not Posted","BOARD TYPE":"Eye Catcher","GROSS":8000000,"NET":500000,"TOTAL NET RATE":1500000,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"OWERRI","REGION":"South East","LOCATION":"Along Wetheral road by old building materials market FTF Emmanuel College","STATUS":"Not Posted","BOARD TYPE":"Eye Catcher","GROSS":8000000,"NET":500000,"TOTAL NET RATE":1500000,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"OWERRI","REGION":"South East","LOCATION":"Along Douglas road by Owerri main market","STATUS":"Not Posted","BOARD TYPE":"Landscape","GROSS":8000000,"NET":500000,"TOTAL NET RATE":1500000,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"OWERRI","REGION":"South East","LOCATION":"Along Orlu road by FMC Owerri FTF market Square Owerri","STATUS":"Not Posted","BOARD TYPE":"Eye Catcher","GROSS":26000000,"NET":1666667,"TOTAL NET RATE":5000000,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"Rivers","REGION":"South South","LOCATION":"Along Aba Port Harcourt road by Airforce Base FTT MTN Office, Port Harcourt","STATUS":"Live","BOARD TYPE":"Gantry","GROSS":29350000,"NET":1761000,"TOTAL NET RATE":5283000,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"Rivers","REGION":"South South","LOCATION":"Along Ikwerre road by Mile 1 market opposite Heritage Bank FTT Mile 3 market","STATUS":"Live","BOARD TYPE":"Eye Catcher","GROSS":24000000,"NET":1440000,"TOTAL NET RATE":4320000,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"Rivers","REGION":"South South","LOCATION":"Along Aba Port Harcourt road by MTN office FTT Oil mill market","STATUS":"Live","BOARD TYPE":"Gantry","GROSS":30000000,"NET":1689706,"TOTAL NET RATE":5069118,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"Rivers","REGION":"South South","LOCATION":"Along Stadium road Graceland school, Elekahia FTT Stadium","STATUS":"Live","BOARD TYPE":"Gantry","GROSS":29000000,"NET":1633382,"TOTAL NET RATE":4900147,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"Rivers","REGION":"South South","LOCATION":"Along East West road by Eleme Petrochemicals FTT Oil mill, Port Harcourt","STATUS":"Live","BOARD TYPE":"Gantry","GROSS":25500000,"NET":1436250,"TOTAL NET RATE":4308750,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"Edo","REGION":"South South","LOCATION":"Along Murtala Muhammed way by Eki Osa Market, FTF Ring Road, Benin City","STATUS":"Live","BOARD TYPE":"Gantry","GROSS":20000000,"NET":1126471,"TOTAL NET RATE":3379412,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"Edo","REGION":"South South","LOCATION":"Along Mission road by New Benin market FTF Lagos Street market, Benin","STATUS":"Live","BOARD TYPE":"Gantry","GROSS":20000000,"NET":1126471,"TOTAL NET RATE":3379412,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"Edo","REGION":"South South","LOCATION":"Along New Benin Lagos road by Usleu market FTT Ring road","STATUS":"Live","BOARD TYPE":"Unipole","GROSS":8500000,"NET":478750,"TOTAL NET RATE":1436250,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"Delta","REGION":"South South","LOCATION":"Along Okpanam road FTF Midwifery market and Akpu junction, Asaba","STATUS":"Live","BOARD TYPE":"Eye Catcher","GROSS":20500000,"NET":1205882,"TOTAL NET RATE":3617647,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"Delta","REGION":"South South","LOCATION":"Along PTI road by Effurun market FTF FTT jakpa junction PTI road East west road","STATUS":"Live","BOARD TYPE":"Unipole","GROSS":8500000,"NET":478750,"TOTAL NET RATE":1436250,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"Delta","REGION":"South South","LOCATION":"Along Refinery road opposite Shoprite junction, Warri, Delta","STATUS":"Live","BOARD TYPE":"Eye Catcher","GROSS":20500000,"NET":1205882,"TOTAL NET RATE":3617647,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"Kwara","REGION":"South South","LOCATION":"Along Ajase Ipo road opposite Peculiar Supermarket FTT Olorunsogo","STATUS":"Live","BOARD TYPE":"Eye Catcher","GROSS":25000000,"NET":1437500,"TOTAL NET RATE":4312500,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"Kwara","REGION":"South South","LOCATION":"Along Airport road by Alade Global FTT Emirate Hall, Ilorin","STATUS":"Live","BOARD TYPE":"Gantry","GROSS":25000000,"NET":1437500,"TOTAL NET RATE":4312500,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"Plateau","REGION":"South South","LOCATION":"Along Gada Biu and Ferin Gada road after the bridge FTF Gada Biu, Jos","STATUS":"Live","BOARD TYPE":"Gantry","GROSS":8500000,"NET":478750,"TOTAL NET RATE":1436250,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"Plateau","REGION":"South South","LOCATION":"Along Yakubu Gowon way by Federal Secretariat FTT Town","STATUS":"Live","BOARD TYPE":"Gantry","GROSS":25500000,"NET":1436250,"TOTAL NET RATE":4308750,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"Plateau","REGION":"South South","LOCATION":"Along Bukuru road by Bukuru Fire Service, Jos","STATUS":"Live","BOARD TYPE":"Unipole","GROSS":8500000,"NET":478750,"TOTAL NET RATE":957500,"MONTHS":2,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"BAYELSA","REGION":"South South","LOCATION":"Along Akenpai bridge by NRS Edepie FTT Salvation Ministries, Yenegoa","STATUS":"Not Posted","BOARD TYPE":"Portrait","GROSS":8000000,"NET":500000,"TOTAL NET RATE":1500000,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"BAYELSA","REGION":"South South","LOCATION":"Along Isaac Boro expressway by NIIT road junction FTT Yenagoa road, Bayelsa","STATUS":"Not Posted","BOARD TYPE":"Portrait","GROSS":8000000,"NET":500000,"TOTAL NET RATE":1500000,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"ABAKILIKI","REGION":"South South","LOCATION":"At the Corner of Enugu Abakiliki road at Ogoja Afikpo roundabout, Abakiliki","STATUS":"Not Posted","BOARD TYPE":"Portrait","GROSS":8000000,"NET":500000,"TOTAL NET RATE":1500000,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"ABAKILIKI","REGION":"South South","LOCATION":"Along Enugu road by Eagles Royal Hotel FTF Government House, Ebonyi","STATUS":"Not Posted","BOARD TYPE":"Portrait","GROSS":8000000,"NET":500000,"TOTAL NET RATE":1500000,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"Oyo","REGION":"South West","LOCATION":"Along Ayefele road by Efusetan Area, Challenge, FTT Ring road, Ibadan","STATUS":"Live","BOARD TYPE":"Eye Catcher","GROSS":8500000,"NET":478750,"TOTAL NET RATE":1436250,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"Oyo","REGION":"South West","LOCATION":"Along Bodija Secretariat road by Access Bank FTF UI, Ibadan","STATUS":"Live","BOARD TYPE":"Eye Catcher","GROSS":25500000,"NET":1436250,"TOTAL NET RATE":4308750,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"Oyo","REGION":"South West","LOCATION":"Along Molete Oke Ado road by Saint Teresa college, Oke Ado, Ibadan","STATUS":"Live","BOARD TYPE":"Eye Catcher","GROSS":25500000,"NET":1436250,"TOTAL NET RATE":4308750,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"},{"TOWN":"Kwara","REGION":"South West","LOCATION":"Along Murtala Mohammed way by Palms Shopping mall FTT Kulende market, Ilorin","STATUS":"Not Posted","BOARD TYPE":"Gantry","GROSS":8000000,"NET":480000,"TOTAL NET RATE":1440000,"MONTHS":3,"LOCATION SKEW":"MIDDLE CLASS"}];
+
+// ===== CHART COLORS =====
+const C = { purple:'#38008C', lav:'#9B83FF', pink:'#FF70F2', coral:'#FF7373', lime:'#9FEA47', text:'#E8E0FF' };
+if (window.ChartDataLabels) { Chart.register(ChartDataLabels); Chart.defaults.set('plugins.datalabels', { display: false }); }
+Chart.defaults.color = 'rgba(232,224,255,0.6)';
+Chart.defaults.font.family = "'IBM Plex Mono', monospace";
+Chart.defaults.font.size = 10;
+
+// ===== FLOATING DOTS FOR COVER =====
+function makeDots() {
+  const container = document.getElementById('coverDots');
+  const colors = [C.purple, C.lav, C.pink, C.coral, C.lime];
+  for (let i = 0; i < 28; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    const size = Math.random() * 6 + 3;
+    d.style.cssText = `
+      width:${size}px; height:${size}px;
+      background:${colors[Math.floor(Math.random() * colors.length)]};
+      left:${Math.random() * 100}%;
+      bottom:${-size}px;
+      animation-duration:${Math.random() * 8 + 6}s;
+      animation-delay:${Math.random() * 8}s;
+    `;
+    container.appendChild(d);
+  }
+}
+makeDots();
+
+// ===== NAVIGATION =====
+function enterDashboard() {
+  document.getElementById('cover').classList.remove('active');
+  document.getElementById('dashboard').classList.add('active');
+  setTimeout(initCharts, 100);
+  setTimeout(initLeafletMap, 200);
+}
+function goToCover() {
+  document.getElementById('dashboard').classList.remove('active');
+  document.getElementById('cover').classList.add('active');
+}
+function switchView(id, el) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('view-' + id).classList.add('active');
+  el.classList.add('active');
+  if (id === 'sitelist') renderTable(DATA);
+  if (id === 'issues') renderIssues();
+  if (id === 'performance') initPerfCharts();
+  if (id === 'sites') renderTowns();
+}
+
+// ===== AGGREGATE DATA =====
+const regions = ['Lagos','North Central','North West','South East','South South','South West'];
+function regionData(region) { return DATA.filter(d => d.REGION === region); }
+function regionLive(region) { return DATA.filter(d => d.REGION === region && d.STATUS === 'Live').length; }
+function regionTotal(region) { return DATA.filter(d => d.REGION === region).length; }
+function regionNet(region) { return DATA.filter(d => d.REGION === region).reduce((s,d) => s + d['TOTAL NET RATE'], 0); }
+
+// ===== CHARTS =====
+let chartsInit = false;
+function initCharts() {
+  if (chartsInit) return; chartsInit = true;
+
+  // Status donut
+  new Chart(document.getElementById('statusChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Live','Not Posted'],
+      datasets: [{ data: [54, 18], backgroundColor: [C.lime, C.coral], borderWidth: 0, hoverOffset: 6 }]
+    },
+    options: { cutout: '72%', plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ` ${c.label}: ${c.raw}` } } } }
+  });
+
+  // Skew donut
+  new Chart(document.getElementById('skewChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Middle Class','High Brow'],
+      datasets: [{ data: [55, 17], backgroundColor: [C.lav, C.pink], borderWidth: 0, hoverOffset: 6 }]
+    },
+    options: { cutout: '72%', plugins: { legend: { display: false } } }
+  });
+
+  // Region bar
+  const regCounts = regions.map(r => DATA.filter(d => d.REGION === r).length);
+  new Chart(document.getElementById('regionChart'), {
+    type: 'bar',
+    data: {
+      labels: regions.map(r => r.length > 12 ? r.substring(0,11)+'…' : r),
+      datasets: [{
+        label: 'Sites',
+        data: regCounts,
+        backgroundColor: [C.lime, C.coral, C.lav, C.pink, '#FF70F2', '#9FEA47'],
+        borderRadius: 6, borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      layout: { padding: { top: 24 } },
+      plugins: {
+        legend: { display: false },
+        datalabels: {
+          display: true, anchor: 'end', align: 'top', offset: 4,
+          color: C.text, font: { size: 11, weight: 700 },
+          formatter: v => v
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 9 } } },
+        y: { grid: { display: false }, beginAtZero: true, ticks: { stepSize: 5 }, display: false }
+      }
+    }
+  });
+
+  // Board type
+  const boards = {};
+  DATA.forEach(d => { boards[d['BOARD TYPE']] = (boards[d['BOARD TYPE']] || 0) + 1; });
+  const bKeys = Object.keys(boards).sort((a,b) => boards[b]-boards[a]);
+  const bColors = [C.lav, C.lime, C.coral, C.pink, C.purple+'CC', '#FF70F2CC', '#9FEA47AA', '#FF7373AA', '#9B83FFAA', '#38008CCC', '#ffffff44'];
+  new Chart(document.getElementById('boardChart'), {
+    type: 'bar',
+    data: {
+      labels: bKeys,
+      datasets: [{
+        label: 'Count',
+        data: bKeys.map(k => boards[k]),
+        backgroundColor: bColors,
+        borderRadius: 5, borderSkipped: false
+      }]
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      layout: { padding: { right: 24 } },
+      plugins: {
+        legend: { display: false },
+        datalabels: {
+          display: true, anchor: 'end', align: 'right', offset: 4,
+          color: C.text, font: { size: 10, weight: 700 },
+          formatter: v => v
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, beginAtZero: true, display: false },
+        y: { grid: { display: false }, ticks: { font: { size: 9 } } }
+      }
+    }
+  });
+
+  // Net spend by region
+  const spendColors = [C.lime, C.coral, C.lav, C.pink, '#9B83FF', '#9FEA47AA'];
+  new Chart(document.getElementById('spendChart'), {
+    type: 'bar',
+    data: {
+      labels: regions.map(r => r.length > 10 ? r.substring(0,9)+'…' : r),
+      datasets: [{
+        label: 'Net (₦)',
+        data: regions.map(r => Math.round(regionNet(r) / 1000000)),
+        backgroundColor: spendColors,
+        borderRadius: 5, borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      layout: { padding: { top: 24 } },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: c => ` ₦${c.raw}M` } },
+        datalabels: {
+          display: true, anchor: 'end', align: 'top', offset: 4,
+          color: C.text, font: { size: 10, weight: 700 },
+          formatter: v => '₦'+v+'M'
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 9 } } },
+        y: { grid: { display: false }, beginAtZero: true, display: false }
+      }
+    }
+  });
+
+  // Region progress bars
+  const progWrap = document.getElementById('regionProgress');
+  progWrap.innerHTML = '';
+  const progColors = [C.lime, C.coral, C.lav, C.pink, C.lav, C.lime];
+  regions.forEach((r, i) => {
+    const live = regionLive(r);
+    const total = regionTotal(r);
+    const pct = Math.round(live / total * 100);
+    progWrap.innerHTML += `
+      <div class="prog-bar-row">
+        <div class="prog-label">${r.length > 14 ? r.substring(0,13)+'…' : r}</div>
+        <div class="prog-track"><div class="prog-fill" style="width:${pct}%; background:${progColors[i]}"></div></div>
+        <div class="prog-val">${pct}%</div>
+      </div>
+    `;
+  });
+}
+
+function initPerfCharts() {
+  if (document.getElementById('boardStatusChart')._chartjs) return;
+
+  // Board type live vs not posted
+  const boards = {};
+  DATA.forEach(d => {
+    if (!boards[d['BOARD TYPE']]) boards[d['BOARD TYPE']] = { live: 0, np: 0 };
+    if (d.STATUS === 'Live') boards[d['BOARD TYPE']].live++;
+    else boards[d['BOARD TYPE']].np++;
+  });
+  const bk = Object.keys(boards).sort((a,b) => (boards[b].live + boards[b].np) - (boards[a].live + boards[a].np));
+  new Chart(document.getElementById('boardStatusChart'), {
+    type: 'bar',
+    data: {
+      labels: bk,
+      datasets: [
+        { label: 'Live', data: bk.map(k => boards[k].live), backgroundColor: C.lime, borderRadius: 4 },
+        { label: 'Not Posted', data: bk.map(k => boards[k].np), backgroundColor: C.coral, borderRadius: 4 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      layout: { padding: { top: 24 } },
+      plugins: {
+        legend: { position: 'top', labels: { boxWidth: 10, font: { size: 9 }, color: C.text } },
+        datalabels: {
+          display: v => v.dataset.data[v.dataIndex] > 0, anchor: 'end', align: 'top', offset: 2,
+          color: C.text, font: { size: 9, weight: 700 },
+          formatter: v => v
+        }
+      },
+      scales: {
+        x: { stacked: false, grid: { display: false }, ticks: { font: { size: 8 } } },
+        y: { grid: { display: false }, beginAtZero: true, display: false }
+      }
+    }
+  });
+
+  // Gross by region
+  new Chart(document.getElementById('grossRegionChart'), {
+    type: 'doughnut',
+    data: {
+      labels: regions,
+      datasets: [{
+        data: regions.map(r => Math.round(DATA.filter(d => d.REGION === r).reduce((s,d) => s + d.GROSS, 0) / 1000000)),
+        backgroundColor: [C.lime, C.coral, C.lav, C.pink, '#FF70F2', '#9FEA47AA'],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      cutout: '60%',
+      responsive: true, maintainAspectRatio: false,
+      layout: { padding: 8 },
+      plugins: {
+        legend: { position: 'bottom', align: 'center', labels: { boxWidth: 10, padding: 12, font: { size: 9 }, color: C.text } },
+        tooltip: { callbacks: { label: c => ` ${c.label}: ₦${c.raw}M` } },
+        datalabels: {
+          display: true, color: '#0D0020', font: { size: 10, weight: 700 },
+          formatter: (v, ctx) => {
+            const total = ctx.chart.data.datasets[0].data.reduce((a,b) => a+b, 0);
+            const pct = Math.round(v/total*100);
+            return pct >= 5 ? pct + '%' : '';
+          }
+        }
+      }
+    }
+  });
+
+  // Performance scorecard
+  const sc = document.getElementById('perfScorecard');
+  sc.innerHTML = `
+    <table style="width:100%; border-collapse:collapse; font-size:11.5px;">
+      <thead><tr>
+        <th style="padding:8px 12px;text-align:left;font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);">Region</th>
+        <th style="padding:8px 12px;text-align:right;font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);">Total Sites</th>
+        <th style="padding:8px 12px;text-align:right;font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);">Live</th>
+        <th style="padding:8px 12px;text-align:right;font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);">Not Posted</th>
+        <th style="padding:8px 12px;text-align:right;font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);">Rate</th>
+        <th style="padding:8px 12px;text-align:right;font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);">Gross (₦M)</th>
+        <th style="padding:8px 12px;text-align:right;font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);">Net (₦M)</th>
+      </tr></thead>
+      <tbody>
+  ` + regions.map(r => {
+    const total = regionTotal(r);
+    const live = regionLive(r);
+    const np = total - live;
+    const pct = Math.round(live/total*100);
+    const gross = Math.round(DATA.filter(d=>d.REGION===r).reduce((s,d)=>s+d.GROSS,0)/1000000);
+    const net = Math.round(regionNet(r)/1000000);
+    const rateColor = pct === 100 ? C.lime : pct >= 75 ? C.lav : pct >= 50 ? C.pink : C.coral;
+    return `<tr style="border-bottom:1px solid rgba(155,131,255,0.08);">
+      <td style="padding:10px 12px; font-weight:600;">${r}</td>
+      <td style="padding:10px 12px; text-align:right; font-family:var(--mono);">${total}</td>
+      <td style="padding:10px 12px; text-align:right; font-family:var(--mono); color:${C.lime}">${live}</td>
+      <td style="padding:10px 12px; text-align:right; font-family:var(--mono); color:${C.coral}">${np}</td>
+      <td style="padding:10px 12px; text-align:right; font-family:var(--mono); font-weight:700; color:${rateColor}">${pct}%</td>
+      <td style="padding:10px 12px; text-align:right; font-family:var(--mono);">₦${gross}M</td>
+      <td style="padding:10px 12px; text-align:right; font-family:var(--mono); color:var(--lavender);">₦${net}M</td>
+    </tr>`;
+  }).join('') + `</tbody></table>`;
+}
+
+// ===== TABLE =====
+function fmt(n) {
+  return '₦' + Math.round(n).toLocaleString('en-NG');
+}
+
+function renderTable(data) {
+  const tbody = document.getElementById('siteTableBody');
+  tbody.innerHTML = data.map((d, i) => `
+    <tr>
+      <td style="font-family:var(--mono);color:var(--muted)">${i+1}</td>
+      <td style="font-weight:600">${d.TOWN}</td>
+      <td style="color:var(--muted);font-size:10.5px">${d.REGION}</td>
+      <td class="location-td" title="${d.LOCATION}">${d.LOCATION}</td>
+      <td><span class="status-tag ${d.STATUS === 'Live' ? 'live' : 'notposted'}">${d.STATUS}</span></td>
+      <td><span class="board-tag">${d['BOARD TYPE']}</span></td>
+      <td><span class="skew-tag ${d['LOCATION SKEW'] === 'HIGH BROW' ? 'high' : 'mid'}">${d['LOCATION SKEW'] === 'HIGH BROW' ? 'High Brow' : 'Mid Class'}</span></td>
+      <td class="amount-td">${fmt(d.GROSS)}</td>
+      <td class="amount-td" style="color:var(--lavender)">${fmt(d.NET)}</td>
+      <td style="font-family:var(--mono);text-align:center">${d.MONTHS}mo</td>
+      <td class="amount-td" style="color:var(--lime)">${fmt(d['TOTAL NET RATE'])}</td>
+    </tr>
+  `).join('');
+  document.getElementById('tableCount').textContent = `Showing ${data.length} sites`;
+}
+
+function filterTable() {
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const region = document.getElementById('regionFilter').value;
+  const status = document.getElementById('statusFilter').value;
+  const board = document.getElementById('boardFilter').value;
+  const filtered = DATA.filter(d =>
+    (!search || d.LOCATION.toLowerCase().includes(search) || d.TOWN.toLowerCase().includes(search)) &&
+    (!region || d.REGION === region) &&
+    (!status || d.STATUS === status) &&
+    (!board || d['BOARD TYPE'] === board)
+  );
+  renderTable(filtered);
+}
+
+// ===== ISSUES TABLE =====
+function renderIssues() {
+  const issues = DATA.filter(d => d.STATUS === 'Not Posted');
+  const wrap = document.getElementById('issuesTable');
+  wrap.innerHTML = `
+    <table style="width:100%; border-collapse:collapse; font-size:11.5px;">
+      <thead><tr>
+        <th style="padding:8px 12px;text-align:left;font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);">#</th>
+        <th style="padding:8px 12px;text-align:left;font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);">Town</th>
+        <th style="padding:8px 12px;text-align:left;font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);">Region</th>
+        <th style="padding:8px 12px;text-align:left;font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);">Location</th>
+        <th style="padding:8px 12px;text-align:left;font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);">Board Type</th>
+        <th style="padding:8px 12px;text-align:right;font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);">Gross at Risk (₦)</th>
+        <th style="padding:8px 12px;text-align:center;font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);">Priority</th>
+      </tr></thead>
+      <tbody>
+        ${issues.map((d, i) => {
+          const priority = d.GROSS > 100000000 ? 'HIGH' : d.GROSS > 30000000 ? 'MED' : 'STD';
+          const prioColor = priority === 'HIGH' ? C.coral : priority === 'MED' ? C.pink : 'rgba(232,224,255,0.4)';
+          return `<tr style="border-bottom:1px solid rgba(155,131,255,0.08);">
+            <td style="padding:10px 12px;font-family:var(--mono);color:var(--muted)">${i+1}</td>
+            <td style="padding:10px 12px;font-weight:600">${d.TOWN}</td>
+            <td style="padding:10px 12px;color:var(--muted);font-size:10.5px">${d.REGION}</td>
+            <td style="padding:10px 12px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${d.LOCATION}">${d.LOCATION}</td>
+            <td style="padding:10px 12px"><span class="board-tag">${d['BOARD TYPE']}</span></td>
+            <td style="padding:10px 12px;text-align:right;font-family:var(--mono);color:${C.coral}">${fmt(d.GROSS)}</td>
+            <td style="padding:10px 12px;text-align:center"><span style="font-family:var(--mono);font-size:9px;letter-spacing:1px;padding:3px 10px;border-radius:100px;border:1px solid;color:${prioColor};border-color:${prioColor};background:${prioColor}22">${priority}</span></td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+// ===== TOWNS =====
+function renderTowns() {
+  const towns = {};
+  DATA.forEach(d => {
+    if (!towns[d.TOWN]) towns[d.TOWN] = { live: 0, total: 0, region: d.REGION };
+    towns[d.TOWN].total++;
+    if (d.STATUS === 'Live') towns[d.TOWN].live++;
+  });
+  const wrap = document.getElementById('townBreakdown');
+  wrap.innerHTML = Object.entries(towns).sort((a,b) => b[1].total - a[1].total).map(([town, v]) => {
+    const pct = Math.round(v.live / v.total * 100);
+    const color = pct === 100 ? C.lime : pct >= 50 ? C.lav : C.coral;
+    return `
+      <div class="panel" style="padding:14px 16px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+          <div>
+            <div style="font-weight:700;font-size:12px;">${town}</div>
+            <div style="font-family:var(--mono);font-size:8px;color:var(--muted);letter-spacing:1px;margin-top:2px;">${v.region}</div>
+          </div>
+          <div style="font-family:var(--mono);font-size:14px;font-weight:700;color:${color}">${pct}%</div>
+        </div>
+        <div style="height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;margin-bottom:8px;">
+          <div style="height:100%;width:${pct}%;background:${color};border-radius:2px;"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:9px;color:var(--muted);">
+          <span style="color:${C.lime}">✓ ${v.live} Live</span>
+          <span>/ ${v.total} Total</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ===== LEAFLET MAP =====
+let oohMap = null;
+let clusterGroup = null;
+let allMarkers = [];
+let activeFilter = 'all';
+
+// Coordinates for each of the 72 sites (indexed to match DATA array)
+const SITE_COORDS = [
+  // Lagos (17)
+  [6.5706, 3.3655],  // 0 Ikorodu/Maryland
+  [6.5775, 3.3222],  // 1 Airport road MMA
+  [6.5553, 3.3780],  // 2 Commercial Ave Sabo
+  [6.4281, 3.4219],  // 3 Muri Okunola Victoria Island
+  [6.5869, 3.2975],  // 4 Iyana Dopemu
+  [6.5167, 3.2896],  // 5 Mile 2 Apapa Oshodi
+  [6.5598, 3.3503],  // 6 Ojuwoye Oshodi
+  [6.4748, 3.3950],  // 7 3rd Mainland Adeniji
+  [6.4948, 3.3561],  // 8 Western Ave Teslim Balogun
+  [6.4958, 3.3575],  // 9 Western Ave Teslim Balogun (2)
+  [6.4374, 3.5311],  // 10 Femi Okunu Osapa London
+  [6.6018, 3.3422],  // 11 Oba Akran Empire Bldg Ikeja
+  [6.5579, 3.3878],  // 12 Gbagada Oworo
+  [6.5871, 3.3614],  // 13 MBA Opebi
+  [6.6126, 3.2742],  // 14 Lagos Abeokuta Abule Egba
+  [6.4187, 2.8770],  // 15 Badagry Expressway Agbara
+  [6.5879, 3.3326],  // 16 Ogba LSDPC
+  // FCT Abuja (8)
+  [9.0732, 7.4892],  // 17 Aminu Kano way Maitama
+  [9.1090, 7.3948],  // 18 Wole Soyinka Gwarinpa
+  [9.0249, 7.4768],  // 19 Bala Mohammed Guzape
+  [9.0579, 7.4951],  // 20 Solomon Lar motorpark
+  [9.0579, 7.4823],  // 21 Mohammed Buhari Way CBD
+  [9.0576, 7.4850],  // 22 Sanni Abacha National Mosque
+  [9.0350, 7.4800],  // 23 AMAC junction INEC
+  [9.0476, 7.4888],  // 24 Femi Kuti Defence HQ
+  // Kaduna (3)
+  [10.5222, 7.4383], // 25 Kachia road Queen Amina
+  [10.5500, 7.4200], // 26 Sabo road Refinery
+  [11.1120, 7.7194], // 27 Zaria Zamaru
+  // Kano (4)
+  [12.0022, 8.5920], // 28 Aminu Kano Kofar Kansakali
+  [12.0454, 8.5230], // 29 Airport road Wambai
+  [11.9736, 8.5620], // 30 Western Bypass Light School
+  [12.0100, 8.5800], // 31 France road Kano Pillar
+  // Enugu (4)
+  [6.4584, 7.5464],  // 32 Okpara Ave First Bank
+  [6.4650, 7.5510],  // 33 Ogui road ABC transport
+  [6.4450, 7.5400],  // 34 Presidential road Rangers
+  [6.4800, 7.5580],  // 35 Enugu Abakiliki Shoprite
+  // Rivers / Port Harcourt (5)
+  [4.8156, 7.0498],  // 36 Aba PH road Airforce Base
+  [4.8300, 7.0350],  // 37 Ikwerre road Mile 1
+  [4.8100, 7.0520],  // 38 Aba PH road MTN
+  [4.8250, 7.0410],  // 39 Stadium road Elekahia
+  [4.7500, 7.1500],  // 40 East West road Eleme Petrochemicals
+  // Oyo / Ibadan (3 SW + 3 SS misclassified)
+  [7.3775, 3.9470],  // 41 Ayefele road Challenge
+  [7.4000, 3.9600],  // 42 Bodija Secretariat
+  [7.3700, 3.9300],  // 43 Molete Oke Ado
+  [7.3800, 3.9400],  // 44 Oja Oba Orita Merin
+  [7.4100, 3.9550],  // 45 Total Garden Agodi
+  // Abia (3)
+  [5.5287, 7.4917],  // 46 Umuwaya road Umuahia
+  [5.1100, 7.3500],  // 47 Aba Owerri Osisioma
+  [5.1200, 7.3600],  // 48 33 Aba Owerri Brass
+  // Edo / Benin City (3)
+  [6.3350, 5.6037],  // 49 Murtala Muhammed Eki Osa
+  [6.3400, 5.6100],  // 50 Mission road New Benin
+  [6.3450, 5.6150],  // 51 New Benin Lagos road
+  // Kwara / Ilorin (3)
+  [8.4800, 4.5600],  // 52 Murtala Mohammed Palms (NP)
+  [8.4966, 4.5426],  // 53 Ajase Ipo road
+  [8.5200, 4.5100],  // 54 Airport road Alade
+  // Plateau / Jos (3)
+  [9.8965, 8.8583],  // 55 Gada Biu
+  [9.9200, 8.8700],  // 56 Yakubu Gowon Federal Sec
+  [9.7950, 8.8200],  // 57 Bukuru road
+  // ONITSHA (2)
+  [6.1437, 6.7861],  // 58 Iweka road Ochanja (NP)
+  [6.1500, 6.7900],  // 59 Akwa road Savoy (NP)
+  // AKWA / Awka (2)
+  [6.2085, 7.0675],  // 60 Ziks Avenue Eke Awka (NP)
+  [6.2150, 7.0720],  // 61 Esther Obiakor (NP)
+  // OWERRI (3)
+  [5.4836, 7.0341],  // 62 Wetheral road (NP)
+  [5.4900, 7.0280],  // 63 Douglas road (NP)
+  [5.4750, 7.0200],  // 64 Orlu road FMC (NP)
+  // BAYELSA / Yenegoa (2)
+  [4.9267, 6.2676],  // 65 Akenpai bridge (NP)
+  [4.9300, 6.2800],  // 66 Isaac Boro expressway (NP)
+  // ABAKILIKI (2)
+  [6.3249, 8.1137],  // 67 Enugu Abakiliki Ogoja (NP)
+  [6.3300, 8.1200],  // 68 Enugu road Eagles Royal (NP)
+  // Oyo South West remaining (3)
+  [7.3775, 3.9470],  // 69 Ayefele SW
+  [7.4000, 3.9600],  // 70 Bodija SW
+  [7.3700, 3.9300],  // 71 Molete SW
+];
+
+function initLeafletMap() {
+  if (oohMap) return;
+
+  oohMap = L.map('nigeriaMap', {
+    center: [9.08, 8.67],
+    zoom: 6,
+    zoomControl: true,
+    attributionControl: false
+  });
+
+  // Dark tile layer (CartoDB Dark Matter)
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '© OpenStreetMap © CARTO',
+    subdomains: 'abcd',
+    maxZoom: 19
+  }).addTo(oohMap);
+
+  // Attribution (small, unobtrusive)
+  L.control.attribution({ prefix: false, position: 'bottomleft' }).addTo(oohMap);
+
+  clusterGroup = L.markerClusterGroup({
+    maxClusterRadius: 45,
+    spiderfyOnMaxZoom: true,
+    showCoverageOnHover: false,
+    zoomToBoundsOnClick: true,
+    iconCreateFunction: function(cluster) {
+      const count = cluster.getChildCount();
+      const liveCount = cluster.getAllChildMarkers().filter(m => m.options.status === 'Live').length;
+      const allLive = liveCount === count;
+      const allDead = liveCount === 0;
+      const color = allLive ? '#9FEA47' : allDead ? '#FF7373' : '#FF70F2';
+      return L.divIcon({
+        html: `<div style="
+          width:42px;height:42px;border-radius:50%;
+          background:${color}22;border:2px solid ${color};
+          display:flex;align-items:center;justify-content:center;
+          font-family:'Syne',sans-serif;font-weight:800;font-size:13px;color:${color};
+          box-shadow:0 0 12px ${color}55;
+        ">${count}</div>`,
+        className: '',
+        iconSize: [42,42]
+      });
+    }
+  });
+
+  function makePin(color) {
+    return `<svg width="28" height="38" viewBox="0 0 28 38" xmlns="http://www.w3.org/2000/svg">
+      <path d="M14 0C6.268 0 0 6.268 0 14c0 10.5 14 24 14 24S28 24.5 28 14C28 6.268 21.732 0 14 0z"
+            fill="${color}" stroke="${color === '#FF7373' ? '#cc4444' : '#22aa22'}" stroke-width="1.5"/>
+      <circle cx="14" cy="14" r="6" fill="white" opacity="0.9"/>
+    </svg>`;
+  }
+
+  allMarkers = [];
+  DATA.forEach((site, i) => {
+    if (i >= SITE_COORDS.length) return;
+    const [lat, lng] = SITE_COORDS[i];
+    const isLive = site.STATUS === 'Live';
+    const pinColor = isLive ? '#9FEA47' : '#FF7373';
+    const icon = L.divIcon({
+      html: `<div class="ooh-pin">${makePin(pinColor)}</div>`,
+      className: '',
+      iconSize: [28, 38],
+      iconAnchor: [14, 38],
+      popupAnchor: [0, -40]
+    });
+
+    const marker = L.marker([lat, lng], { icon, status: site.STATUS, idx: i });
+
+    const fmt = n => '₦' + Math.round(n).toLocaleString('en-NG');
+    const statusBadge = isLive
+      ? `<span style="background:rgba(159,234,71,0.15);color:#9FEA47;border:1px solid rgba(159,234,71,0.4);padding:3px 10px;border-radius:100px;font-size:9px;font-family:'IBM Plex Mono';letter-spacing:1px;">● LIVE</span>`
+      : `<span style="background:rgba(255,115,115,0.15);color:#FF7373;border:1px solid rgba(255,115,115,0.4);padding:3px 10px;border-radius:100px;font-size:9px;font-family:'IBM Plex Mono';letter-spacing:1px;">⏳ NOT POSTED</span>`;
+
+    const popup = L.popup({ maxWidth: 290, minWidth: 290, closeButton: true }).setContent(`
+      <div style="padding:16px 18px 14px;font-family:'Syne',sans-serif;">
+        <div style="margin-bottom:10px;">${statusBadge}</div>
+        <div style="font-size:13px;font-weight:800;color:#fff;margin-bottom:4px;line-height:1.3;">${site.TOWN}</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:rgba(232,224,255,0.5);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;">${site.REGION}</div>
+        <div style="font-size:11px;color:rgba(232,224,255,0.75);line-height:1.5;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid rgba(155,131,255,0.15);">${site.LOCATION}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div style="background:rgba(56,0,140,0.4);border-radius:8px;padding:8px 10px;">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:8px;color:rgba(232,224,255,0.4);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px;">Board Type</div>
+            <div style="font-size:11px;font-weight:700;color:#9B83FF;">${site['BOARD TYPE']}</div>
+          </div>
+          <div style="background:rgba(56,0,140,0.4);border-radius:8px;padding:8px 10px;">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:8px;color:rgba(232,224,255,0.4);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px;">Skew</div>
+            <div style="font-size:11px;font-weight:700;color:#FF70F2;">${site['LOCATION SKEW'] === 'HIGH BROW' ? '🏙 High Brow' : '🏘 Mid Class'}</div>
+          </div>
+          <div style="background:rgba(56,0,140,0.4);border-radius:8px;padding:8px 10px;">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:8px;color:rgba(232,224,255,0.4);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px;">Gross Value</div>
+            <div style="font-size:11px;font-weight:700;color:#FF7373;">${fmt(site.GROSS)}</div>
+          </div>
+          <div style="background:rgba(56,0,140,0.4);border-radius:8px;padding:8px 10px;">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:8px;color:rgba(232,224,255,0.4);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px;">Net (Total)</div>
+            <div style="font-size:11px;font-weight:700;color:#9FEA47;">${fmt(site['TOTAL NET RATE'])}</div>
+          </div>
+        </div>
+        <div style="margin-top:10px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:rgba(232,224,255,0.4);text-align:center;">${site.MONTHS} month${site.MONTHS > 1 ? 's' : ''} campaign duration</div>
+      </div>
+    `);
+
+    marker.bindPopup(popup);
+    marker.on('click', () => showMapDrawer(site, i));
+    allMarkers.push(marker);
+    clusterGroup.addLayer(marker);
+  });
+
+  oohMap.addLayer(clusterGroup);
+
+  // Fit bounds to Nigeria
+  oohMap.fitBounds([[4.27, 2.68],[13.89, 14.68]], { padding: [20, 20] });
+}
+
+function mapFilter(status, btn) {
+  document.querySelectorAll('.map-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  activeFilter = status;
+
+  clusterGroup.clearLayers();
+  allMarkers.forEach(m => {
+    if (status === 'all' || m.options.status === status) {
+      clusterGroup.addLayer(m);
+    }
+  });
+  document.getElementById('mapDrawer').style.display = 'none';
+}
+
+function showMapDrawer(site, idx) {
+  const drawer = document.getElementById('mapDrawer');
+  const fmt = n => '₦' + Math.round(n).toLocaleString('en-NG');
+  const isLive = site.STATUS === 'Live';
+  drawer.style.display = 'block';
+  drawer.innerHTML = `
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;">
+      <div style="flex:1;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+          <span style="font-size:20px;">📍</span>
+          <div>
+            <div style="font-weight:800;font-size:14px;color:#fff;">${site.TOWN} · ${site.REGION}</div>
+            <div style="font-size:11px;color:rgba(232,224,255,0.6);margin-top:2px;">${site.LOCATION}</div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;">
+        <span style="
+          ${isLive ? 'background:rgba(159,234,71,0.15);color:#9FEA47;border:1px solid rgba(159,234,71,0.4);' : 'background:rgba(255,115,115,0.15);color:#FF7373;border:1px solid rgba(255,115,115,0.4);'}
+          padding:4px 12px;border-radius:100px;font-size:9px;font-family:'IBM Plex Mono';letter-spacing:1.5px;text-transform:uppercase;">
+          ${isLive ? '● LIVE' : '⏳ NOT POSTED'}
+        </span>
+        <button onclick="document.getElementById('mapDrawer').style.display='none'" style="background:none;border:none;color:rgba(232,224,255,0.4);cursor:pointer;font-size:11px;">✕ close</button>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px;">
+      <div style="background:rgba(13,0,32,0.6);border:1px solid rgba(155,131,255,0.15);border-radius:8px;padding:10px 12px;">
+        <div style="font-family:'IBM Plex Mono';font-size:8px;color:rgba(232,224,255,0.4);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;">Board Type</div>
+        <div style="font-size:12px;font-weight:700;color:#9B83FF;">${site['BOARD TYPE']}</div>
+      </div>
+      <div style="background:rgba(13,0,32,0.6);border:1px solid rgba(155,131,255,0.15);border-radius:8px;padding:10px 12px;">
+        <div style="font-family:'IBM Plex Mono';font-size:8px;color:rgba(232,224,255,0.4);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;">Audience</div>
+        <div style="font-size:12px;font-weight:700;color:#FF70F2;">${site['LOCATION SKEW'] === 'HIGH BROW' ? 'High Brow' : 'Mid Class'}</div>
+      </div>
+      <div style="background:rgba(13,0,32,0.6);border:1px solid rgba(155,131,255,0.15);border-radius:8px;padding:10px 12px;">
+        <div style="font-family:'IBM Plex Mono';font-size:8px;color:rgba(232,224,255,0.4);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;">Gross Value</div>
+        <div style="font-size:12px;font-weight:700;color:#FF7373;">${fmt(site.GROSS)}</div>
+      </div>
+      <div style="background:rgba(13,0,32,0.6);border:1px solid rgba(155,131,255,0.15);border-radius:8px;padding:10px 12px;">
+        <div style="font-family:'IBM Plex Mono';font-size:8px;color:rgba(232,224,255,0.4);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;">Total Net</div>
+        <div style="font-size:12px;font-weight:700;color:#9FEA47;">${fmt(site['TOTAL NET RATE'])}</div>
+      </div>
+    </div>
+  `;
+}
+
+
+</script>
+</body>
+</html>

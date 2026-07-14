@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apple iPhone OOH Campaign Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --bg:       #1a0040;
+  --surface:  #200050;
+  --card:     #25005c;
+  --border:   #3a0080;
+  --purple:   #38008c;
+  --pink:     #FF70F2;
+  --lemon:    #9FEA47;
+  --orange:   #FF7373;
+  --text:     #F8F0FF;
+  --text-muted: #c9a8ff;
+  --text-dim: #7a50aa;
+  --font: 'Syne', sans-serif;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  font-family: var(--font);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 12px;
+}
+
+/* ── HEADER ── */
+.header {
+  background: linear-gradient(120deg, #200050 0%, #2d0070 50%, #1a0040 100%);
+  border-bottom: 2px solid var(--purple);
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header-left { display:flex; align-items:center; gap:14px; }
+
+.apple-logo-wrap {
+  width: 40px; height: 40px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,0.06);
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.1);
+  flex-shrink: 0;
+}
+.apple-logo-wrap svg { width: 26px; height: 26px; }
+
+.header-title h1 {
+  font-size: 15px; font-weight: 800;
+  background: linear-gradient(90deg, var(--pink), var(--lemon));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  letter-spacing: 0.3px;
+}
+.header-title p { font-size: 11px; color: var(--text-muted); margin-top:1px; font-weight:400; }
+
+.header-right { display:flex; align-items:center; gap:10px; }
+.report-date {
+  font-size: 11px; color: var(--text-muted);
+  background: rgba(56,0,140,0.4);
+  border: 1px solid var(--border);
+  padding: 5px 12px; border-radius: 6px; font-weight:600;
+}
+
+.upload-btn {
+  display:flex; align-items:center; gap:7px;
+  background: linear-gradient(135deg, var(--pink), var(--purple));
+  color:#fff; border:none; padding:8px 16px; border-radius:8px;
+  cursor:pointer; font-family:var(--font); font-size:11px; font-weight:700;
+  transition:all 0.2s; letter-spacing:0.3px;
+}
+.upload-btn:hover { transform:translateY(-1px); box-shadow:0 4px 20px rgba(255,112,242,0.4); }
+.upload-btn svg { width:13px; height:13px; flex-shrink:0; }
+#file-input { display:none; }
+
+.upload-toast {
+  position:fixed; top:68px; right:24px;
+  background: var(--card); border:1px solid var(--pink);
+  border-radius:10px; padding:12px 18px;
+  font-family:var(--font); font-size:11px; color:var(--pink);
+  z-index:999; transform:translateX(200%);
+  transition:transform 0.3s ease; max-width:290px; font-weight:600;
+}
+.upload-toast.show { transform:translateX(0); }
+
+/* ── SLICERS ── */
+.slicers-bar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 24px;
+  display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+}
+.slicer-label { font-size:10px; color:var(--text-dim); text-transform:uppercase; letter-spacing:1px; font-weight:700; white-space:nowrap; }
+.slicer-group { display:flex; align-items:center; gap:7px; }
+.slicer-select {
+  background: var(--card); border:1px solid var(--border);
+  color: var(--text); font-family:var(--font); font-size:11px;
+  padding:5px 24px 5px 10px; border-radius:6px;
+  cursor:pointer; outline:none; min-width:130px; font-weight:600;
+  transition:border-color 0.2s; -webkit-appearance:none; appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23FF70F2' fill='none' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 8px center;
+}
+.slicer-select:focus { border-color:var(--pink); }
+.slicer-select option { background:#25005c; }
+.slicer-divider { width:1px; height:20px; background:var(--border); }
+.reset-btn {
+  background:transparent; border:1px solid var(--border);
+  color:var(--text-muted); font-family:var(--font); font-size:10px;
+  padding:5px 10px; border-radius:6px; cursor:pointer;
+  transition:all 0.2s; font-weight:700; letter-spacing:0.5px;
+}
+.reset-btn:hover { border-color:var(--pink); color:var(--pink); }
+#filter-count { font-size:10px; color:var(--text-dim); margin-left:auto; font-weight:600; }
+#filter-count span { color:var(--lemon); font-weight:800; }
+
+/* ── MAIN ── */
+.main { padding:18px 24px 40px; }
+
+/* ── KPI STRIP ── */
+.kpi-strip { display:grid; grid-template-columns:repeat(7,1fr); gap:10px; margin-bottom:16px; }
+.kpi-card {
+  background: var(--card); border:1px solid var(--border);
+  border-radius:10px; padding:13px 15px; position:relative; overflow:hidden;
+  transition:border-color 0.2s, transform 0.2s;
+}
+.kpi-card:hover { transform:translateY(-2px); }
+.kpi-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
+.kpi-c1::before { background:var(--pink); }
+.kpi-c2::before { background:var(--lemon); }
+.kpi-c3::before { background:var(--orange); }
+.kpi-c4::before { background:#FF7373; }
+.kpi-c5::before { background:var(--pink); }
+.kpi-c6::before { background:var(--lemon); }
+.kpi-c7::before { background:var(--orange); }
+.kpi-icon { font-size:16px; margin-bottom:5px; }
+.kpi-val { font-size:26px; font-weight:800; color:var(--text); line-height:1; }
+.kpi-label { font-size:9px; color:var(--text-dim); margin-top:4px; text-transform:uppercase; letter-spacing:0.8px; font-weight:700; }
+
+/* ── CHART CARDS ── */
+.chart-card {
+  background: var(--card); border:1px solid var(--border);
+  border-radius:12px; padding:16px; position:relative;
+}
+.chart-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:12px; gap:6px; }
+.chart-header-left { flex:1; }
+.chart-header-right { display:flex; align-items:center; gap:6px; flex-shrink:0; }
+.chart-title { font-size:11px; font-weight:800; color:var(--text); text-transform:uppercase; letter-spacing:0.8px; }
+.chart-subtitle { font-size:10px; color:var(--text-dim); margin-top:2px; font-weight:500; }
+.chart-badge {
+  background:rgba(255,112,242,0.12); border:1px solid rgba(255,112,242,0.3);
+  color:var(--pink); font-size:10px; padding:3px 8px; border-radius:4px; font-weight:700; white-space:nowrap;
+}
+.expand-btn {
+  background:rgba(255,112,242,0.1); border:1px solid rgba(255,112,242,0.25);
+  border-radius:6px; color:var(--pink); cursor:pointer;
+  padding:4px 5px; display:flex; align-items:center; justify-content:center;
+  transition:all 0.2s; flex-shrink:0;
+}
+.expand-btn:hover { background:rgba(255,112,242,0.28); transform:scale(1.12); }
+.expand-btn svg { width:13px; height:13px; }
+
+/* Layout rows */
+.row { display:grid; gap:12px; margin-bottom:12px; }
+.row-3-cols { grid-template-columns:1fr 1fr 1fr; }
+.row-3-bars { grid-template-columns:1fr 1fr 1fr; align-items:stretch; }
+
+/* Donut */
+.donut-wrap { position:relative; width:190px; height:190px; margin:0 auto; }
+
+/* Bar */
+.bar-card { display:flex; flex-direction:column; }
+.bar-wrap { position:relative; flex:1; min-height:0; }
+.bar-wrap canvas { display:block; }
+
+/* Partner scrollable */
+.partner-scroll-outer {
+  flex:1; overflow-x:auto; overflow-y:hidden; min-height:0; cursor:grab;
+}
+.partner-scroll-outer:active { cursor:grabbing; }
+.partner-scroll-outer::-webkit-scrollbar { height:5px; }
+.partner-scroll-outer::-webkit-scrollbar-track { background:var(--surface); border-radius:3px; }
+.partner-scroll-outer::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+.partner-scroll-outer::-webkit-scrollbar-thumb:hover { background:var(--pink); }
+
+/* Modal */
+.modal-overlay {
+  display:none; position:fixed; inset:0;
+  background:rgba(10,0,30,0.88); backdrop-filter:blur(6px);
+  z-index:2000; align-items:center; justify-content:center;
+}
+.modal-overlay.open { display:flex; }
+.modal-box {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:16px; padding:24px;
+  width:92vw; max-width:960px; max-height:90vh;
+  display:flex; flex-direction:column;
+  box-shadow:0 24px 80px rgba(0,0,0,0.7);
+}
+.modal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+.modal-title { font-size:13px; font-weight:800; color:var(--text); text-transform:uppercase; letter-spacing:0.8px; }
+.modal-close {
+  background:rgba(255,112,242,0.12); border:1px solid rgba(255,112,242,0.3);
+  color:var(--pink); cursor:pointer; width:30px; height:30px;
+  border-radius:8px; font-size:16px; display:flex; align-items:center; justify-content:center;
+  font-family:var(--font); transition:all 0.2s;
+}
+.modal-close:hover { background:rgba(255,112,242,0.3); }
+.modal-canvas-wrap { flex:1; position:relative; min-height:380px; }
+
+/* ── TABLE ── */
+.table-card { background:var(--card); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-top:12px; }
+.table-header { padding:13px 18px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+.table-title { font-size:11px; font-weight:800; color:var(--text); text-transform:uppercase; letter-spacing:0.8px; }
+.table-wrap { overflow-x:auto; max-height:300px; overflow-y:auto; }
+table { width:100%; border-collapse:collapse; font-size:11px; }
+thead th {
+  background:rgba(56,0,140,0.5); color:var(--text-muted);
+  font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px;
+  padding:9px 13px; text-align:left; position:sticky; top:0;
+  border-bottom:1px solid var(--border); font-family:var(--font);
+}
+tbody tr { border-bottom:1px solid rgba(58,0,128,0.4); transition:background 0.15s; }
+tbody tr:hover { background:rgba(255,112,242,0.05); }
+tbody td { padding:8px 13px; color:var(--text); }
+tbody td:first-child { color:var(--text-dim); font-weight:700; }
+.badge { display:inline-block; font-size:10px; font-weight:700; padding:2px 8px; border-radius:4px; font-family:var(--font); }
+.bg-green  { background:rgba(159,234,71,0.15);  color:var(--lemon); }
+.bg-orange { background:rgba(255,115,115,0.15); color:var(--orange); }
+.bg-pink   { background:rgba(255,112,242,0.15); color:var(--pink); }
+.bg-dim    { background:rgba(122,80,170,0.2);   color:var(--text-muted); }
+.bg-yellow { background:rgba(255,180,0,0.15);   color:#FBBF24; }
+
+::-webkit-scrollbar { width:5px; height:5px; }
+::-webkit-scrollbar-track { background:var(--surface); }
+::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+::-webkit-scrollbar-thumb:hover { background:var(--purple); }
+</style>
+</head>
+<body>
+
+<div class="upload-toast" id="upload-toast"><div id="toast-msg">Loading…</div></div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModalOutside(event)">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-title">Chart</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-canvas-wrap"><canvas id="modal-canvas"></canvas></div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-left">
+    <div class="apple-logo-wrap">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 814 1000" fill="#f5f5f7">
+        <path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105.6-57.8-155.5-127.4C46 405.6 8.1 280.2 8.1 160.9 8.1 83.7 35.1 8.1 97.4 8.1c60.6 0 96.4 42.8 154.9 42.8 56.9 0 100.2-43.6 163.6-43.6 61.6 0 101.4 44.5 163 44.5 60.6 0 98.4-41.4 155.5-41.4 56.3 0 87.5 55.7 87.5 55.7s-88.1 43.7-88.1 143.9c0 115.8 97.2 159.1 97.2 159.1l-45 21.8z"/>
+      </svg>
+    </div>
+    <div class="header-title">
+      <h1>iPhone 16 &amp; 17 PRO — OOH Campaign</h1>
+      <p>Site Status Report · Dashboard</p>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="report-date" id="report-date">As at: 28 May 2026</div>
+    <input type="file" id="file-input" accept=".xlsx,.xls,.csv">
+    <button class="upload-btn" onclick="document.getElementById('file-input').click()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+        <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+      </svg>
+      Upload Data
+    </button>
+  </div>
+</header>
+
+<!-- SLICERS -->
+<div class="slicers-bar">
+  <span class="slicer-label">Filter by:</span>
+  <div class="slicer-group">
+    <span class="slicer-label">Concept</span>
+    <select class="slicer-select" id="slicer-concept">
+      <option value="">All Concepts</option>
+      <option>iPhone 16</option><option>iPhone 17</option><option>iPhone 16 &amp; 17</option>
+    </select>
+  </div>
+  <div class="slicer-divider"></div>
+  <div class="slicer-group">
+    <span class="slicer-label">Board Type</span>
+    <select class="slicer-select" id="slicer-board"><option value="">All Boards</option></select>
+  </div>
+  <div class="slicer-divider"></div>
+  <div class="slicer-group">
+    <span class="slicer-label">Posting</span>
+    <select class="slicer-select" id="slicer-posting">
+      <option value="">All Statuses</option>
+      <option>LIVE</option><option>NOT POSTED</option><option>ONGOING POSTING</option>
+    </select>
+  </div>
+  <button class="reset-btn" onclick="resetFilters()">✕ Reset</button>
+  <div id="filter-count">Showing <span id="fc-num">30</span> of <span id="fc-total">30</span> sites</div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- KPI -->
+  <div class="kpi-strip">
+    <div class="kpi-card kpi-c1"><div class="kpi-icon">📍</div><div class="kpi-val" id="kpi-total">30</div><div class="kpi-label">Total Sites</div></div>
+    <div class="kpi-card kpi-c2"><div class="kpi-icon">🟢</div><div class="kpi-val" id="kpi-live">0</div><div class="kpi-label">Live</div></div>
+    <div class="kpi-card kpi-c3"><div class="kpi-icon">🔄</div><div class="kpi-val" id="kpi-ongoing">0</div><div class="kpi-label">Ongoing Posting</div></div>
+    <div class="kpi-card kpi-c4"><div class="kpi-icon">⏳</div><div class="kpi-val" id="kpi-notposted">0</div><div class="kpi-label">Not Posted</div></div>
+    <div class="kpi-card kpi-c5"><div class="kpi-icon">🖨️</div><div class="kpi-val" id="kpi-printed">0</div><div class="kpi-label">Printed</div></div>
+    <div class="kpi-card kpi-c6"><div class="kpi-icon">📦</div><div class="kpi-val" id="kpi-pickedup">0</div><div class="kpi-label">Picked Up</div></div>
+    <div class="kpi-card kpi-c7"><div class="kpi-icon">📋</div><div class="kpi-val" id="kpi-replace">0</div><div class="kpi-label">Prop. Replacement</div></div>
+  </div>
+
+  <!-- ROW 1: 3 Donuts -->
+  <div class="row row-3-cols">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-header-left"><div class="chart-title">Campaign Concept</div><div class="chart-subtitle">iPhone 16 vs 17 vs Both</div></div>
+        <div class="chart-header-right"><span class="chart-badge" id="badge-concept">—</span><button class="expand-btn" onclick="openModal('chart-concept')" title="Expand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
+      </div>
+      <div class="donut-wrap"><canvas id="chart-concept"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-header-left"><div class="chart-title">Printing Status</div><div class="chart-subtitle">Production stage</div></div>
+        <div class="chart-header-right"><span class="chart-badge" id="badge-printing">—</span><button class="expand-btn" onclick="openModal('chart-printing')" title="Expand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
+      </div>
+      <div class="donut-wrap"><canvas id="chart-printing"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-header-left"><div class="chart-title">Posting Status</div><div class="chart-subtitle">On-site deployment</div></div>
+        <div class="chart-header-right"><span class="chart-badge" id="badge-posting">—</span><button class="expand-btn" onclick="openModal('chart-posting')" title="Expand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
+      </div>
+      <div class="donut-wrap"><canvas id="chart-posting"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ROW 2: 3 Bar Charts -->
+  <div class="row row-3-bars">
+    <div class="chart-card bar-card">
+      <div class="chart-header">
+        <div class="chart-header-left"><div class="chart-title">Pick-Up Status</div><div class="chart-subtitle">Logistics count</div></div>
+        <div class="chart-header-right"><button class="expand-btn" onclick="openModal('chart-pickup')" title="Expand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
+      </div>
+      <div class="bar-wrap" id="pickup-wrap"><canvas id="chart-pickup"></canvas></div>
+    </div>
+    <div class="chart-card bar-card">
+      <div class="chart-header">
+        <div class="chart-header-left"><div class="chart-title">Board Type</div><div class="chart-subtitle">Format distribution</div></div>
+        <div class="chart-header-right"><span class="chart-badge" id="badge-board">—</span><button class="expand-btn" onclick="openModal('chart-board')" title="Expand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
+      </div>
+      <div class="bar-wrap" id="board-wrap"><canvas id="chart-board"></canvas></div>
+    </div>
+    <div class="chart-card bar-card">
+      <div class="chart-header">
+        <div class="chart-header-left"><div class="chart-title">Sites by Partner</div><div class="chart-subtitle">Scroll to view all</div></div>
+        <div class="chart-header-right"><button class="expand-btn" onclick="openModal('chart-partner')" title="Expand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
+      </div>
+      <div class="partner-scroll-outer" id="partner-scroll">
+        <div class="bar-wrap" id="partner-wrap"><canvas id="chart-partner"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-card">
+    <div class="table-header">
+      <span class="table-title">📋 Site Detail Log</span>
+      <span class="chart-badge" id="table-count">30 records</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Partner</th><th>Town</th><th>Vicinity</th><th>Board Type</th><th>Concept</th><th>Printing</th><th>Pick-Up</th><th>Posting</th><th>Remarks</th></tr></thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ══════════════════════════════════════
+// DATA
+// ══════════════════════════════════════
+let RAW = [{"sn":1,"partner":"Radius","town":"LAGOS","location":"Along Lagos Ibadan expressway by MKO Abiola Gardens FTT Alausa Lagos","vicinity":"MAGODO","board_type":"Gantry","material_type":"FLEX","concept":"I-PHONE 16","orientation":"LANDSCAPE","printing_status":"PRINTED","pickup_status":"PICKED UP","posting_status":"LIVE","remarks":"Live","concept_norm":"iPhone 16"},{"sn":2,"partner":"Motomedia","town":"LAGOS","location":"Along Awolowo road Ikoyi opposite boat club FTT Awolowo roundabout Ikoyi","vicinity":"IKOYI","board_type":"Mega Site","material_type":"MESH","concept":"I-PHONE 16","orientation":"PORTRAIT","printing_status":"PRINTED","pickup_status":"PICKED UP","posting_status":"LIVE","remarks":"Live","concept_norm":"iPhone 16"},{"sn":3,"partner":"Media Space","town":"LAGOS","location":"Along Ahmadu Bello way by NOU FTT Silverbird Cinemas Eko Atlantic Lagos","vicinity":"VICTORIA ISLAND","board_type":"Portrait","material_type":"FLEX","concept":"I-PHONE 17","orientation":"LANDSCAPE","printing_status":"PRINTED","pickup_status":"PICKED UP","posting_status":"ONGOING POSTING","remarks":"Pictures expected 29th May","concept_norm":"iPhone 17"},{"sn":4,"partner":"Eye Kontact","town":"LAGOS","location":"Along Lekki Ikoyi Link bridge after the tollgate FTT Admiralty roundabout Lekki Phase 1","vicinity":"LEKKI","board_type":"LED","material_type":"FLEX","concept":"iPhone 16 & 17","orientation":"LANDSCAPE","printing_status":"CREATVIE RECEIVED","pickup_status":"DEPLOYED","posting_status":"LIVE","remarks":"Live","concept_norm":"iPhone 16 & 17"},{"sn":5,"partner":"Four Pulley","town":"LAGOS","location":"Along Broad street at Inner Marina FTT Lagos mainland Surulere","vicinity":"MARINA","board_type":"Mega Site","material_type":"FLEX","concept":"I-PHONE 17","orientation":"LANDSCAPE","printing_status":"ONGOING PRINTING","pickup_status":"NOT PICKED UP","posting_status":"NOT POSTED","remarks":"Printing to be completed 30th May. Posting to be done by 31st May","concept_norm":"iPhone 17"},{"sn":6,"partner":"Media Proximity","town":"LAGOS","location":"Along Isaac John street opposite Jevinik restaurant, Ikeja GRA, Lagos","vicinity":"IKEJA","board_type":"Gantry","material_type":"FLEX","concept":"I-PHONE 17","orientation":"LANDSCAPE","printing_status":"PRINTED","pickup_status":"PICKED UP","posting_status":"LIVE","remarks":"Live","concept_norm":"iPhone 17"},{"sn":7,"partner":"Media Crush","town":"LAGOS","location":"Along Awolowo way at Aromire Junction FTT Allen Avenue, Lagos","vicinity":"COMPUTER VILLAGE","board_type":"Gantry","material_type":"FLEX","concept":"I-PHONE 16","orientation":"LANDSCAPE","printing_status":"PRINTED","pickup_status":"PICKED UP","posting_status":"LIVE","remarks":"Live","concept_norm":"iPhone 16"},{"sn":8,"partner":"Media Crush","town":"LAGOS","location":"Wrap around at Kodesho street Computer Village, Lagos","vicinity":"COMPUTER VILLAGE","board_type":"Wrap Around","material_type":"MESH","concept":"I-PHONE 17","orientation":"PORTRAIT","printing_status":"PRINTED","pickup_status":"PICKED UP","posting_status":"LIVE","remarks":"Live","concept_norm":"iPhone 17"},{"sn":9,"partner":"MC&D","town":"LAGOS","location":"Along Sheraton Link Bridge road FTT Opebi and FTF Mobolaji Bank Anthony Way Ikeja","vicinity":"IKEJA","board_type":"Mega Site","material_type":"FLEX","concept":"I-PHONE 17","orientation":"LANDSCAPE","printing_status":"PRINTED","pickup_status":"PICKED UP","posting_status":"LIVE","remarks":"Live","concept_norm":"iPhone 17"},{"sn":10,"partner":"Transit Display","town":"LAGOS","location":"Along 3rd Mainland bridge at NITEL Building FTT Lagos Island","vicinity":"INNER MARINA","board_type":"Mega Site","material_type":"FLEX","concept":"I-PHONE 16","orientation":"LANDSCAPE","printing_status":"PRINTED","pickup_status":"PICKED UP","posting_status":"NOT POSTED","remarks":"Pictures expected 30th May","concept_norm":"iPhone 16"},{"sn":11,"partner":"Optimum Exposures","town":"LAGOS","location":"Along Eko Bridge at Old Nepa House Ijora FTF Oke Arin market Lagos Island","vicinity":"EKO BRIDGE","board_type":"Mega Site","material_type":"FLEX","concept":"I-PHONE 16","orientation":"LANDSCAPE","printing_status":"PRINTED","pickup_status":"PICKED UP","posting_status":"LIVE","remarks":"Live","concept_norm":"iPhone 16"},{"sn":12,"partner":"E-Motion","town":"LAGOS","location":"Along Ozummba Mbadiwe by Lekki Tollgate FTT/F Lekki phase 1 & Victoria Island","vicinity":"Lekki","board_type":"LED","material_type":"FLEX","concept":"iPhone 16 & 17","orientation":"LANDSCAPE","printing_status":"CREATVIE RECEIVED","pickup_status":"DEPLOYED","posting_status":"LIVE","remarks":"Live","concept_norm":"iPhone 16 & 17"},{"sn":13,"partner":"New Crystal","town":"ABUJA","location":"Along Airport Road at City gate opposite Abuja Stadium FTT Town","vicinity":"AIRPORT ROAD","board_type":"Mega Site","material_type":"FLEX","concept":"I-PHONE 17","orientation":"LANDSCAPE","printing_status":"PRINTED","pickup_status":"PICKED UP","posting_status":"NOT POSTED","remarks":"Material picked up May 26th","concept_norm":"iPhone 17"},{"sn":14,"partner":"Abolute Outdoor","town":"ABUJA","location":"Along Herbert Macauley Way by Wuse Market Abuja","vicinity":"WUSE","board_type":"Mega Site","material_type":"FLEX","concept":"I-PHONE 16","orientation":"LANDSCAPE","printing_status":"PRINTED","pickup_status":"PICKED UP","posting_status":"LIVE","remarks":"Live","concept_norm":"iPhone 16"},{"sn":15,"partner":"Folham","town":"ABUJA","location":"NICON House, Mohammadu Buhari Way, Central Business District, Abuja","vicinity":"CENTRAL BUSINESS DISTRICT","board_type":"Mega Site","material_type":"FLEX","concept":"I-PHONE 17","orientation":"LANDSCAPE","printing_status":"PROPOSE REPLACEMENT","pickup_status":"NOT PICKED UP","posting_status":"NOT POSTED","remarks":"Share replacement with client for approval","concept_norm":"iPhone 17"},{"sn":16,"partner":"New Crystal","town":"ABUJA","location":"Along Alex Ekwueme Expressway by Kado Estate Roundabout","vicinity":"CENTRAL BUSINESS DISTRICT","board_type":"Mega Site","material_type":"FLEX","concept":"I-PHONE 17","orientation":"LANDSCAPE","printing_status":"PRINTED","pickup_status":"PICKED UP","posting_status":"NOT POSTED","remarks":"Material picked up May 26th","concept_norm":"iPhone 17"},{"sn":17,"partner":"New Crystal","town":"ABUJA","location":"Along Olu Obasanjo way by Eternal filling Station FTT NNPC","vicinity":"WUSE2","board_type":"Gantry","material_type":"FLEX","concept":"I-PHONE 17","orientation":"LANDSCAPE","printing_status":"PRINTED","pickup_status":"PICKED UP","posting_status":"NOT POSTED","remarks":"Material picked up May 26th","concept_norm":"iPhone 17"},{"sn":18,"partner":"New Crystal","town":"ABUJA","location":"Along Ahmadu Bello Way By Sahad Stores Junction Area 11","vicinity":"CENTRAL BUSINESS DISTRICT","board_type":"Gantry","material_type":"FLEX","concept":"I-PHONE 16","orientation":"LANDSCAPE","printing_status":"PRINTED","pickup_status":"PICKED UP","posting_status":"NOT POSTED","remarks":"Material picked up May 27th","concept_norm":"iPhone 16"},{"sn":19,"partner":"GEMS","town":"ABUJA","location":"Along Labour House by Presidential Airport route, Abuja","vicinity":"CENTRAL BUSINESS DISTRICT","board_type":"Mega Site","material_type":"FLEX","concept":"I-PHONE 17","orientation":"LANDSCAPE","printing_status":"PRINTED","pickup_status":"PICKED UP","posting_status":"LIVE","remarks":"Live","concept_norm":"iPhone 17"},{"sn":20,"partner":"Lona","town":"ABUJA","location":"Along Sani Abacha way by Zone 4 Wuse 2","vicinity":"MAITAMA","board_type":"Mega Site","material_type":"FLEX","concept":"I-PHONE 17","orientation":"LANDSCAPE","printing_status":"PRINTED","pickup_status":"PICKED UP","posting_status":"NOT POSTED","remarks":"Material picked up May 27th","concept_norm":"iPhone 17"},{"sn":21,"partner":"New Crystal","town":"ABUJA","location":"Along Tafawa Balewa Way FTF UTC By New CBN Junction","vicinity":"MAITAMA","board_type":"Mega Site","material_type":"FLEX","concept":"I-PHONE 16","orientation":"LANDSCAPE","printing_status":"PRINTED","pickup_status":"PICKED UP","posting_status":"NOT POSTED","remarks":"Material picked up May 27th","concept_norm":"iPhone 16"},{"sn":22,"partner":"Motomedia","town":"ABUJA","location":"Maitama Road Club 3:45 FTF Abuja Monicipa (Landscape)","vicinity":"CENTRAL BUSINESS DISTRICT","board_type":"Mega Site","material_type":"FLEX","concept":"I-PHONE 16","orientation":"LANDSCAPE","printing_status":"PROPOSE REPLACEMENT","pickup_status":"NOT PICKED UP","posting_status":"NOT POSTED","remarks":"Share replacement with client for approval","concept_norm":"iPhone 16"},{"sn":23,"partner":"Motomedia","town":"ABUJA","location":"Maitama Road Club 3:45 FTF Abuja Monicipa (Portrait)","vicinity":"CENTRAL BUSINESS DISTRICT","board_type":"Mega Site","material_type":"FLEX","concept":"I-PHONE 16","orientation":"LANDSCAPE","printing_status":"PROPOSE REPLACEMENT","pickup_status":"NOT PICKED UP","posting_status":"NOT POSTED","remarks":"Share replacement with client for approval","concept_norm":"iPhone 16"},{"sn":24,"partner":"Motomedia","town":"ABUJA","location":"Along Mabushi junction by Next Cash & Carry, Blue Cubana, Abuja","vicinity":"CENTRAL BUSINESS DISTRICT","board_type":"Mega Site","material_type":"FLEX","concept":"I-PHONE 17","orientation":"LANDSCAPE","printing_status":"PRINTED","pickup_status":"PICKED UP","posting_status":"NOT POSTED","remarks":"Material picked up May 27th","concept_norm":"iPhone 17"},{"sn":25,"partner":"Motomedia","town":"PORT HARCOURT","location":"Along Aba Road by Presidential Hotel FTT Rumuola","vicinity":"ABA ROAD","board_type":"Mega Site","material_type":"FLEX","concept":"I-PHONE 17","orientation":"LANDSCAPE","printing_status":"PRINTED","pickup_status":"PICKED UP","posting_status":"LIVE","remarks":"Live","concept_norm":"iPhone 17"},{"sn":26,"partner":"Media Proximity","town":"PORT HARCOURT","location":"Along Trans Amadi before Garrison r/about by Zenith Bank","vicinity":"TRANS AMADI","board_type":"Gantry","material_type":"FLEX","concept":"I-PHONE 16","orientation":"LANDSCAPE","printing_status":"PRINTED","pickup_status":"PICKED UP","posting_status":"NOT POSTED","remarks":"To be posted by May 29th","concept_norm":"iPhone 16"},{"sn":27,"partner":"New Crystal","town":"PORT HARCOURT","location":"Along Stadium road by Grace Hotel FTT Stadium Port Harcourt","vicinity":"STADIUM ROAD","board_type":"Gantry","material_type":"FLEX","concept":"I-PHONE 16","orientation":"LANDSCAPE","printing_status":"PRINTED","pickup_status":"PICKED UP","posting_status":"NOT POSTED","remarks":"Material picked up 28th May","concept_norm":"iPhone 16"},{"sn":28,"partner":"New Crystal","town":"PORT HARCOURT","location":"Along Ikwerre road by Mile 1 FTT Rumuomasi","vicinity":"IKWERE ROAD","board_type":"Mega Site","material_type":"FLEX","concept":"I-PHONE 16","orientation":"LANDSCAPE","printing_status":"PRINTED","pickup_status":"PICKED UP","posting_status":"NOT POSTED","remarks":"Material picked up 27th May","concept_norm":"iPhone 16"},{"sn":29,"partner":"New Crystal","town":"PORT HARCOURT","location":"Along Sani Abacha Road opp Chicken Republic FTT Ajip Junction","vicinity":"GRA PORT HARCOURT","board_type":"Mega Site","material_type":"FLEX","concept":"I-PHONE 17","orientation":"LANDSCAPE","printing_status":"PRINTED","pickup_status":"PICKED UP","posting_status":"NOT POSTED","remarks":"Material picked up 27th May","concept_norm":"iPhone 17"},{"sn":30,"partner":"New Crystal","town":"PORT HARCOURT","location":"Along Aba road by Government House by UTC Junction FTT SPA","vicinity":"GRA PORT HARCOURT","board_type":"Mega Site","material_type":"FLEX","concept":"I-PHONE 17","orientation":"LANDSCAPE","printing_status":"PRINTED","pickup_status":"PICKED UP","posting_status":"NOT POSTED","remarks":"Material picked up 27th May","concept_norm":"iPhone 17"}];
+
+// ══════════════════════════════════════
+// CHART.JS SETUP
+// ══════════════════════════════════════
+Chart.register(ChartDataLabels);
+Chart.defaults.font.family = "'Syne', sans-serif";
+Chart.defaults.font.size = 12;
+Chart.defaults.color = '#c9a8ff';
+
+const C = { pink:'#FF70F2', lemon:'#9FEA47', orange:'#FF7373', purple:'#38008c', text:'#c9a8ff', dim:'#7a50aa' };
+const PAL = [C.pink, C.lemon, C.orange, '#a78bfa', '#38bdf8', '#fb923c', '#f472b6', '#4ade80', '#facc15', '#818cf8', '#e879f9', '#34d399'];
+
+const TT = {
+  backgroundColor:'#25005c', borderColor:'#3a0080', borderWidth:1,
+  titleColor:C.pink, bodyColor:'#F8F0FF',
+  titleFont:{family:"'Syne'",size:11,weight:'700'},
+  bodyFont:{family:"'Syne'",size:11}, padding:10,
+};
+
+const charts = {}, chartConfigs = {};
+let filters = { concept:'', board:'', posting:'' };
+
+// ══════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════
+const count = (data, k, v) => data.filter(d => d[k] === v).length;
+function groupCount(data, key) {
+  const m = {};
+  data.forEach(d => { m[d[key]] = (m[d[key]]||0)+1; });
+  return m;
+}
+function getFiltered() {
+  return RAW.filter(d => {
+    if (filters.board && d.board_type !== filters.board) return false;
+    if (filters.posting && d.posting_status !== filters.posting) return false;
+    if (filters.concept) {
+      const c = d.concept.toUpperCase();
+      if (filters.concept==='iPhone 16' && !(c.includes('PHONE 16')&&!c.includes('&')&&!c.includes('17'))) return false;
+      if (filters.concept==='iPhone 17' && !(c.includes('PHONE 17')&&!c.includes('&')&&!c.includes('16'))) return false;
+      if (filters.concept==='iPhone 16 & 17' && !c.includes('&')) return false;
+    }
+    return true;
+  });
+}
+
+// ══════════════════════════════════════
+// DONUT
+// ══════════════════════════════════════
+function mkDonut(id, labels, vals, colors) {
+  const ctx = document.getElementById(id).getContext('2d');
+  if (charts[id]) charts[id].destroy();
+  const cfg = {
+    type:'doughnut',
+    data:{ labels, datasets:[{ data:vals, backgroundColor:colors, borderColor:'#25005c', borderWidth:3, hoverOffset:4 }] },
+    options:{
+      responsive:true, maintainAspectRatio:true, cutout:'58%',
+      plugins:{
+        legend:{ display:true, position:'bottom', align:'center',
+          labels:{ color:C.text, font:{family:"'Syne'",size:10,weight:'600'}, padding:10, boxWidth:9, boxHeight:9, usePointStyle:true }
+        },
+        tooltip:{ ...TT, callbacks:{ label: ctx => ` ${ctx.label}: ${ctx.raw}` } },
+        datalabels:{
+          display: ctx => ctx.dataset.data[ctx.dataIndex] > 0,
+          color:'#fff', font:{family:"'Syne'",size:12,weight:'700'},
+          formatter: v => v, anchor:'center', align:'center',
+        }
+      }
+    }
+  };
+  chartConfigs[id] = cfg;
+  charts[id] = new Chart(ctx, cfg);
+}
+
+// ══════════════════════════════════════
+// VERTICAL BAR
+// ══════════════════════════════════════
+function mkVBar(id, labels, vals, colors) {
+  const canvas = document.getElementById(id);
+  canvas.style.height = '100%';
+  canvas.style.width = '';
+  canvas.parentElement.style.width = '';
+  canvas.parentElement.style.minHeight = '160px';
+
+  const ctx = canvas.getContext('2d');
+  if (charts[id]) charts[id].destroy();
+  const maxVal = Math.max(...vals, 1);
+  const cfg = {
+    type:'bar',
+    data:{ labels, datasets:[{ data:vals, backgroundColor:colors, borderRadius:6, borderSkipped:false }] },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      layout:{ padding:{ top:28 } },
+      scales:{
+        x:{ grid:{display:false}, ticks:{ color:C.text, font:{size:10,family:"'Syne'",weight:'600'}, maxRotation:45, minRotation:0, autoSkip:true, autoSkipPadding:4 } },
+        y:{ display:false, grid:{display:false}, max: maxVal*1.35 }
+      },
+      plugins:{
+        legend:{display:false},
+        tooltip:{ ...TT },
+        datalabels:{ anchor:'end', align:'end', offset:3, color:C.lemon, font:{family:"'Syne'",size:12,weight:'700'}, formatter:v=>v, clip:false }
+      }
+    }
+  };
+  chartConfigs[id] = cfg;
+  charts[id] = new Chart(ctx, cfg);
+}
+
+// ══════════════════════════════════════
+// HORIZONTAL BAR
+// ══════════════════════════════════════
+function mkHBar(id, labels, vals, colors) {
+  const canvas = document.getElementById(id);
+  canvas.style.height = '100%';
+  canvas.parentElement.style.minHeight = '120px';
+
+  const ctx = canvas.getContext('2d');
+  if (charts[id]) charts[id].destroy();
+  const maxVal = Math.max(...vals, 1);
+  const cfg = {
+    type:'bar',
+    data:{ labels, datasets:[{ data:vals, backgroundColor:colors, borderRadius:5, borderSkipped:false }] },
+    options:{
+      responsive:true, maintainAspectRatio:false, indexAxis:'y',
+      layout:{ padding:{ right:48 } },
+      scales:{
+        x:{ display:false, grid:{display:false}, max: maxVal*1.35 },
+        y:{ grid:{display:false}, ticks:{ color:C.text, font:{size:11,family:"'Syne'",weight:'600'}, padding:4 } }
+      },
+      plugins:{
+        legend:{display:false},
+        tooltip:{ ...TT, callbacks:{ label: ctx => ` Count: ${ctx.raw}` } },
+        datalabels:{ anchor:'end', align:'end', offset:5, color:C.lemon, font:{family:"'Syne'",size:12,weight:'700'}, formatter:v=>v, clip:false }
+      }
+    }
+  };
+  chartConfigs[id] = cfg;
+  charts[id] = new Chart(ctx, cfg);
+}
+
+// ══════════════════════════════════════
+// TABLE
+// ══════════════════════════════════════
+function renderTable(data) {
+  document.getElementById('table-count').textContent = data.length + ' records';
+  const tbody = document.getElementById('table-body');
+  tbody.innerHTML = '';
+  const pB = {'PRINTED':'bg-green','CREATVIE RECEIVED':'bg-dim','ONGOING PRINTING':'bg-yellow','PROPOSE REPLACEMENT':'bg-orange'};
+  const pkB = {'PICKED UP':'bg-green','NOT PICKED UP':'bg-orange','DEPLOYED':'bg-pink'};
+  const poB = {'LIVE':'bg-green','NOT POSTED':'bg-orange','ONGOING POSTING':'bg-yellow'};
+  const pL = {'PRINTED':'Printed','CREATVIE RECEIVED':'Creative Rcvd','ONGOING PRINTING':'Printing','PROPOSE REPLACEMENT':'Prop. Repl.'};
+  data.forEach(d => {
+    tbody.innerHTML += `<tr>
+      <td>${d.sn}</td><td>${d.partner}</td><td>${d.town}</td>
+      <td style="max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${d.vicinity}">${d.vicinity}</td>
+      <td>${d.board_type}</td><td>${d.concept_norm}</td>
+      <td><span class="badge ${pB[d.printing_status]||'bg-dim'}">${pL[d.printing_status]||d.printing_status}</span></td>
+      <td><span class="badge ${pkB[d.pickup_status]||'bg-dim'}">${d.pickup_status}</span></td>
+      <td><span class="badge ${poB[d.posting_status]||'bg-dim'}">${d.posting_status}</span></td>
+      <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-dim)" title="${d.remarks}">${d.remarks}</td>
+    </tr>`;
+  });
+}
+
+// ══════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════
+function render() {
+  const data = getFiltered(), n = data.length;
+  document.getElementById('fc-num').textContent = n;
+  document.getElementById('fc-total').textContent = RAW.length;
+  document.getElementById('kpi-total').textContent = n;
+  document.getElementById('kpi-live').textContent = count(data,'posting_status','LIVE');
+  document.getElementById('kpi-ongoing').textContent = count(data,'posting_status','ONGOING POSTING');
+  document.getElementById('kpi-notposted').textContent = count(data,'posting_status','NOT POSTED');
+  document.getElementById('kpi-printed').textContent = count(data,'printing_status','PRINTED');
+  document.getElementById('kpi-pickedup').textContent = count(data,'pickup_status','PICKED UP');
+  document.getElementById('kpi-replace').textContent = count(data,'printing_status','PROPOSE REPLACEMENT');
+
+  // Concept donut
+  const i16  = data.filter(d=>{const c=d.concept.toUpperCase();return c.includes('PHONE 16')&&!c.includes('&')&&!c.includes('17');}).length;
+  const i17  = data.filter(d=>{const c=d.concept.toUpperCase();return c.includes('PHONE 17')&&!c.includes('&')&&!c.includes('16');}).length;
+  const i617 = data.filter(d=>d.concept.includes('&')).length;
+  document.getElementById('badge-concept').textContent = n + ' sites';
+  mkDonut('chart-concept',['iPhone 16','iPhone 17','iPhone 16 & 17'],[i16,i17,i617],[C.pink,C.lemon,C.orange]);
+
+  // Printing donut
+  document.getElementById('badge-printing').textContent = n + ' sites';
+  mkDonut('chart-printing',
+    ['Printed','Creative Rcvd','Ongoing','Prop. Repl.'],
+    [count(data,'printing_status','PRINTED'),count(data,'printing_status','CREATVIE RECEIVED'),count(data,'printing_status','ONGOING PRINTING'),count(data,'printing_status','PROPOSE REPLACEMENT')],
+    [C.lemon,C.pink,C.orange,'#a78bfa']
+  );
+
+  // Posting donut
+  document.getElementById('badge-posting').textContent = n + ' sites';
+  mkDonut('chart-posting',['Live','Ongoing Posting','Not Posted'],
+    [count(data,'posting_status','LIVE'),count(data,'posting_status','ONGOING POSTING'),count(data,'posting_status','NOT POSTED')],
+    [C.lemon,C.orange,C.pink]
+  );
+
+  // Pickup vertical bar
+  mkVBar('chart-pickup',
+    ['Picked Up','Not Picked Up','Deployed'],
+    [count(data,'pickup_status','PICKED UP'),count(data,'pickup_status','NOT PICKED UP'),count(data,'pickup_status','DEPLOYED')],
+    [C.lemon,C.orange,C.pink]
+  );
+
+  // Board Type horizontal bar
+  const boardSorted = Object.entries(groupCount(data,'board_type')).sort((a,b)=>b[1]-a[1]);
+  document.getElementById('badge-board').textContent = boardSorted.length + ' types';
+  mkHBar('chart-board', boardSorted.map(x=>x[0]), boardSorted.map(x=>x[1]), boardSorted.map((_,i)=>PAL[i%PAL.length]));
+
+  // Partner vertical bar — sized to fit column, scrollable
+  const partnerSorted = Object.entries(groupCount(data,'partner')).sort((a,b)=>b[1]-a[1]);
+  const minBarW = 48;
+  const pCanvas = document.getElementById('chart-partner');
+  const scrollOuter = document.getElementById('partner-scroll');
+  const colW = scrollOuter.offsetWidth || 300;
+  const totalW = Math.max(partnerSorted.length * minBarW + 20, colW);
+  pCanvas.style.width = totalW + 'px';
+  pCanvas.parentElement.style.width = totalW + 'px';
+  mkVBar('chart-partner', partnerSorted.map(x=>x[0]), partnerSorted.map(x=>x[1]), partnerSorted.map((_,i)=>PAL[(i+3)%PAL.length]));
+
+  renderTable(data);
+}
+
+// ══════════════════════════════════════
+// MODAL
+// ══════════════════════════════════════
+let modalChart = null;
+const MODAL_TITLES = {
+  'chart-concept':'Campaign Concept','chart-printing':'Printing Status',
+  'chart-posting':'Posting Status','chart-pickup':'Pick-Up Status',
+  'chart-board':'Board Type','chart-partner':'Sites by Partner',
+};
+function openModal(id) {
+  const cfg = chartConfigs[id]; if(!cfg) return;
+  document.getElementById('modal-title').textContent = MODAL_TITLES[id]||'Chart';
+  document.getElementById('modal-overlay').classList.add('open');
+  if (modalChart) { modalChart.destroy(); modalChart=null; }
+  const mc = JSON.parse(JSON.stringify(cfg));
+  if (mc.options.plugins?.datalabels) mc.options.plugins.datalabels.font={family:"'Syne'",size:14,weight:'700'};
+  if (mc.options.plugins?.legend?.labels) mc.options.plugins.legend.labels.font={family:"'Syne'",size:12,weight:'600'};
+  if (mc.options.scales?.y?.ticks) mc.options.scales.y.ticks.font={size:12,family:"'Syne'",weight:'600'};
+  if (mc.options.scales?.x?.ticks) mc.options.scales.x.ticks.font={size:12,family:"'Syne'",weight:'600'};
+  modalChart = new Chart(document.getElementById('modal-canvas').getContext('2d'), mc);
+}
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  if (modalChart) { modalChart.destroy(); modalChart=null; }
+}
+function closeModalOutside(e) { if(e.target===document.getElementById('modal-overlay')) closeModal(); }
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+
+// ══════════════════════════════════════
+// DRAG SCROLL
+// ══════════════════════════════════════
+(function(){
+  let isDown=false, startX, scrollLeft;
+  window.addEventListener('DOMContentLoaded', () => {
+    const el = document.getElementById('partner-scroll');
+    if(!el) return;
+    el.addEventListener('mousedown', e=>{isDown=true;startX=e.pageX-el.offsetLeft;scrollLeft=el.scrollLeft;});
+    el.addEventListener('mouseleave', ()=>isDown=false);
+    el.addEventListener('mouseup', ()=>isDown=false);
+    el.addEventListener('mousemove', e=>{if(!isDown)return;e.preventDefault();el.scrollLeft=scrollLeft-(e.pageX-el.offsetLeft-startX);});
+  });
+})();
+
+// ══════════════════════════════════════
+// SLICERS
+// ══════════════════════════════════════
+function populateSlicers() {
+  const bs = document.getElementById('slicer-board');
+  while(bs.options.length>1) bs.remove(1);
+  [...new Set(RAW.map(d=>d.board_type))].sort().forEach(v=>bs.add(new Option(v,v)));
+}
+['slicer-concept','slicer-board','slicer-posting'].forEach(id=>{
+  document.getElementById(id).addEventListener('change',function(){
+    filters[id.replace('slicer-','')]=this.value; render();
+  });
+});
+function resetFilters(){
+  filters={concept:'',board:'',posting:''};
+  ['slicer-concept','slicer-board','slicer-posting'].forEach(id=>document.getElementById(id).value='');
+  render();
+}
+
+// ══════════════════════════════════════
+// FILE UPLOAD
+// ══════════════════════════════════════
+document.getElementById('file-input').addEventListener('change',function(e){
+  const file=e.target.files[0]; if(!file) return;
+  const toast=document.getElementById('upload-toast'), msg=document.getElementById('toast-msg');
+  msg.textContent='⏳ Reading '+file.name+'…'; toast.classList.add('show');
+  const reader=new FileReader();
+  reader.onload=function(ev){
+    try {
+      const wb=XLSX.read(ev.target.result,{type:'array'});
+      const arr=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:''});
+      let hRow=-1;
+      for(let i=0;i<arr.length;i++){if(arr[i].some(c=>String(c).trim().toUpperCase()==='PARTNER')){hRow=i;break;}}
+      if(hRow===-1) throw new Error('Header row not found');
+      const headers=arr[hRow].map(h=>String(h).trim().toUpperCase());
+      const newData=[];
+      for(let i=hRow+1;i<arr.length;i++){
+        const row={}; headers.forEach((h,j)=>row[h]=arr[i][j]||'');
+        if(!row['PARTNER']||String(row['PARTNER']).trim()==='') continue;
+        newData.push(parseRow(row));
+      }
+      if(!newData.length) throw new Error('No data rows found');
+      RAW=newData;
+      document.getElementById('report-date').textContent='Updated: '+new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+      populateSlicers(); resetFilters();
+      msg.textContent='✅ Loaded '+newData.length+' sites';
+      setTimeout(()=>toast.classList.remove('show'),3500);
+    } catch(err){ msg.textContent='❌ '+err.message; setTimeout(()=>toast.classList.remove('show'),4000); }
+  };
+  reader.readAsArrayBuffer(file); this.value='';
+});
+function parseRow(row){
+  const get=(...keys)=>{for(const k of keys){const v=row[k]||row[k.toUpperCase()]||row[k.toLowerCase()];if(v!==undefined&&String(v).trim()!=='')return String(v).trim();}return '';};
+  const concept=get('CONCEPT'); const cu=concept.toUpperCase();
+  let cn='iPhone 16';
+  if(cu.includes('&')||(cu.includes('16')&&cu.includes('17'))) cn='iPhone 16 & 17';
+  else if(cu.includes('17')) cn='iPhone 17';
+  return {
+    sn:parseInt(get('S/N','S/N ','SN'))||0, partner:get('PARTNER'), town:get('TOWN'),
+    location:get('LOCATION'), vicinity:get('VICINITY'), board_type:get('BOARD TYPE','BOARD_TYPE'),
+    material_type:get('MATERIAL TYPE','MATERIAL_TYPE'), concept, concept_norm:cn,
+    orientation:get('ORIENTATION'),
+    printing_status:get('PRINTING STATUS','PRINTING_STATUS').toUpperCase(),
+    pickup_status:get('MATERIAL PICK-UP STATUS','PICKUP_STATUS','MATERIAL PICK UP STATUS').toUpperCase(),
+    posting_status:get('POSTING STATUS','POSTING_STATUS').toUpperCase(),
+    remarks:get('REMARKS'),
+  };
+}
+
+// ══════════════════════════════════════
+// INIT
+// ══════════════════════════════════════
+populateSlicers();
+render();
+</script>
+</body>
+</html>
