@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PHD Media Planning Calculator</title>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Data Labels Plugin -->
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #0e0a1f;
+    color: #fff;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    color: #b8a4ff;
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+    background: #1a1333;
+    padding: 20px;
+    border-radius: 12px;
+}
+
+.tabs {
+    display: flex;
+    margin-bottom: 20px;
+}
+
+.tab {
+    flex: 1;
+    padding: 12px;
+    text-align: center;
+    cursor: pointer;
+    background: #241a47;
+    border-radius: 6px;
+    margin-right: 5px;
+    color: #ccc;
+}
+
+.tab.active {
+    background: #5A2CA0;
+    color: #fff;
+    font-weight: bold;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border-radius: 6px;
+    border: none;
+    background: #241a47;
+    color: #fff;
+}
+
+input::placeholder {
+    color: #aaa;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background: #7B4DDB;
+    border: none;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: 0.3s;
+}
+
+button:hover {
+    background: #5A2CA0;
+}
+
+.results {
+    margin-top: 20px;
+    background: #241a47;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.formula-box {
+    background: #241a47;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+canvas {
+    background: #fff;
+    border-radius: 8px;
+    padding: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>📊 PHD Media Planning Calculator</h1>
+
+<div class="container">
+
+    <!-- Tabs -->
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('calculator')">Calculator</div>
+        <div class="tab" onclick="switchTab('formulas')">Formulas</div>
+    </div>
+
+    <!-- Calculator -->
+    <div id="calculator" class="tab-content active">
+
+        <label>Budget (₦)</label>
+        <input type="number" id="budget" placeholder="e.g. 500000">
+
+        <label>CPM (Cost per 1000 impressions)</label>
+        <input type="number" id="cpm" placeholder="e.g. 2500">
+
+        <label>Total Audience Size</label>
+        <input type="number" id="audience" placeholder="e.g. 1000000">
+
+        <label>Expected Reach (%)</label>
+        <input type="number" id="reachInput" placeholder="e.g. 35">
+
+        <button onclick="calculate()">Calculate</button>
+
+        <div class="results" id="results"></div>
+
+        <canvas id="chart" style="margin-top:20px;"></canvas>
+
+    </div>
+
+    <!-- Formulas -->
+    <div id="formulas" class="tab-content">
+
+        <div class="formula-box">
+            <h3>Impressions</h3>
+            <p>Impressions = (Budget ÷ CPM) × 1000</p>
+        </div>
+
+        <div class="formula-box">
+            <h3>Reach (%)</h3>
+            <p>Reach = Estimated input based on media channel and targeting</p>
+        </div>
+
+        <div class="formula-box">
+            <h3>Frequency</h3>
+            <p>Frequency = Impressions ÷ (Audience × Reach)</p>
+        </div>
+
+        <div class="formula-box">
+            <h3>GRPs (Gross Rating Points)</h3>
+            <p>GRPs = Reach × Frequency</p>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+function switchTab(tab) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+    document.querySelector(`.tab[onclick="switchTab('${tab}')"]`).classList.add('active');
+    document.getElementById(tab).classList.add('active');
+}
+
+function calculate() {
+    let budget = parseFloat(document.getElementById('budget').value);
+    let cpm = parseFloat(document.getElementById('cpm').value);
+    let audience = parseFloat(document.getElementById('audience').value);
+    let reachPercent = parseFloat(document.getElementById('reachInput').value);
+
+    if (!budget || !cpm || !audience || !reachPercent) {
+        alert("Please fill all fields");
+        return;
+    }
+
+    let impressions = (budget / cpm) * 1000;
+    let reachDecimal = reachPercent / 100;
+
+    let frequency = impressions / (audience * reachDecimal);
+    let grps = reachPercent * frequency;
+
+    document.getElementById('results').innerHTML = `
+        <h3>Results</h3>
+        <p><strong>Impressions:</strong> ${Math.round(impressions).toLocaleString()}</p>
+        <p><strong>Reach:</strong> ${reachPercent.toFixed(2)}%</p>
+        <p><strong>Frequency:</strong> ${frequency.toFixed(2)}</p>
+        <p><strong>GRPs:</strong> ${grps.toFixed(2)}</p>
+    `;
+
+    renderChart(reachPercent, frequency, grps);
+}
+
+let chart;
+
+function renderChart(reach, frequency, grps) {
+    let ctx = document.getElementById('chart').getContext('2d');
+
+    if (chart) chart.destroy();
+
+    chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Reach (%)', 'Frequency', 'GRPs'],
+            datasets: [{
+                label: 'Campaign Metrics',
+                data: [reach, frequency, grps],
+                tension: 0.4,
+                fill: false,
+                pointRadius: 6,
+                pointHoverRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: true
+                },
+                datalabels: {
+                    color: '#000',
+                    backgroundColor: '#fff',
+                    borderRadius: 4,
+                    padding: 6,
+                    font: {
+                        weight: 'bold'
+                    },
+                    formatter: function(value, context) {
+                        let label = context.chart.data.labels[context.dataIndex];
+                        if (label.includes('Reach')) return value.toFixed(1) + '%';
+                        return value.toFixed(2);
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        },
+        plugins: [ChartDataLabels]
+    });
+}
+</script>
+
+</body>
+</html>

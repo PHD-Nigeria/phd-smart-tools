@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PHDN Swiss Knife | Media Processor</title>
+
+<script src="https://unpkg.com/@ffmpeg/ffmpeg@0.12.6/dist/ffmpeg.min.js"></script>
+
+<style>
+:root {
+    --bg:#0f172a;
+    --panel:#1e293b;
+    --panel2:#334155;
+    --primary:#2563eb;
+    --success:#16a34a;
+    --danger:#dc2626;
+    --text:#f1f5f9;
+    --muted:#94a3b8;
+}
+
+body {
+    margin:0;
+    font-family:"Segoe UI",sans-serif;
+    background:var(--bg);
+    color:var(--text);
+}
+
+.header {
+    padding:20px 40px;
+    border-bottom:1px solid var(--panel2);
+    font-weight:600;
+    font-size:18px;
+}
+
+.container {
+    max-width:1000px;
+    margin:40px auto;
+    padding:0 20px;
+}
+
+.card {
+    background:var(--panel);
+    padding:30px;
+    border-radius:14px;
+    box-shadow:0 20px 40px rgba(0,0,0,0.4);
+}
+
+.section {
+    margin-bottom:25px;
+}
+
+label {
+    display:block;
+    font-size:14px;
+    color:var(--muted);
+    margin-bottom:6px;
+}
+
+input, select {
+    padding:8px;
+    border-radius:6px;
+    border:none;
+    width:100%;
+    background:var(--panel2);
+    color:var(--text);
+}
+
+button {
+    padding:10px 18px;
+    border:none;
+    border-radius:8px;
+    font-weight:600;
+    cursor:pointer;
+    margin-right:10px;
+}
+
+.primary { background:var(--primary); color:white; }
+.success { background:var(--success); color:white; }
+
+.status {
+    margin-top:15px;
+    font-size:14px;
+    color:var(--muted);
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+PHDN Swiss Knife · Media Converter & Editor
+</div>
+
+<div class="container">
+<div class="card">
+
+<div class="section">
+<label>Import Media File</label>
+<input type="file" id="fileInput">
+</div>
+
+<div class="section">
+<label>Trim Start (seconds)</label>
+<input type="number" id="startTime" value="0">
+</div>
+
+<div class="section">
+<label>Trim End (seconds) (leave blank for full length)</label>
+<input type="number" id="endTime">
+</div>
+
+<div class="section">
+<label>Compression Level</label>
+<select id="compression">
+<option value="18">High Quality</option>
+<option value="23">Medium</option>
+<option value="28">High Compression</option>
+</select>
+</div>
+
+<div class="section">
+<label>Convert To Format</label>
+<select id="format">
+<option value="mp4">MP4 (Video)</option>
+<option value="webm">WebM (Video)</option>
+<option value="mp3">MP3 (Audio)</option>
+<option value="wav">WAV (Audio)</option>
+</select>
+</div>
+
+<div class="section">
+<button class="primary" onclick="processFile()">Process & Export</button>
+</div>
+
+<div class="status" id="status">
+Engine not loaded.
+</div>
+
+</div>
+</div>
+
+<script>
+const { createFFmpeg, fetchFile } = FFmpeg;
+const ffmpeg = createFFmpeg({ log: true });
+
+const statusText = document.getElementById("status");
+
+async function loadEngine() {
+    if (!ffmpeg.isLoaded()) {
+        statusText.innerText = "Loading processing engine...";
+        await ffmpeg.load();
+        statusText.innerText = "Engine ready.";
+    }
+}
+
+loadEngine();
+
+async function processFile() {
+
+    const fileInput = document.getElementById("fileInput");
+    const file = fileInput.files[0];
+
+    if (!file) {
+        alert("Please select a file.");
+        return;
+    }
+
+    await loadEngine();
+
+    const start = document.getElementById("startTime").value;
+    const end = document.getElementById("endTime").value;
+    const compression = document.getElementById("compression").value;
+    const format = document.getElementById("format").value;
+
+    statusText.innerText = "Processing file...";
+
+    ffmpeg.FS("writeFile", file.name, await fetchFile(file));
+
+    let outputName = "output." + format;
+
+    let command = ["-i", file.name];
+
+    if (start) command.push("-ss", start);
+    if (end) command.push("-to", end);
+
+    if (format === "mp4" || format === "webm") {
+        command.push("-crf", compression);
+        command.push(outputName);
+    } else {
+        command.push("-vn");
+        command.push(outputName);
+    }
+
+    await ffmpeg.run(...command);
+
+    const data = ffmpeg.FS("readFile", outputName);
+
+    const blob = new Blob([data.buffer], { type: `video/${format}` });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = outputName;
+    a.click();
+
+    statusText.innerText = "Export complete.";
+}
+</script>
+
+</body>
+</html>

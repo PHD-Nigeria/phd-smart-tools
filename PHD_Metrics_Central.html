@@ -1,0 +1,2028 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PHD Metrics Central</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@500;600;700;800&family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&display=swap');
+
+:root{
+  --purple:#3A008C;
+  --purple-deep:#22005A;
+  --lime:#9FEA47;
+  --coral:#FF7373;
+  --lavender:#9B83FF;
+  --pink:#FF70F2;
+  --ink:#1A0A3D;
+  --paper:#FAF8FF;
+  --line:#E3DCF7;
+  --mono:#6E63A0;
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:'Bricolage Grotesque', sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ===== Header ===== */
+.topbar{
+  background:var(--purple);
+  padding:22px clamp(18px,4vw,48px);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  position:sticky;
+  top:0;
+  z-index:50;
+  box-shadow:0 2px 0 rgba(0,0,0,0.06);
+}
+.brand{display:flex;align-items:center;gap:14px;}
+.brand img{height:30px;display:block;}
+.brand .divider{width:1px;height:24px;background:rgba(255,255,255,0.3);}
+.brand .tag{
+  font-family:'Syne',sans-serif;
+  color:#fff;
+  font-weight:700;
+  font-size:14px;
+  letter-spacing:0.3px;
+  line-height:1.2;
+}
+.brand .tag span{display:block;font-weight:500;font-size:11px;opacity:0.75;letter-spacing:0.5px;text-transform:uppercase;margin-top:1px;}
+.live-clock{
+  font-family:'Syne',sans-serif;
+  color:var(--lime);
+  font-size:12px;
+  font-weight:600;
+  letter-spacing:0.5px;
+  text-align:right;
+}
+.live-clock small{display:block;color:rgba(255,255,255,0.65);font-weight:500;font-size:10px;text-transform:uppercase;letter-spacing:0.8px;}
+
+/* ===== Hero ===== */
+.hero{
+  padding:46px clamp(18px,4vw,48px) 30px;
+  max-width:1280px;
+  margin:0 auto;
+}
+.hero .eyebrow{
+  font-family:'Syne',sans-serif;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:1.6px;
+  text-transform:uppercase;
+  color:var(--purple);
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.hero .eyebrow::before{
+  content:'';
+  width:8px;height:8px;border-radius:50%;
+  background:var(--coral);
+  display:inline-block;
+}
+.hero h1{
+  font-family:'Syne',sans-serif;
+  font-weight:800;
+  font-size:clamp(30px,4.2vw,52px);
+  line-height:1.04;
+  margin:14px 0 14px;
+  letter-spacing:-0.5px;
+}
+.hero h1 em{
+  font-style:normal;
+  background:linear-gradient(100deg,var(--purple),var(--lavender));
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+.hero p.lede{
+  max-width:620px;
+  font-size:16px;
+  line-height:1.55;
+  color:#4B4470;
+  margin:0;
+}
+.hero .stats{
+  display:flex;
+  gap:clamp(20px,4vw,42px);
+  margin-top:30px;
+  flex-wrap:wrap;
+}
+.hero .stats div{display:flex;flex-direction:column;}
+.hero .stats .num{font-family:'Syne',sans-serif;font-weight:800;font-size:30px;color:var(--purple);}
+.hero .stats .lbl{font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--mono);font-weight:600;margin-top:2px;}
+
+/* ===== Layout ===== */
+.app{
+  max-width:1280px;
+  margin:0 auto;
+  padding:0 clamp(18px,4vw,48px) 70px;
+  display:grid;
+  grid-template-columns:300px 1fr;
+  gap:28px;
+}
+@media (max-width:880px){
+  .app{grid-template-columns:1fr;}
+}
+
+/* ===== Sidebar ===== */
+.sidebar{
+  position:sticky;
+  top:96px;
+  align-self:start;
+  max-height:calc(100vh - 116px);
+  overflow-y:auto;
+  padding-right:4px;
+}
+@media (max-width:880px){
+  .sidebar{position:static;max-height:none;}
+}
+.search-box{
+  background:#fff;
+  border:1.5px solid var(--line);
+  border-radius:12px;
+  padding:10px 14px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:16px;
+}
+.search-box svg{flex-shrink:0;opacity:0.5;}
+.search-box input{
+  border:none;outline:none;width:100%;
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:14px;background:transparent;color:var(--ink);
+}
+.cat-group{margin-bottom:6px;}
+
+/* Accordion groups */
+.acc-group{margin-bottom:4px;}
+.acc-header{
+  width:100%;text-align:left;
+  background:none;border:none;
+  padding:10px 14px;
+  border-radius:10px;
+  font-family:'Syne',sans-serif;
+  font-weight:800;font-size:11.5px;
+  letter-spacing:0.8px;text-transform:uppercase;
+  color:var(--mono);
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:space-between;
+  transition:background .15s, color .15s;
+}
+.acc-header:hover{background:#F0EBFF;color:var(--purple);}
+.acc-header.open{color:var(--purple);}
+.acc-header .acc-meta{display:flex;align-items:center;gap:6px;}
+.acc-header .acc-count{
+  font-size:10px;font-weight:600;
+  background:var(--line);
+  border-radius:20px;padding:1px 7px;
+  color:var(--mono);
+}
+.acc-header .acc-arrow{
+  font-size:10px;
+  transition:transform .2s;
+  display:inline-block;
+}
+.acc-header.open .acc-arrow{transform:rotate(90deg);}
+.acc-body{
+  display:none;
+  padding-left:10px;
+  border-left:2px solid var(--line);
+  margin-left:12px;
+  margin-bottom:4px;
+}
+.acc-body.open{display:block;}
+
+.sidebar-divider{
+  height:1px;background:var(--line);
+  margin:8px 4px;
+}
+.cat-btn{
+  width:100%;
+  text-align:left;
+  background:none;border:none;
+  padding:11px 14px;
+  border-radius:10px;
+  font-family:'Syne',sans-serif;
+  font-weight:700;
+  font-size:13.5px;
+  color:var(--ink);
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  transition:background .15s;
+}
+.cat-btn:hover{background:#F0EBFF;}
+.cat-btn.active{background:var(--purple);color:#fff;}
+.cat-btn .count{
+  font-size:11px;font-weight:600;
+  background:rgba(0,0,0,0.08);
+  border-radius:20px;padding:2px 8px;
+  color:inherit;opacity:0.7;
+}
+.cat-btn.active .count{background:rgba(255,255,255,0.2);opacity:1;}
+
+/* ===== Main panel ===== */
+.panel-head{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  margin-bottom:18px;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.panel-head h2{
+  font-family:'Syne',sans-serif;
+  font-size:22px;
+  font-weight:800;
+  margin:0;
+  color:var(--purple-deep);
+}
+.panel-head .sub{font-size:13px;color:var(--mono);font-weight:500;}
+
+.grid-formulas{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(270px,1fr));
+  gap:14px;
+}
+
+.f-card{
+  background:#fff;
+  border:1.5px solid var(--line);
+  border-radius:14px;
+  padding:18px 18px 16px;
+  cursor:pointer;
+  transition:border-color .15s, transform .15s, box-shadow .15s;
+  position:relative;
+  overflow:hidden;
+}
+.f-card::before{
+  content:'';
+  position:absolute;top:0;left:0;height:4px;width:100%;
+  background:var(--lavender);
+  opacity:0;
+  transition:opacity .15s;
+}
+.f-card:hover{border-color:var(--lavender);transform:translateY(-2px);box-shadow:0 8px 18px rgba(58,0,140,0.08);}
+.f-card:hover::before{opacity:1;}
+.f-card.selected{border-color:var(--purple);box-shadow:0 8px 22px rgba(58,0,140,0.18);}
+.f-card.selected::before{opacity:1;background:var(--coral);}
+.f-card h3{
+  font-family:'Syne',sans-serif;
+  font-size:15px;font-weight:700;
+  margin:0 0 6px;color:var(--ink);
+}
+.f-card p{
+  font-size:12.5px;color:var(--mono);line-height:1.4;margin:0;
+}
+
+.empty-state{
+  border:1.5px dashed var(--line);
+  border-radius:14px;
+  padding:50px 20px;
+  text-align:center;
+  color:var(--mono);
+  font-size:14px;
+}
+
+/* ===== Calculator drawer ===== */
+.calc-overlay{
+  position:fixed;inset:0;
+  background:rgba(26,10,61,0.45);
+  backdrop-filter:blur(2px);
+  z-index:90;
+  display:none;
+  align-items:flex-start;
+  justify-content:flex-end;
+}
+.calc-overlay.open{display:flex;}
+.calc-drawer{
+  width:min(440px,100%);
+  height:100%;
+  background:var(--paper);
+  box-shadow:-12px 0 40px rgba(0,0,0,0.18);
+  overflow-y:auto;
+  animation:slidein .25s ease;
+}
+@keyframes slidein{from{transform:translateX(40px);opacity:0;}to{transform:translateX(0);opacity:1;}}
+.calc-head{
+  background:var(--purple);
+  color:#fff;
+  padding:24px 26px 20px;
+  position:relative;
+}
+.calc-head .close-btn{
+  position:absolute;top:18px;right:18px;
+  background:rgba(255,255,255,0.15);
+  border:none;color:#fff;
+  width:30px;height:30px;border-radius:50%;
+  font-size:16px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.calc-head .close-btn:hover{background:rgba(255,255,255,0.28);}
+.calc-head .eyebrow{
+  font-size:10.5px;letter-spacing:1.2px;text-transform:uppercase;
+  font-weight:700;color:var(--lime);font-family:'Syne',sans-serif;
+}
+.calc-head h3{
+  font-family:'Syne',sans-serif;
+  font-size:22px;font-weight:800;margin:8px 0 8px;padding-right:30px;
+}
+.calc-head .formula-strip{
+  font-family:'Syne',sans-serif;
+  font-size:12.5px;
+  background:rgba(255,255,255,0.12);
+  border-radius:8px;
+  padding:8px 12px;
+  margin-top:4px;
+  letter-spacing:0.2px;
+}
+.calc-body{padding:24px 26px 40px;}
+.field{margin-bottom:16px;}
+.field label{
+  display:block;font-size:12.5px;font-weight:700;
+  margin-bottom:6px;color:var(--purple-deep);
+  font-family:'Syne',sans-serif;
+}
+.field input{
+  width:100%;
+  padding:11px 13px;
+  border:1.5px solid var(--line);
+  border-radius:9px;
+  font-size:15px;
+  font-family:'Bricolage Grotesque',sans-serif;
+  outline:none;
+  transition:border-color .15s, box-shadow .15s;
+  background:#fff;
+}
+.field input:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(58,0,140,0.1);}
+.field .hint{font-size:11px;color:var(--mono);margin-top:4px;}
+
+.calc-btn{
+  width:100%;
+  background:var(--purple);
+  color:#fff;
+  border:none;
+  padding:14px;
+  border-radius:10px;
+  font-family:'Syne',sans-serif;
+  font-weight:700;
+  font-size:14.5px;
+  cursor:pointer;
+  margin-top:6px;
+  transition:background .15s, transform .15s;
+}
+.calc-btn:hover{background:var(--purple-deep);}
+.calc-btn:active{transform:scale(0.98);}
+
+.result-box{
+  margin-top:22px;
+  border-radius:14px;
+  padding:22px;
+  background:var(--ink);
+  color:#fff;
+  display:none;
+}
+.result-box.show{display:block;animation:fadein .25s ease;}
+@keyframes fadein{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.result-box .r-label{
+  font-size:11px;text-transform:uppercase;letter-spacing:1px;
+  color:var(--lime);font-weight:700;font-family:'Syne',sans-serif;
+}
+.result-box .r-value{
+  font-family:'Syne',sans-serif;
+  font-size:36px;font-weight:800;margin:8px 0 4px;
+  word-break:break-word;
+  color:#fff;
+}
+.result-box .r-purpose{font-size:12.5px;color:rgba(255,255,255,0.65);line-height:1.5;}
+.result-box.warn{background:#5A1A1A;}
+.result-box.warn .r-label{color:var(--coral);}
+
+.error-msg{
+  color:#C4133C;
+  font-size:12.5px;
+  font-weight:600;
+  margin-top:6px;
+  display:none;
+}
+.error-msg.show{display:block;}
+
+footer{
+  text-align:center;
+  padding:26px 18px 40px;
+  font-size:11.5px;
+  color:var(--mono);
+  font-family:'Syne',sans-serif;
+  letter-spacing:0.3px;
+}
+
+::-webkit-scrollbar{width:8px;}
+::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAB4EAAANFCAYAAAB1CorsAAAACXBIWXMAAAsSAAALEgHS3X78AAAgAElEQVR4nOzdvXWb2bXH4X29nJMJYrIDsgPhZicTO+DbgdiBeCsYugIdVzByhsxwBeZUYCo+gaUK5gYANfqihh8A9sHB86ylNWONg38o6ad93v/5/fffAwAAAAAAAIAx/CV7AAAAAAAAAACbIwIDAAAAAAAADEQEBgAAAAAAABiICAwAAAAAAAAwEBEYAAAAAAAAYCAiMAAAAAAAAMBARGAAAAAAAACAgYjAAAAAAAAAAAMRgQEAAAAAAAAGIgIDAAAAAAAADEQEBgAAAAAAABiICAwAAAAAAAAwEBEYAAAAAAAAYCAiMAAAAAAAAMBARGAAAAAAAACAgYjAAAAAAAAAAAMRgQEAAAAAAAAGIgIDAAAAAAAADEQEBgAAAAAAABiICAwAAAAAAAAwEBEYAAAAAAAAYCAiMAAAAAAAAMBARGAAAAAAAACAgYjAAAAAAAAAAAMRgQEAAAAAAAAGIgIDAAAAAAAADEQEBgAAAAAAABiICAwAAAAAAAAwEBEYAAAAAAAAYCAiMAAAAAAAAMBARGAAAAAAAACAgYjAAAAAAAAAAAMRgQEAAAAAAAAGIgIDAAAAAAAADEQEBgAAAAAAABiICAwAAAAAAAAwEBEYAAAAAAAAYCAiMAAAAAAAAMBARGAAAAAAAACAgYjAAAAAAAAAAAMRgQEAAAAAAAAGIgIDAAAAAAAADEQEBgAAAAAAABiICAwAAAAAAAAwEBEYAAAAAAAAYCAiMAAAAAAAAMBARGAAAAAAAACAgYjAAAAAAAAAAAMRgQEAAAAAAAAGIgIDAAAAAAAADEQEBgAAAAAAABiICAwAAAAAAAAwEBEYAAAAAAAAYCAiMAAAAAAAAMBARGAAAAAAAACAgYjAAAAAAAAAAAMRgQEAAAAAAAAGIgIDAAAAAAAADEQEBgAAAAAAABiICAwAAAAAAAAwEBEYAAAAAAAAYCAiMAAAAAAAAMBARGAAAAAAAACAgYjAAAAAAAAAAAMRgQEAAAAAAAAGIgIDAAAAAAAADEQEBgAAAAAAABiICAwAAAAAAAAwEBEYAAAAAAAAYCAiMAAAAAAAAMBARGAAAAAAAACAgYjAAAAAAAAAAAMRgQEAAAAAAAAGIgIDAAAAAAAADEQEBgAAAAAAABiICAwAAAAAAAAwEBEYAAAAAAAAYCAiMAAAAAAAAMBARGAAAAAAAACAgYjAAAAAAAAAAAMRgQEAAAAAAAAGIgIDAAAAAAAADEQEBgAAAAAAABiICAwAAAAAAAAwEBEYAAAAAAAAYCAiMAAAAAAAAMBARGAAAAAAAACAgYjAAAAAAAAAAAMRgQEAAAAAAAAGIgIDAAAAAAAADEQEBgAAAAAAABiICAwAAAAAAAAwEBEYAAAAAAAAYCAiMAAAAAAAAMBARGAAAAAAAACAgYjAAAAAAAAAAAMRgQEAAAAAAAAGIgIDAAAAAAAADEQEBgAAAAAAABiICAwAAAAAAAAwEBEYAAAAAAAAYCAiMAAAAAAAAMBARGAAAAAAAACAgYjAAAAAAAAAAAMRgQEAAAAAAAAGIgIDAAAAAAAADEQEBgAAAAAAABiICAwAAAAAAAAwEBEYAAAAAAAAYCAiMAAAAAAAAMBARGAAAAAAAACAgYjAAAAAAAAAAAMRgQEAAAAAAAAGIgIDAAAAAAAADEQEBgAAAAAAABiICAwAAAAAAAAwEBEYAAAAAAAAYCAiMAAAAAAAAMBARGAAAAAAAACAgYjAAAAAAAAAAAMRgQEAAAAAAAAGIgIDAAAAAAAADEQEBgAAAAAAABiICAwAAAAAAAAwEBEYAAAAAAAAYCAiMAAAAAAAAMBARGAAAAAAAACAgYjAAAAAAAAAAAMRgQEAAAAAAAAGIgIDAAAAAAAADEQEBgAAAAAAABiICAwAAAAAAAAwEBEYAAAAAAAAYCAiMAAAAAAAAMBARGAAAAAAAACAgYjAAAAAAAAAAAMRgQEAAAAAAAAGIgIDAAAAAAAADEQEBgAAAAAAABiICAwAAAAAAAAwEBEYAAAAAAAAYCAiMAAAAAAAAMBARGAAAAAAAACAgYjAAAAAAAAAAAMRgQEAAAAAAAAGIgIDAAAAAAAADEQEBgAAAAAAABiICAwAAAAAAAAwEBEYAAAAAAAAYCAiMAAAAAAAAMBARGAAAAAAAACAgYjAAAAAAAAAAAMRgQEAAAAAAAAGIgIDAAAAAAAADEQEBgAAAAAAABiICAwAAAAAAAAwEBEYAAAAAAAAYCAiMAAAAAAAAMBARGAAAAAAAACAgYjAAAAAAAAAAAMRgQEAAAAAAAAGIgIDAAAAAAAADEQEBgAA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AAAoRAQGAAAAAAAAKEQEBgAAAAAAAChEBAYAAAAAAAAoRAQGAAAAAAAAKEQEBgAAAAAAAChEBAYAAAAAAAAoRAQGAAAAAAAAKEQEBgAAAAAAAChEBAYAAAAAAAAoRAQGAAAAAAAAKEQEBgAAAAAAAChEBAYAAAAAAAAoRAQGAAAAAAAAKEQEBgAAAAAAAChEBAYAAAAAAAAoRAQGAAAAAAAAKEQEBgAAAAAAAChEBAYAAAAAAAAoRAQGAAAAAAAAKEQEBgAAAAAAAChEBAYAAAAAAAAoRAQGAAAAAAAAKEQEBgAAAAAAAChEBAYAAAAAAAAoRAQGAAAAAAAAKEQEBgAAAAAAAChEBAYAAAAAAAAoRAQGAAAAAAAAKEQEBgAAAAAAAChEBAYAAAAAAAAoRAQGAAAAAAAAKEQEBgAAAAAAAChEBAYAAAAAAAAoRAQGAAAAAAAAKEQEBgAAAAAAAChEBAYAAAAAAAAoRAQGAAAAAAAAKEQEBgAAAAAAAChEBAYAAAAAAAAoRAQGAAAAAAAAKEQEBgAAAAAAAChEBAYAAAAAAAAoRAQGAAAAAAAAKEQEBgAAAAAAAChEBAYAAAAAAAAoRAQGAAAAAAAAKEQEBgAAAAAAAChEBAYAAAAAAAAoRAQGAAAAAAAAKEQEBgAAAAAAAChEBAYAAAAAAAAoRAQGAAAAAAAAKEQEBgAAAAAAAChEBAYAAAAAAAAoRAQGAAAAAAAAKEQEBgAAAAAAAChEBAYAAAAAAAAoRAQGAAAAAAAAKEQEBgAAAAAAAChEBAYAAAAAAAAoRAQGAAAAAAAAKEQEBgAAAAAAAChEBAYAAAAAAAAoRAQGAAAAAAAAKEQEBgAAAAAAAChEBAYAAAAAAAAoRAQGAAAAAAAAKEQEBgAAAAAAAChEBAYAAAAAAAAoRAQGAAAAAAAAKEQEBgAAAAAAAChEBAYAAAAAAAAoRAQGAAAAAAAAKEQEBgAAAAAAAChEBAYAAAAAAAAoRAQGAAAAAAAAKEQEBgAAAAAAAChEBAYAAAAAAAAoRAQGAAAAAAAAKEQEBgAAAAAAAChEBAYAAAAAAAAoRAQGAAAAAAAAKEQEBgAAAAAAAChEBAYAAAAAAAAoRAQGAAAAAAAAKEQEBgAAAAAAAChEBAYAAAAAAAAoRAQGAAAAAAAAKEQEBgAAAAAAAChEBAYAAAAAAAAoRAQGAAAAAAAAKEQEBgAAAAAAAChEBAYAAAAAAAAoRAQGAAAAAAAAKEQEBgAAAAAAAChEBAYAAAAAAAAoRAQGAAAAAAAAKEQEBgAAAAAAAChEBAYAAAAAAAAoRAQGAAAAAAAAKEQEBgAAAAAAAChEBAYAAAAAAAAoRAQGAAAAAAAAKEQEBgAAAAAAAChEBAYAAAAAAAAoRAQGAAAAAAAAKEQEBgAAAAAAAChEBAYAAAAAAAAoRAQGAAAAAAAAKEQEBgAAAAAAAChEBAYAAAAAAAAo5P8Ab3mAoQQlUfMAAAAASUVORK5CYII=" alt="PHD logo">
+    <div class="divider"></div>
+    <div class="tag">Metrics Central<span>Formula Calculation Engine</span></div>
+  </div>
+  <div class="live-clock" id="clock"><small>Lagos</small>--:--:--</div>
+</div>
+
+<div class="hero">
+  <div class="eyebrow" id="hero-eyebrow">Formulas · Disciplines</div>
+  <h1>Every number your business<br><em>runs on, in one place.</em></h1>
+  <p class="lede">From reach and frequency to NPV, Cpk, and MFA compliance — pick a formula, drop in your figures, and get the answer instantly. Built for every team at PHD Nigeria.</p>
+  <div class="stats">
+    <div><span class="num" id="stat-total">96</span><span class="lbl">Formulas</span></div>
+    <div><span class="num" id="stat-cats">8</span><span class="lbl">Categories</span></div>
+    <div><span class="num">0</span><span class="lbl">Spreadsheets needed</span></div>
+  </div>
+</div>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="search-box">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="search" placeholder="Search a formula or KPI...">
+    </div>
+    <div id="cat-list"></div>
+  </aside>
+
+  <main>
+    <div class="panel-head">
+      <h2 id="panel-title">All Categories</h2>
+      <span class="sub" id="panel-count"></span>
+    </div>
+    <div class="grid-formulas" id="grid"></div>
+  </main>
+</div>
+
+<footer>PHD Metrics Central · Formula Calculation Engine · Internal use, PHD Nigeria<br>
+<span style="color:var(--purple);font-weight:700;">Powered by PHD SFW Tech Team</span></footer>
+
+<div class="calc-overlay" id="overlay">
+  <div class="calc-drawer">
+    <div class="calc-head">
+      <button class="close-btn" id="closeBtn">✕</button>
+      <div class="eyebrow" id="d-cat">Category</div>
+      <h3 id="d-name">Formula Name</h3>
+      <div class="formula-strip" id="d-formula">Formula</div>
+    </div>
+    <div class="calc-body">
+      <div id="d-purpose" class="field" style="margin-bottom:20px;"><label>Purpose</label><div style="font-size:13.5px;color:#4B4470;line-height:1.5;" id="d-purpose-text"></div></div>
+      <div id="d-fields"></div>
+      <div class="error-msg" id="d-error">Please fill in all fields with valid numbers.</div>
+      <button class="calc-btn" id="d-calc">Calculate</button>
+      <div class="result-box" id="d-result">
+        <div class="r-label">Result</div>
+        <div class="r-value" id="d-result-value">—</div>
+        <div class="r-purpose" id="d-result-note"></div>
+        <div class="r-extra" id="d-result-extra" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.15);">
+          <div class="r-label" id="d-extra-label" style="color:var(--lavender);"></div>
+          <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:20px;margin-top:4px;" id="d-extra-value"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============== DATA ============== */
+const DATA = [
+{cat:"Media Planning", items:[
+  {name:"Reach (%)", formula:"(People Reached ÷ Target Audience) × 100", purpose:"Measures audience coverage", unit:"%",
+    inputs:[{k:"reached",l:"People Reached"},{k:"target",l:"Target Audience"}],
+    calc:v=> (v.reached/v.target)*100},
+  {name:"Frequency", formula:"Gross Impressions ÷ Reach Audience", purpose:"Average exposure per person", unit:"x",
+    inputs:[{k:"gross",l:"Gross Impressions"},{k:"reachAud",l:"Reach Audience"}],
+    calc:v=> v.gross/v.reachAud},
+  {name:"Gross Rating Points (GRP)", formula:"Reach × Frequency", purpose:"Overall campaign weight", unit:"GRP",
+    inputs:[{k:"reach",l:"Reach (%)"},{k:"freq",l:"Frequency"}],
+    calc:v=> v.reach*v.freq},
+  {name:"Target Rating Points (TRP)", formula:"Target Reach × Frequency", purpose:"Campaign weight for target audience", unit:"TRP",
+    inputs:[{k:"treach",l:"Target Reach"},{k:"freq",l:"Frequency"}],
+    calc:v=> v.treach*v.freq},
+  {name:"Cost Per Rating Point (CPP)", formula:"Total Cost ÷ GRP", purpose:"Cost efficiency of TV/radio campaigns", unit:"₦",
+    inputs:[{k:"cost",l:"Total Cost (₦)"},{k:"grp",l:"GRP"}],
+    calc:v=> v.cost/v.grp},
+  {name:"Cost Per Thousand (CPM)", formula:"(Campaign Cost ÷ Impressions) × 1,000", purpose:"Cost to reach 1,000 people", unit:"₦",
+    inputs:[{k:"cost",l:"Campaign Cost (₦)"},{k:"imp",l:"Impressions"}],
+    calc:v=> (v.cost/v.imp)*1000},
+  {name:"Cost Per Click (CPC)", formula:"Spend ÷ Clicks", purpose:"Digital advertising efficiency", unit:"₦",
+    inputs:[{k:"spend",l:"Spend (₦)"},{k:"clicks",l:"Clicks"}],
+    calc:v=> v.spend/v.clicks},
+  {name:"Click Through Rate (CTR)", formula:"(Clicks ÷ Impressions) × 100", purpose:"Ad engagement", unit:"%",
+    inputs:[{k:"clicks",l:"Clicks"},{k:"imp",l:"Impressions"}],
+    calc:v=> (v.clicks/v.imp)*100},
+  {name:"Viewability Rate", formula:"(Viewable Impressions ÷ Served Impressions) × 100", purpose:"Visibility of ads", unit:"%",
+    inputs:[{k:"view",l:"Viewable Impressions"},{k:"served",l:"Served Impressions"}],
+    calc:v=> (v.view/v.served)*100},
+  {name:"Cost Per View (CPV)", formula:"Spend ÷ Views", purpose:"Video advertising cost", unit:"₦",
+    inputs:[{k:"spend",l:"Spend (₦)"},{k:"views",l:"Views"}],
+    calc:v=> v.spend/v.views},
+  {name:"Video Completion Rate (VCR)", formula:"Completed Views ÷ Video Starts × 100", purpose:"Video engagement", unit:"%",
+    inputs:[{k:"completed",l:"Completed Views"},{k:"starts",l:"Video Starts"}],
+    calc:v=> (v.completed/v.starts)*100},
+  {name:"Share of Voice (SOV)", formula:"Brand Spend ÷ Category Spend × 100", purpose:"Competitive advertising share", unit:"%",
+    inputs:[{k:"brand",l:"Brand Spend (₦)"},{k:"category",l:"Category Spend (₦)"}],
+    calc:v=> (v.brand/v.category)*100},
+  {name:"Share of Market (SOM)", formula:"Brand Sales ÷ Market Sales × 100", purpose:"Market position", unit:"%",
+    inputs:[{k:"brandSales",l:"Brand Sales"},{k:"marketSales",l:"Market Sales"}],
+    calc:v=> (v.brandSales/v.marketSales)*100},
+  {name:"Effective Reach", formula:"People Reached 3+ Times ÷ Total Audience", purpose:"Effective audience exposure", unit:"",
+    inputs:[{k:"reached3",l:"People Reached 3+ Times"},{k:"total",l:"Total Audience"}],
+    calc:v=> v.reached3/v.total},
+  {name:"Net Reach", formula:"Total Reach − Duplicate Audience", purpose:"Unique audience reached", unit:"",
+    inputs:[{k:"total",l:"Total Reach"},{k:"dup",l:"Duplicate Audience"}],
+    calc:v=> v.total-v.dup},
+]},
+{cat:"Media Buying", items:[
+  {name:"Discount (%)", formula:"(List Price − Purchase Price) ÷ List Price × 100", purpose:"Negotiated savings", unit:"%",
+    inputs:[{k:"list",l:"List Price (₦)"},{k:"purchase",l:"Purchase Price (₦)"}],
+    calc:v=> ((v.list-v.purchase)/v.list)*100},
+  {name:"Savings", formula:"Budget − Actual Cost", purpose:"Financial savings", unit:"₦",
+    inputs:[{k:"budget",l:"Budget (₦)"},{k:"actual",l:"Actual Cost (₦)"}],
+    calc:v=> v.budget-v.actual},
+  {name:"Cost Avoidance", formula:"Forecast Cost − Negotiated Cost", purpose:"Avoided future cost", unit:"₦",
+    inputs:[{k:"forecast",l:"Forecast Cost (₦)"},{k:"negotiated",l:"Negotiated Cost (₦)"}],
+    calc:v=> v.forecast-v.negotiated},
+  {name:"Negotiated Gain", formula:"Original Offer − Final Deal", purpose:"Negotiation performance", unit:"₦",
+    inputs:[{k:"original",l:"Original Offer (₦)"},{k:"final",l:"Final Deal (₦)"}],
+    calc:v=> v.original-v.final},
+  {name:"Fill Rate", formula:"Delivered Units ÷ Ordered Units × 100", purpose:"Supplier delivery performance", unit:"%",
+    inputs:[{k:"delivered",l:"Delivered Units"},{k:"ordered",l:"Ordered Units"}],
+    calc:v=> (v.delivered/v.ordered)*100},
+  {name:"Delivery Rate", formula:"Delivered Impressions ÷ Planned Impressions × 100", purpose:"Campaign fulfillment", unit:"%",
+    inputs:[{k:"delivered",l:"Delivered Impressions"},{k:"planned",l:"Planned Impressions"}],
+    calc:v=> (v.delivered/v.planned)*100},
+  {name:"Under Delivery", formula:"Planned − Delivered", purpose:"Missed delivery", unit:"",
+    inputs:[{k:"planned",l:"Planned"},{k:"delivered",l:"Delivered"}],
+    calc:v=> v.planned-v.delivered},
+  {name:"Over Delivery", formula:"Delivered − Planned", purpose:"Bonus delivery", unit:"",
+    inputs:[{k:"delivered",l:"Delivered"},{k:"planned",l:"Planned"}],
+    calc:v=> v.delivered-v.planned},
+]},
+{cat:"Financial Planning", items:[
+  {name:"Budget Variance", formula:"Actual − Budget", purpose:"Budget difference", unit:"₦",
+    inputs:[{k:"actual",l:"Actual (₦)"},{k:"budget",l:"Budget (₦)"}],
+    calc:v=> v.actual-v.budget},
+  {name:"Variance %", formula:"(Actual − Budget) ÷ Budget × 100", purpose:"Budget performance", unit:"%",
+    inputs:[{k:"actual",l:"Actual (₦)"},{k:"budget",l:"Budget (₦)"}],
+    calc:v=> ((v.actual-v.budget)/v.budget)*100},
+  {name:"Burn Rate", formula:"Spend ÷ Budget × 100", purpose:"Budget consumption", unit:"%",
+    inputs:[{k:"spend",l:"Spend (₦)"},{k:"budget",l:"Budget (₦)"}],
+    calc:v=> (v.spend/v.budget)*100},
+  {name:"Budget Utilization", formula:"Actual Spend ÷ Approved Budget × 100", purpose:"Budget usage", unit:"%",
+    inputs:[{k:"actual",l:"Actual Spend (₦)"},{k:"approved",l:"Approved Budget (₦)"}],
+    calc:v=> (v.actual/v.approved)*100},
+  {name:"Campaign Profit", formula:"Revenue − Campaign Cost", purpose:"Campaign profitability", unit:"₦",
+    inputs:[{k:"revenue",l:"Revenue (₦)"},{k:"cost",l:"Campaign Cost (₦)"}],
+    calc:v=> v.revenue-v.cost},
+  {name:"Gross Margin", formula:"(Sales − COGS) ÷ Sales × 100", purpose:"Gross profitability", unit:"%",
+    inputs:[{k:"sales",l:"Sales (₦)"},{k:"cogs",l:"COGS (₦)"}],
+    calc:v=> ((v.sales-v.cogs)/v.sales)*100},
+  {name:"Net Margin", formula:"Net Profit ÷ Revenue × 100", purpose:"Overall profitability", unit:"%",
+    inputs:[{k:"net",l:"Net Profit (₦)"},{k:"revenue",l:"Revenue (₦)"}],
+    calc:v=> (v.net/v.revenue)*100},
+  {name:"EBITDA", formula:"Revenue − Operating Expenses", purpose:"Operating performance", unit:"₦",
+    inputs:[{k:"revenue",l:"Revenue (₦)"},{k:"opex",l:"Operating Expenses (₦)"}],
+    calc:v=> v.revenue-v.opex},
+]},
+{cat:"Financial Modeling", items:[
+  {name:"Revenue", formula:"Price × Quantity", purpose:"Total sales", unit:"₦",
+    inputs:[{k:"price",l:"Price (₦)"},{k:"qty",l:"Quantity"}],
+    calc:v=> v.price*v.qty},
+  {name:"Gross Profit", formula:"Revenue − Cost of Sales", purpose:"Gross earnings", unit:"₦",
+    inputs:[{k:"revenue",l:"Revenue (₦)"},{k:"cos",l:"Cost of Sales (₦)"}],
+    calc:v=> v.revenue-v.cos},
+  {name:"Net Profit", formula:"Revenue − Expenses", purpose:"Bottom-line earnings", unit:"₦",
+    inputs:[{k:"revenue",l:"Revenue (₦)"},{k:"expenses",l:"Expenses (₦)"}],
+    calc:v=> v.revenue-v.expenses},
+  {name:"Operating Profit", formula:"Gross Profit − Operating Expenses", purpose:"Operating earnings", unit:"₦",
+    inputs:[{k:"gross",l:"Gross Profit (₦)"},{k:"opex",l:"Operating Expenses (₦)"}],
+    calc:v=> v.gross-v.opex},
+  {name:"Break-even Point", formula:"Fixed Cost ÷ (Selling Price − Variable Cost)", purpose:"Break-even sales volume", unit:"units",
+    inputs:[{k:"fixed",l:"Fixed Cost (₦)"},{k:"price",l:"Selling Price (₦)"},{k:"variable",l:"Variable Cost (₦)"}],
+    calc:v=> v.fixed/(v.price-v.variable)},
+  {name:"Contribution Margin", formula:"Sales − Variable Cost", purpose:"Contribution to fixed costs", unit:"₦",
+    inputs:[{k:"sales",l:"Sales (₦)"},{k:"variable",l:"Variable Cost (₦)"}],
+    calc:v=> v.sales-v.variable},
+  {name:"Contribution Margin %", formula:"Contribution Margin ÷ Sales × 100", purpose:"Profitability indicator", unit:"%",
+    inputs:[{k:"cm",l:"Contribution Margin (₦)"},{k:"sales",l:"Sales (₦)"}],
+    calc:v=> (v.cm/v.sales)*100},
+  {name:"Cash Flow", formula:"Cash In − Cash Out", purpose:"Liquidity", unit:"₦",
+    inputs:[{k:"in",l:"Cash In (₦)"},{k:"out",l:"Cash Out (₦)"}],
+    calc:v=> v.in-v.out},
+  {name:"Free Cash Flow", formula:"Operating Cash − Capital Expenditure", purpose:"Cash available after investment", unit:"₦",
+    inputs:[{k:"opcash",l:"Operating Cash (₦)"},{k:"capex",l:"Capital Expenditure (₦)"}],
+    calc:v=> v.opcash-v.capex},
+  {name:"Working Capital", formula:"Current Assets − Current Liabilities", purpose:"Operational liquidity", unit:"₦",
+    inputs:[{k:"assets",l:"Current Assets (₦)"},{k:"liab",l:"Current Liabilities (₦)"}],
+    calc:v=> v.assets-v.liab},
+  {name:"Current Ratio", formula:"Current Assets ÷ Current Liabilities", purpose:"Short-term solvency", unit:"x",
+    inputs:[{k:"assets",l:"Current Assets (₦)"},{k:"liab",l:"Current Liabilities (₦)"}],
+    calc:v=> v.assets/v.liab},
+  {name:"Quick Ratio", formula:"(Current Assets − Inventory) ÷ Current Liabilities", purpose:"Immediate liquidity", unit:"x",
+    inputs:[{k:"assets",l:"Current Assets (₦)"},{k:"inv",l:"Inventory (₦)"},{k:"liab",l:"Current Liabilities (₦)"}],
+    calc:v=> (v.assets-v.inv)/v.liab},
+  {name:"Debt Ratio", formula:"Total Debt ÷ Total Assets", purpose:"Financial leverage", unit:"x",
+    inputs:[{k:"debt",l:"Total Debt (₦)"},{k:"assets",l:"Total Assets (₦)"}],
+    calc:v=> v.debt/v.assets},
+  {name:"Debt-to-Equity Ratio", formula:"Total Debt ÷ Equity", purpose:"Capital structure", unit:"x",
+    inputs:[{k:"debt",l:"Total Debt (₦)"},{k:"equity",l:"Equity (₦)"}],
+    calc:v=> v.debt/v.equity},
+  {name:"ROI", formula:"Net Profit ÷ Investment × 100", purpose:"Investment performance", unit:"%",
+    inputs:[{k:"net",l:"Net Profit (₦)"},{k:"investment",l:"Investment (₦)"}],
+    calc:v=> (v.net/v.investment)*100},
+  {name:"ROE", formula:"Net Income ÷ Shareholders' Equity × 100", purpose:"Shareholder return", unit:"%",
+    inputs:[{k:"income",l:"Net Income (₦)"},{k:"equity",l:"Shareholders' Equity (₦)"}],
+    calc:v=> (v.income/v.equity)*100},
+  {name:"ROA", formula:"Net Income ÷ Total Assets × 100", purpose:"Asset efficiency", unit:"%",
+    inputs:[{k:"income",l:"Net Income (₦)"},{k:"assets",l:"Total Assets (₦)"}],
+    calc:v=> (v.income/v.assets)*100},
+  {name:"Asset Turnover", formula:"Sales ÷ Total Assets", purpose:"Asset productivity", unit:"x",
+    inputs:[{k:"sales",l:"Sales (₦)"},{k:"assets",l:"Total Assets (₦)"}],
+    calc:v=> v.sales/v.assets},
+]},
+{cat:"Investment Analysis", items:[
+  {name:"NPV", formula:"Σ(Cash Flow ÷ (1+r)^t) − Initial Investment", purpose:"Project value", unit:"₦",
+    inputs:[{k:"cf",l:"Annual Cash Flow (₦)"},{k:"rate",l:"Discount Rate (% e.g. 12)"},{k:"years",l:"Number of Years"},{k:"initial",l:"Initial Investment (₦)"}],
+    calc:v=>{ const r=v.rate/100; let sum=0; for(let t=1;t<=v.years;t++){ sum += v.cf/Math.pow(1+r,t);} return sum-v.initial; }},
+  {name:"IRR (approx.)", formula:"Discount rate where NPV = 0", purpose:"Investment return", unit:"%",
+    inputs:[{k:"cf",l:"Annual Cash Flow (₦)"},{k:"years",l:"Number of Years"},{k:"initial",l:"Initial Investment (₦)"}],
+    calc:v=>{
+      // iterative approximation via bisection on NPV(rate)=0
+      function npvAt(rate){ let s=0; for(let t=1;t<=v.years;t++){ s+= v.cf/Math.pow(1+rate,t);} return s-v.initial; }
+      let lo=-0.9, hi=5, mid=0;
+      for(let i=0;i<200;i++){ mid=(lo+hi)/2; const val=npvAt(mid); if(Math.abs(val)<0.01) break; if(val>0){lo=mid;}else{hi=mid;} }
+      return mid*100;
+    }},
+  {name:"Payback Period", formula:"Initial Investment ÷ Annual Cash Flow", purpose:"Recovery time", unit:"years",
+    inputs:[{k:"initial",l:"Initial Investment (₦)"},{k:"cf",l:"Annual Cash Flow (₦)"}],
+    calc:v=> v.initial/v.cf},
+  {name:"Profitability Index", formula:"PV of Cash Flows ÷ Initial Investment", purpose:"Investment ranking", unit:"x",
+    inputs:[{k:"pv",l:"PV of Cash Flows (₦)"},{k:"initial",l:"Initial Investment (₦)"}],
+    calc:v=> v.pv/v.initial},
+]},
+{cat:"Economics", items:[
+  {name:"GDP", formula:"C + I + G + (X − M)", purpose:"Economic output", unit:"₦",
+    inputs:[{k:"c",l:"Consumption (C)"},{k:"i",l:"Investment (I)"},{k:"g",l:"Government Spending (G)"},{k:"x",l:"Exports (X)"},{k:"m",l:"Imports (M)"}],
+    calc:v=> v.c+v.i+v.g+(v.x-v.m)},
+  {name:"Inflation Rate", formula:"(Current Price − Previous Price) ÷ Previous Price × 100", purpose:"Price growth", unit:"%",
+    inputs:[{k:"current",l:"Current Price"},{k:"previous",l:"Previous Price"}],
+    calc:v=> ((v.current-v.previous)/v.previous)*100},
+  {name:"Price Elasticity", formula:"%Δ Quantity ÷ %Δ Price", purpose:"Price sensitivity", unit:"",
+    inputs:[{k:"pctQty",l:"%Δ Quantity"},{k:"pctPrice",l:"%Δ Price"}],
+    calc:v=> v.pctQty/v.pctPrice},
+  {name:"Income Elasticity", formula:"%Δ Demand ÷ %Δ Income", purpose:"Income sensitivity", unit:"",
+    inputs:[{k:"pctDemand",l:"%Δ Demand"},{k:"pctIncome",l:"%Δ Income"}],
+    calc:v=> v.pctDemand/v.pctIncome},
+  {name:"Cross Elasticity", formula:"%Δ Demand A ÷ %Δ Price B", purpose:"Product substitution", unit:"",
+    inputs:[{k:"pctDemandA",l:"%Δ Demand A"},{k:"pctPriceB",l:"%Δ Price B"}],
+    calc:v=> v.pctDemandA/v.pctPriceB},
+  {name:"Productivity", formula:"Output ÷ Input", purpose:"Production efficiency", unit:"x",
+    inputs:[{k:"output",l:"Output"},{k:"input",l:"Input"}],
+    calc:v=> v.output/v.input},
+  {name:"Marginal Cost", formula:"Δ Cost ÷ Δ Quantity", purpose:"Cost of one additional unit", unit:"₦",
+    inputs:[{k:"dCost",l:"Δ Cost (₦)"},{k:"dQty",l:"Δ Quantity"}],
+    calc:v=> v.dCost/v.dQty},
+  {name:"Average Cost", formula:"Total Cost ÷ Quantity", purpose:"Unit cost", unit:"₦",
+    inputs:[{k:"total",l:"Total Cost (₦)"},{k:"qty",l:"Quantity"}],
+    calc:v=> v.total/v.qty},
+  {name:"Marginal Revenue", formula:"Δ Revenue ÷ Δ Quantity", purpose:"Revenue from one extra unit", unit:"₦",
+    inputs:[{k:"dRev",l:"Δ Revenue (₦)"},{k:"dQty",l:"Δ Quantity"}],
+    calc:v=> v.dRev/v.dQty},
+  {name:"Consumer Surplus", formula:"Maximum Price − Actual Price", purpose:"Consumer benefit", unit:"₦",
+    inputs:[{k:"max",l:"Maximum Price (₦)"},{k:"actual",l:"Actual Price (₦)"}],
+    calc:v=> v.max-v.actual},
+  {name:"Producer Surplus", formula:"Selling Price − Minimum Acceptable Price", purpose:"Producer benefit", unit:"₦",
+    inputs:[{k:"selling",l:"Selling Price (₦)"},{k:"min",l:"Minimum Acceptable Price (₦)"}],
+    calc:v=> v.selling-v.min},
+]},
+{cat:"Procurement & Negotiation", items:[
+  {name:"Procurement Savings", formula:"Baseline Cost − Award Cost", purpose:"Procurement effectiveness", unit:"₦",
+    inputs:[{k:"baseline",l:"Baseline Cost (₦)"},{k:"award",l:"Award Cost (₦)"}],
+    calc:v=> v.baseline-v.award},
+  {name:"Purchase Price Variance", formula:"(Standard Cost − Actual Cost) × Quantity", purpose:"Purchasing efficiency", unit:"₦",
+    inputs:[{k:"standard",l:"Standard Cost (₦)"},{k:"actual",l:"Actual Cost (₦)"},{k:"qty",l:"Quantity"}],
+    calc:v=> (v.standard-v.actual)*v.qty},
+  {name:"Supplier Reliability", formula:"On-Time Deliveries ÷ Total Deliveries × 100", purpose:"Supplier performance", unit:"%",
+    inputs:[{k:"onTime",l:"On-Time Deliveries"},{k:"total",l:"Total Deliveries"}],
+    calc:v=> (v.onTime/v.total)*100},
+  {name:"Supplier Performance Score", formula:"Quality × Delivery × Cost Score", purpose:"Overall supplier rating", unit:"",
+    inputs:[{k:"quality",l:"Quality Score"},{k:"delivery",l:"Delivery Score"},{k:"cost",l:"Cost Score"}],
+    calc:v=> v.quality*v.delivery*v.cost},
+  {name:"Procurement ROI", formula:"Savings ÷ Procurement Cost × 100", purpose:"Procurement return", unit:"%",
+    inputs:[{k:"savings",l:"Savings (₦)"},{k:"cost",l:"Procurement Cost (₦)"}],
+    calc:v=> (v.savings/v.cost)*100},
+]},
+{cat:"Strategy", items:[
+  {name:"Market Share", formula:"Company Sales ÷ Industry Sales × 100", purpose:"Competitive position", unit:"%",
+    inputs:[{k:"company",l:"Company Sales (₦)"},{k:"industry",l:"Industry Sales (₦)"}],
+    calc:v=> (v.company/v.industry)*100},
+  {name:"CAGR", formula:"((Ending Value ÷ Beginning Value)^(1/n)) − 1", purpose:"Annual growth rate", unit:"%",
+    inputs:[{k:"ending",l:"Ending Value"},{k:"beginning",l:"Beginning Value"},{k:"n",l:"Number of Years (n)"}],
+    calc:v=> (Math.pow(v.ending/v.beginning, 1/v.n)-1)*100},
+  {name:"Customer Lifetime Value (CLV)", formula:"Avg Purchase × Purchase Frequency × Customer Lifespan", purpose:"Customer value", unit:"₦",
+    inputs:[{k:"avg",l:"Avg Purchase Value (₦)"},{k:"freq",l:"Purchase Frequency (per year)"},{k:"lifespan",l:"Customer Lifespan (years)"}],
+    calc:v=> v.avg*v.freq*v.lifespan},
+  {name:"Customer Acquisition Cost (CAC)", formula:"Marketing Spend ÷ New Customers", purpose:"Cost to acquire customers", unit:"₦",
+    inputs:[{k:"spend",l:"Marketing Spend (₦)"},{k:"newCust",l:"New Customers"}],
+    calc:v=> v.spend/v.newCust},
+  {name:"CLV/CAC Ratio", formula:"CLV ÷ CAC", purpose:"Marketing efficiency", unit:"x",
+    inputs:[{k:"clv",l:"CLV (₦)"},{k:"cac",l:"CAC (₦)"}],
+    calc:v=> v.clv/v.cac},
+  {name:"Churn Rate", formula:"Lost Customers ÷ Total Customers × 100", purpose:"Customer loss", unit:"%",
+    inputs:[{k:"lost",l:"Lost Customers"},{k:"total",l:"Total Customers"}],
+    calc:v=> (v.lost/v.total)*100},
+  {name:"Retention Rate", formula:"Retained Customers ÷ Total Customers × 100", purpose:"Customer loyalty", unit:"%",
+    inputs:[{k:"retained",l:"Retained Customers"},{k:"total",l:"Total Customers"}],
+    calc:v=> (v.retained/v.total)*100},
+  {name:"Market Penetration", formula:"Customers ÷ Total Market × 100", purpose:"Market coverage", unit:"%",
+    inputs:[{k:"customers",l:"Customers"},{k:"market",l:"Total Market"}],
+    calc:v=> (v.customers/v.market)*100},
+]},
+{cat:"Media Agency KPIs", items:[
+  {name:"ROAS", formula:"Revenue ÷ Ad Spend", purpose:"Advertising effectiveness", unit:"x",
+    inputs:[{k:"revenue",l:"Revenue (₦)"},{k:"spend",l:"Ad Spend (₦)"}],
+    calc:v=> v.revenue/v.spend},
+  {name:"CPA", formula:"Spend ÷ Conversions", purpose:"Cost per acquisition", unit:"₦",
+    inputs:[{k:"spend",l:"Spend (₦)"},{k:"conversions",l:"Conversions"}],
+    calc:v=> v.spend/v.conversions},
+  {name:"Media Efficiency Ratio (MER)", formula:"Revenue ÷ Ad Spend", purpose:"Overall media efficiency", unit:"x",
+    inputs:[{k:"revenue",l:"Revenue (₦)"},{k:"spend",l:"Ad Spend (₦)"}],
+    calc:v=> v.revenue/v.spend},
+  {name:"Engagement Rate", formula:"Interactions ÷ Reach × 100", purpose:"Audience engagement", unit:"%",
+    inputs:[{k:"interactions",l:"Interactions"},{k:"reach",l:"Reach"}],
+    calc:v=> (v.interactions/v.reach)*100},
+  {name:"Conversion Rate", formula:"Conversions ÷ Clicks × 100", purpose:"Sales effectiveness", unit:"%",
+    inputs:[{k:"conversions",l:"Conversions"},{k:"clicks",l:"Clicks"}],
+    calc:v=> (v.conversions/v.clicks)*100},
+  {name:"Win Rate", formula:"Won Pitches ÷ Total Pitches × 100", purpose:"Business development success", unit:"%",
+    inputs:[{k:"won",l:"Won Pitches"},{k:"total",l:"Total Pitches"}],
+    calc:v=> (v.won/v.total)*100},
+  {name:"Utilization Rate", formula:"Billable Hours ÷ Available Hours × 100", purpose:"Resource utilization", unit:"%",
+    inputs:[{k:"billable",l:"Billable Hours"},{k:"available",l:"Available Hours"}],
+    calc:v=> (v.billable/v.available)*100},
+  {name:"Billable Rate", formula:"Billable Hours ÷ Total Hours × 100", purpose:"Staff productivity", unit:"%",
+    inputs:[{k:"billable",l:"Billable Hours"},{k:"total",l:"Total Hours"}],
+    calc:v=> (v.billable/v.total)*100},
+  {name:"Revenue per Employee", formula:"Revenue ÷ Number of Employees", purpose:"Workforce productivity", unit:"₦",
+    inputs:[{k:"revenue",l:"Revenue (₦)"},{k:"employees",l:"Number of Employees"}],
+    calc:v=> v.revenue/v.employees},
+  {name:"Forecast Accuracy", formula:"1 − (ABS(Forecast − Actual) ÷ Actual)", purpose:"Forecast quality", unit:"%",
+    inputs:[{k:"forecast",l:"Forecast"},{k:"actual",l:"Actual"}],
+    calc:v=> (1-(Math.abs(v.forecast-v.actual)/v.actual))*100},
+  {name:"Budget Pacing", formula:"Actual Spend ÷ Planned Spend × 100", purpose:"Budget tracking", unit:"%",
+    inputs:[{k:"actual",l:"Actual Spend (₦)"},{k:"planned",l:"Planned Spend (₦)"}],
+    calc:v=> (v.actual/v.planned)*100},
+  {name:"Impression Delivery Rate", formula:"Delivered Impressions ÷ Planned Impressions × 100", purpose:"Campaign delivery performance", unit:"%",
+    inputs:[{k:"delivered",l:"Delivered Impressions"},{k:"planned",l:"Planned Impressions"}],
+    calc:v=> (v.delivered/v.planned)*100},
+]},
+{cat:"Nigerian Tax & Statutory", items:[
+  {name:"VAT Payable", formula:"Output VAT − Input VAT (Rate: 7.5%)", purpose:"Net VAT remittable to FIRS", unit:"₦",
+    inputs:[{k:"sales",l:"Taxable Sales (₦)"},{k:"purchases",l:"Taxable Purchases (₦)"},{k:"rate",l:"VAT Rate % (default 7.5)"}],
+    calc:v=>{ const rate=(v.rate||7.5)/100; const outputVat=v.sales*rate; const inputVat=v.purchases*rate; return outputVat-inputVat; }},
+  {name:"VAT Amount Only", formula:"Taxable Value × VAT Rate", purpose:"The VAT amount itself, on top of a net value", unit:"₦",
+    inputs:[{k:"amount",l:"Taxable Value (₦)"},{k:"rate",l:"VAT Rate % (default 7.5)"}],
+    calc:v=> v.amount*((v.rate||7.5)/100)},
+  {name:"VAT Exclusive → Inclusive", formula:"VAT-Exclusive Amount × (1 + Rate)", purpose:"Adds VAT to a net price", unit:"₦",
+    inputs:[{k:"amount",l:"VAT-Exclusive Amount (₦)"},{k:"rate",l:"VAT Rate % (default 7.5)"}],
+    calc:v=> v.amount*(1+((v.rate||7.5)/100)),
+    extra:v=>({label:"VAT Amount Added", value: v.amount*((v.rate||7.5)/100), unit:"₦"})},
+  {name:"VAT Inclusive → Exclusive", formula:"VAT-Inclusive Amount ÷ (1 + Rate)", purpose:"Strips VAT out of a gross price", unit:"₦",
+    inputs:[{k:"amount",l:"VAT-Inclusive Amount (₦)"},{k:"rate",l:"VAT Rate % (default 7.5)"}],
+    calc:v=> v.amount/(1+((v.rate||7.5)/100)),
+    extra:v=>({label:"VAT Amount Removed", value: v.amount - (v.amount/(1+((v.rate||7.5)/100))), unit:"₦"})},
+  {name:"Companies Income Tax (CIT)", formula:"Assessable Profit × CIT Rate", purpose:"Company tax liability (30% large, 20% medium, 0% small co.)", unit:"₦",
+    inputs:[{k:"profit",l:"Assessable Profit (₦)"},{k:"rate",l:"CIT Rate % (0 / 20 / 30)"}],
+    calc:v=> v.profit*(v.rate/100)},
+  {name:"Tertiary Education Tax (TET)", formula:"Assessable Profit × 3%", purpose:"Education tax on company profit", unit:"₦",
+    inputs:[{k:"profit",l:"Assessable Profit (₦)"}],
+    calc:v=> v.profit*0.03},
+  {name:"Capital Gains Tax (CGT)", formula:"Capital Gain × 10%", purpose:"Tax on disposal of chargeable assets", unit:"₦",
+    inputs:[{k:"gain",l:"Capital Gain (₦)"}],
+    calc:v=> v.gain*0.10},
+  {name:"Withholding Tax (WHT)", formula:"Invoice Value × WHT Rate", purpose:"Tax deducted at source on payments (e.g. 5% contracts, 10% dividends/rent)", unit:"₦",
+    inputs:[{k:"value",l:"Invoice/Payment Value (₦)"},{k:"rate",l:"WHT Rate % (e.g. 5 or 10)"}],
+    calc:v=> v.value*(v.rate/100)},
+  {name:"Personal Income Tax (PIT)", formula:"Progressive bands on (Gross Income − CRA − Pension/NHF) per PITA", purpose:"Annual PAYE/personal tax liability", unit:"₦",
+    inputs:[{k:"gross",l:"Gross Annual Income (₦)"},{k:"pension",l:"Pension Contribution (₦)"},{k:"nhf",l:"NHF Contribution (₦)"}],
+    calc:v=>{
+      const consolidatedRelief = Math.max(200000, v.gross*0.01) + (v.gross*0.20);
+      let taxable = v.gross - consolidatedRelief - (v.pension||0) - (v.nhf||0);
+      if(taxable<0) taxable=0;
+      const bands=[[300000,0.07],[300000,0.11],[500000,0.15],[500000,0.19],[1600000,0.21],[Infinity,0.24]];
+      let tax=0, remaining=taxable;
+      for(const [band,rate] of bands){
+        if(remaining<=0) break;
+        const taxedAtBand=Math.min(remaining,band);
+        tax += taxedAtBand*rate;
+        remaining -= taxedAtBand;
+      }
+      return tax;
+    }},
+  {name:"National Housing Fund (NHF)", formula:"Basic Monthly Salary × 2.5%", purpose:"Statutory housing fund contribution", unit:"₦",
+    inputs:[{k:"basic",l:"Basic Monthly Salary (₦)"}],
+    calc:v=> v.basic*0.025},
+  {name:"Employee Pension Contribution", formula:"(Basic + Housing + Transport) × 8%", purpose:"Minimum statutory employee pension (PRA 2014)", unit:"₦",
+    inputs:[{k:"emoluments",l:"Monthly Pensionable Emoluments (₦)"}],
+    calc:v=> v.emoluments*0.08},
+  {name:"Employer Pension Contribution", formula:"(Basic + Housing + Transport) × 10%", purpose:"Minimum statutory employer pension (PRA 2014)", unit:"₦",
+    inputs:[{k:"emoluments",l:"Monthly Pensionable Emoluments (₦)"}],
+    calc:v=> v.emoluments*0.10},
+  {name:"NSITF Contribution", formula:"Total Monthly Payroll × 1%", purpose:"Employee Compensation Act contribution", unit:"₦",
+    inputs:[{k:"payroll",l:"Total Monthly Payroll (₦)"}],
+    calc:v=> v.payroll*0.01},
+  {name:"Industrial Training Fund (ITF)", formula:"Annual Payroll × 1%", purpose:"Statutory training levy (employers with 5+ staff or ₦50m+ turnover)", unit:"₦",
+    inputs:[{k:"payroll",l:"Annual Payroll (₦)"}],
+    calc:v=> v.payroll*0.01},
+  {name:"Stamp Duty (Fixed-rate instrument)", formula:"Instrument Value × Applicable Rate", purpose:"Duty on agreements, leases, receipts, etc.", unit:"₦",
+    inputs:[{k:"value",l:"Instrument Value (₦)"},{k:"rate",l:"Applicable Rate % (e.g. 1.5 for tenancy)"}],
+    calc:v=> v.value*(v.rate/100)},
+]},
+{cat:"Audience Research", items:[
+  {name:"Rating (%)", formula:"(Audience Viewing ÷ Total Universe) × 100", purpose:"Percentage of target population watching/listening", unit:"%",
+    inputs:[{k:"viewing",l:"Audience Viewing"},{k:"universe",l:"Total Universe"}],
+    calc:v=>(v.viewing/v.universe)*100},
+  {name:"Share (%)", formula:"(Audience Viewing ÷ Total Audience Using Medium) × 100", purpose:"Share of current audience", unit:"%",
+    inputs:[{k:"viewing",l:"Audience Viewing"},{k:"total",l:"Total Audience Using Medium"}],
+    calc:v=>(v.viewing/v.total)*100},
+  {name:"HUT (%)", formula:"(Households Using TV ÷ Total TV Households) × 100", purpose:"Television usage level", unit:"%",
+    inputs:[{k:"hut",l:"Households Using TV"},{k:"total",l:"Total TV Households"}],
+    calc:v=>(v.hut/v.total)*100},
+  {name:"PUT (%)", formula:"(Persons Using TV ÷ Total Population) × 100", purpose:"Population media usage", unit:"%",
+    inputs:[{k:"put",l:"Persons Using TV"},{k:"pop",l:"Total Population"}],
+    calc:v=>(v.put/v.pop)*100},
+  {name:"Average Minute Audience (AMA)", formula:"Total Viewing Minutes ÷ Program Duration (minutes)", purpose:"Average audience during a programme", unit:"",
+    inputs:[{k:"minutes",l:"Total Viewing Minutes"},{k:"duration",l:"Program Duration (minutes)"}],
+    calc:v=>v.minutes/v.duration},
+  {name:"Cume Reach (%)", formula:"(Unique Audience ÷ Total Population) × 100", purpose:"Total unique audience reached", unit:"%",
+    inputs:[{k:"unique",l:"Unique Audience"},{k:"pop",l:"Total Population"}],
+    calc:v=>(v.unique/v.pop)*100},
+]},
+{cat:"Digital Research", items:[
+  {name:"Cost per Lead (CPL)", formula:"Campaign Cost ÷ Number of Leads", purpose:"Cost to acquire a lead", unit:"₦",
+    inputs:[{k:"cost",l:"Campaign Cost (₦)"},{k:"leads",l:"Number of Leads"}],
+    calc:v=>v.cost/v.leads},
+  {name:"Cost per Install (CPI)", formula:"Campaign Cost ÷ Number of App Installs", purpose:"Mobile app acquisition cost", unit:"₦",
+    inputs:[{k:"cost",l:"Campaign Cost (₦)"},{k:"installs",l:"Number of App Installs"}],
+    calc:v=>v.cost/v.installs},
+  {name:"Cost per Sale (CPS)", formula:"Campaign Cost ÷ Number of Sales", purpose:"Cost to generate a sale", unit:"₦",
+    inputs:[{k:"cost",l:"Campaign Cost (₦)"},{k:"sales",l:"Number of Sales"}],
+    calc:v=>v.cost/v.sales},
+  {name:"Bounce Rate (%)", formula:"(Single-Page Sessions ÷ Total Sessions) × 100", purpose:"Percentage leaving after one page", unit:"%",
+    inputs:[{k:"single",l:"Single-Page Sessions"},{k:"total",l:"Total Sessions"}],
+    calc:v=>(v.single/v.total)*100},
+  {name:"Interaction Rate (%)", formula:"(Interactions ÷ Impressions) × 100", purpose:"Rich media engagement", unit:"%",
+    inputs:[{k:"interactions",l:"Interactions"},{k:"impressions",l:"Impressions"}],
+    calc:v=>(v.interactions/v.impressions)*100},
+]},
+{cat:"Brand Research", items:[
+  {name:"Awareness Lift (%)", formula:"((Post − Pre) ÷ Pre) × 100", purpose:"Change in brand awareness post-campaign", unit:"%",
+    inputs:[{k:"post",l:"Post-Campaign Awareness (%)"},{k:"pre",l:"Pre-Campaign Awareness (%)"}],
+    calc:v=>((v.post-v.pre)/v.pre)*100},
+  {name:"Ad Recall Lift (%)", formula:"((Post Recall − Pre Recall) ÷ Pre Recall) × 100", purpose:"Advertising recall improvement", unit:"%",
+    inputs:[{k:"post",l:"Post Recall (%)"},{k:"pre",l:"Pre Recall (%)"}],
+    calc:v=>((v.post-v.pre)/v.pre)*100},
+  {name:"Consideration Lift (%)", formula:"((Post − Pre) ÷ Pre) × 100", purpose:"Purchase consideration improvement", unit:"%",
+    inputs:[{k:"post",l:"Post Consideration (%)"},{k:"pre",l:"Pre Consideration (%)"}],
+    calc:v=>((v.post-v.pre)/v.pre)*100},
+  {name:"Purchase Intent Lift (%)", formula:"((Post − Pre) ÷ Pre) × 100", purpose:"Purchase intent improvement", unit:"%",
+    inputs:[{k:"post",l:"Post Intent (%)"},{k:"pre",l:"Pre Intent (%)"}],
+    calc:v=>((v.post-v.pre)/v.pre)*100},
+  {name:"Brand Preference Lift (%)", formula:"((Post − Pre) ÷ Pre) × 100", purpose:"Brand preference improvement", unit:"%",
+    inputs:[{k:"post",l:"Post Preference (%)"},{k:"pre",l:"Pre Preference (%)"}],
+    calc:v=>((v.post-v.pre)/v.pre)*100},
+  {name:"Favorability Lift (%)", formula:"((Post − Pre) ÷ Pre) × 100", purpose:"Brand perception improvement", unit:"%",
+    inputs:[{k:"post",l:"Post Favorability (%)"},{k:"pre",l:"Pre Favorability (%)"}],
+    calc:v=>((v.post-v.pre)/v.pre)*100},
+]},
+{cat:"Market Intelligence", items:[
+  {name:"Share of Search (%)", formula:"(Brand Searches ÷ Total Category Searches) × 100", purpose:"Search visibility relative to category", unit:"%",
+    inputs:[{k:"brand",l:"Brand Searches"},{k:"total",l:"Total Category Searches"}],
+    calc:v=>(v.brand/v.total)*100},
+  {name:"Share of Engagement (%)", formula:"(Brand Engagements ÷ Total Category Engagements) × 100", purpose:"Social engagement share", unit:"%",
+    inputs:[{k:"brand",l:"Brand Engagements"},{k:"total",l:"Total Category Engagements"}],
+    calc:v=>(v.brand/v.total)*100},
+  {name:"Share of Conversation (%)", formula:"(Brand Mentions ÷ Total Category Mentions) × 100", purpose:"Share of online discussion", unit:"%",
+    inputs:[{k:"brand",l:"Brand Mentions"},{k:"total",l:"Total Category Mentions"}],
+    calc:v=>(v.brand/v.total)*100},
+]},
+{cat:"Customer Research", items:[
+  {name:"Net Promoter Score (NPS)", formula:"% Promoters − % Detractors", purpose:"Customer advocacy and loyalty", unit:"",
+    inputs:[{k:"promoters",l:"% Promoters (score 9–10)"},{k:"detractors",l:"% Detractors (score 0–6)"}],
+    calc:v=>v.promoters-v.detractors},
+  {name:"Customer Satisfaction (CSAT)", formula:"(Satisfied Respondents ÷ Total Respondents) × 100", purpose:"Customer satisfaction score", unit:"%",
+    inputs:[{k:"satisfied",l:"Satisfied Respondents"},{k:"total",l:"Total Respondents"}],
+    calc:v=>(v.satisfied/v.total)*100},
+]},
+{cat:"Survey Research", items:[
+  {name:"Response Rate (%)", formula:"(Completed Responses ÷ Invitations Sent) × 100", purpose:"Survey participation rate", unit:"%",
+    inputs:[{k:"completed",l:"Completed Responses"},{k:"invitations",l:"Invitations Sent"}],
+    calc:v=>(v.completed/v.invitations)*100},
+  {name:"Completion Rate (%)", formula:"(Completed Surveys ÷ Started Surveys) × 100", purpose:"Survey completion quality", unit:"%",
+    inputs:[{k:"completed",l:"Completed Surveys"},{k:"started",l:"Started Surveys"}],
+    calc:v=>(v.completed/v.started)*100},
+  {name:"Incidence Rate (%)", formula:"(Qualified Respondents ÷ Total Screened) × 100", purpose:"Eligibility/qualification rate", unit:"%",
+    inputs:[{k:"qualified",l:"Qualified Respondents"},{k:"screened",l:"Total Screened"}],
+    calc:v=>(v.qualified/v.screened)*100},
+  {name:"Margin of Error", formula:"±Z × √(p(1−p) ÷ n)", purpose:"Expected sampling error", unit:"±",
+    inputs:[{k:"z",l:"Z-Score (e.g. 1.96 for 95% CI)"},{k:"p",l:"Proportion (e.g. 0.5)"},{k:"n",l:"Sample Size (n)"}],
+    calc:v=>v.z*Math.sqrt((v.p*(1-v.p))/v.n),
+    extra:v=>({label:"As Percentage", value: v.z*Math.sqrt((v.p*(1-v.p))/v.n)*100, unit:"%"})},
+  {name:"Confidence Interval (Lower)", formula:"Mean − (Z × Standard Error)", purpose:"Lower bound of confidence range", unit:"",
+    inputs:[{k:"mean",l:"Sample Mean"},{k:"z",l:"Z-Score (e.g. 1.96)"},{k:"se",l:"Standard Error"}],
+    calc:v=>v.mean-(v.z*v.se)},
+  {name:"Confidence Interval (Upper)", formula:"Mean + (Z × Standard Error)", purpose:"Upper bound of confidence range", unit:"",
+    inputs:[{k:"mean",l:"Sample Mean"},{k:"z",l:"Z-Score (e.g. 1.96)"},{k:"se",l:"Standard Error"}],
+    calc:v=>v.mean+(v.z*v.se)},
+  {name:"Standard Error (SE)", formula:"Standard Deviation ÷ √n", purpose:"Sampling variability", unit:"",
+    inputs:[{k:"sd",l:"Standard Deviation"},{k:"n",l:"Sample Size (n)"}],
+    calc:v=>v.sd/Math.sqrt(v.n)},
+]},
+{cat:"Statistical Analysis", items:[
+  {name:"Mean (Average)", formula:"Σx ÷ n", purpose:"Average value of a dataset", unit:"",
+    inputs:[{k:"sum",l:"Sum of All Values (Σx)"},{k:"n",l:"Number of Values (n)"}],
+    calc:v=>v.sum/v.n},
+  {name:"Variance", formula:"Σ(x − μ)² ÷ n", purpose:"Spread of data around the mean", unit:"",
+    inputs:[{k:"sumsq",l:"Sum of Squared Deviations Σ(x−μ)²"},{k:"n",l:"Number of Values (n)"}],
+    calc:v=>v.sumsq/v.n},
+  {name:"Standard Deviation", formula:"√Variance", purpose:"Dispersion of data values", unit:"",
+    inputs:[{k:"variance",l:"Variance"}],
+    calc:v=>Math.sqrt(v.variance)},
+  {name:"Z-Score", formula:"(X − μ) ÷ σ", purpose:"Standardised score relative to mean", unit:"",
+    inputs:[{k:"x",l:"Observed Value (X)"},{k:"mean",l:"Population Mean (μ)"},{k:"sd",l:"Standard Deviation (σ)"}],
+    calc:v=>(v.x-v.mean)/v.sd},
+  {name:"Correlation Coefficient (r)", formula:"Cov(X,Y) ÷ (σx × σy)", purpose:"Relationship strength between two variables", unit:"",
+    inputs:[{k:"cov",l:"Covariance Cov(X,Y)"},{k:"sdx",l:"Std Dev of X (σx)"},{k:"sdy",l:"Std Dev of Y (σy)"}],
+    calc:v=>v.cov/(v.sdx*v.sdy)},
+  {name:"Covariance", formula:"Σ((Xi − X̄)(Yi − Ȳ)) ÷ (n−1)", purpose:"Joint variability of two variables", unit:"",
+    inputs:[{k:"sumxy",l:"Σ((Xi−X̄)(Yi−Ȳ))"},{k:"n",l:"Number of Observations (n)"}],
+    calc:v=>v.sumxy/(v.n-1)},
+  {name:"Coefficient of Determination (R²)", formula:"R² = SSR ÷ SST", purpose:"Goodness of fit of a predictive model", unit:"",
+    inputs:[{k:"ssr",l:"Sum of Squares Regression (SSR)"},{k:"sst",l:"Total Sum of Squares (SST)"}],
+    calc:v=>v.ssr/v.sst},
+  {name:"Chi-Square (χ²)", formula:"Σ((Observed − Expected)² ÷ Expected)", purpose:"Test of independence between variables", unit:"",
+    inputs:[{k:"obs",l:"Observed Value"},{k:"exp",l:"Expected Value"}],
+    calc:v=>Math.pow(v.obs-v.exp,2)/v.exp},
+  {name:"T-Test Statistic", formula:"(X̄₁ − X̄₂) ÷ Standard Error", purpose:"Difference between two sample means", unit:"",
+    inputs:[{k:"mean1",l:"Mean 1 (X̄₁)"},{k:"mean2",l:"Mean 2 (X̄₂)"},{k:"se",l:"Standard Error"}],
+    calc:v=>(v.mean1-v.mean2)/v.se},
+  {name:"Index Score", formula:"(Segment % ÷ Population %) × 100", purpose:"Audience concentration index", unit:"",
+    inputs:[{k:"seg",l:"Segment % in Target"},{k:"pop",l:"Segment % in Population"}],
+    calc:v=>(v.seg/v.pop)*100},
+]},
+{cat:"Media Mix Modelling", items:[
+  {name:"Incremental Sales", formula:"Actual Sales − Baseline Sales", purpose:"Sales attributable to media activity", unit:"₦",
+    inputs:[{k:"actual",l:"Actual Sales (₦)"},{k:"baseline",l:"Baseline Sales (₦)"}],
+    calc:v=>v.actual-v.baseline},
+  {name:"Advertising Elasticity", formula:"% Change in Sales ÷ % Change in Media Spend", purpose:"Media responsiveness on sales", unit:"",
+    inputs:[{k:"pctSales",l:"% Change in Sales"},{k:"pctSpend",l:"% Change in Media Spend"}],
+    calc:v=>v.pctSales/v.pctSpend},
+  {name:"Diminishing Returns", formula:"ΔSales ÷ ΔMedia Spend", purpose:"Efficiency of additional media spend", unit:"",
+    inputs:[{k:"dSales",l:"Δ Sales"},{k:"dSpend",l:"Δ Media Spend"}],
+    calc:v=>v.dSales/v.dSpend},
+  {name:"Attribution Weight (%)", formula:"(Channel Conversions ÷ Total Conversions) × 100", purpose:"Channel contribution to conversions", unit:"%",
+    inputs:[{k:"channel",l:"Channel Conversions"},{k:"total",l:"Total Conversions"}],
+    calc:v=>(v.channel/v.total)*100},
+  {name:"Affinity Index", formula:"(Brand Users in Segment ÷ Total Segment Population) × 100", purpose:"Brand affinity within audience segment", unit:"",
+    inputs:[{k:"brandUsers",l:"Brand Users in Segment"},{k:"segPop",l:"Total Segment Population"}],
+    calc:v=>(v.brandUsers/v.segPop)*100},
+  {name:"Exclusive Reach (%)", formula:"(Audience Reached Only by One Channel ÷ Total Audience) × 100", purpose:"Unique audience contribution of a single channel", unit:"%",
+    inputs:[{k:"exclusive",l:"Audience Reached by One Channel Only"},{k:"total",l:"Total Audience"}],
+    calc:v=>(v.exclusive/v.total)*100},
+  {name:"Lift Ratio", formula:"Response Rate (Exposed) ÷ Response Rate (Control)", purpose:"Campaign effectiveness vs. control group", unit:"x",
+    inputs:[{k:"exposed",l:"Response Rate — Exposed (%)"},{k:"control",l:"Response Rate — Control (%)"}],
+    calc:v=>v.exposed/v.control},
+]},
+{cat:"Research Quality", items:[
+  {name:"Cronbach's Alpha (α)", formula:"(k ÷ (k−1)) × (1 − (Σσ²ᵢ ÷ σ²ₜ))", purpose:"Internal consistency reliability of a scale", unit:"",
+    inputs:[{k:"k",l:"Number of Items (k)"},{k:"sumVar",l:"Sum of Item Variances (Σσ²ᵢ)"},{k:"totalVar",l:"Total Scale Variance (σ²ₜ)"}],
+    calc:v=>(v.k/(v.k-1))*(1-(v.sumVar/v.totalVar))},
+  {name:"Composite Reliability (CR)", formula:"(Σλ)² ÷ ((Σλ)² + Σθ)", purpose:"Construct reliability in SEM", unit:"",
+    inputs:[{k:"sumLambda",l:"Sum of Factor Loadings (Σλ)"},{k:"sumTheta",l:"Sum of Error Variances (Σθ)"}],
+    calc:v=>Math.pow(v.sumLambda,2)/(Math.pow(v.sumLambda,2)+v.sumTheta)},
+  {name:"Average Variance Extracted (AVE)", formula:"Σλ² ÷ Number of Indicators", purpose:"Convergent validity of a construct", unit:"",
+    inputs:[{k:"sumLambdaSq",l:"Sum of Squared Loadings (Σλ²)"},{k:"k",l:"Number of Indicators"}],
+    calc:v=>v.sumLambdaSq/v.k},
+  {name:"KMO Measure", formula:"Σr² ÷ (Σr² + Σq²)", purpose:"Sampling adequacy for factor analysis", unit:"",
+    inputs:[{k:"sumR2",l:"Sum of Squared Correlations (Σr²)"},{k:"sumQ2",l:"Sum of Squared Partial Correlations (Σq²)"}],
+    calc:v=>v.sumR2/(v.sumR2+v.sumQ2)},
+]},
+{cat:"Advanced Analytics", items:[
+  {name:"Linear Regression (Y)", formula:"Y = a + bX", purpose:"Predict campaign outcome from one media variable", unit:"",
+    inputs:[{k:"a",l:"Intercept (a)"},{k:"b",l:"Coefficient (b)"},{k:"x",l:"Media Variable (X)"}],
+    calc:v=>v.a+(v.b*v.x)},
+  {name:"MAPE (%)", formula:"(1/n) × Σ(|Actual − Forecast| ÷ Actual) × 100", purpose:"Forecast accuracy (Mean Absolute % Error)", unit:"%",
+    inputs:[{k:"actual",l:"Actual Value"},{k:"forecast",l:"Forecast Value"},{k:"n",l:"Number of Periods (n)"}],
+    calc:v=>((Math.abs(v.actual-v.forecast)/v.actual)*100)/v.n},
+  {name:"RMSE", formula:"√(Σ(Predicted − Actual)² ÷ n)", purpose:"Root mean square prediction error", unit:"",
+    inputs:[{k:"sumsq",l:"Σ(Predicted − Actual)²"},{k:"n",l:"Number of Observations (n)"}],
+    calc:v=>Math.sqrt(v.sumsq/v.n)},
+  {name:"MAE", formula:"Σ|Predicted − Actual| ÷ n", purpose:"Mean absolute forecasting error", unit:"",
+    inputs:[{k:"sumAbs",l:"Σ|Predicted − Actual|"},{k:"n",l:"Number of Observations (n)"}],
+    calc:v=>v.sumAbs/v.n},
+  {name:"Bayesian Probability P(A|B)", formula:"(P(B|A) × P(A)) ÷ P(B)", purpose:"Probability updating in consumer research", unit:"",
+    inputs:[{k:"pba",l:"P(B|A) — Likelihood"},{k:"pa",l:"P(A) — Prior"},{k:"pb",l:"P(B) — Evidence"}],
+    calc:v=>(v.pba*v.pa)/v.pb},
+]},
+{cat:"QC — General Quality", items:[
+  {name:"Accuracy Rate", formula:"(Correct Records ÷ Total Records Reviewed) × 100", purpose:"Measures overall accuracy", unit:"%",
+    inputs:[{k:"correct",l:"Correct Records"},{k:"total",l:"Total Records Reviewed"}],
+    calc:v=>(v.correct/v.total)*100},
+  {name:"Error Rate", formula:"(Errors Found ÷ Total Records Reviewed) × 100", purpose:"Percentage of records with errors", unit:"%",
+    inputs:[{k:"errors",l:"Errors Found"},{k:"total",l:"Total Records Reviewed"}],
+    calc:v=>(v.errors/v.total)*100},
+  {name:"Defect Rate", formula:"(Defective Records ÷ Total Records) × 100", purpose:"Measures defects in output", unit:"%",
+    inputs:[{k:"defective",l:"Defective Records"},{k:"total",l:"Total Records"}],
+    calc:v=>(v.defective/v.total)*100},
+  {name:"Defect Density", formula:"Total Defects ÷ Total Records", purpose:"Average defects per record", unit:"",
+    inputs:[{k:"defects",l:"Total Defects"},{k:"total",l:"Total Records"}],
+    calc:v=>v.defects/v.total},
+  {name:"DPMO", formula:"(Defects ÷ Opportunities) × 1,000,000", purpose:"Six Sigma quality metric (Defects Per Million Opportunities)", unit:"",
+    inputs:[{k:"defects",l:"Total Defects"},{k:"opportunities",l:"Total Opportunities"}],
+    calc:v=>(v.defects/v.opportunities)*1000000},
+  {name:"First Pass Yield (FPY)", formula:"Correct Records First Time ÷ Total Records × 100", purpose:"Right-first-time performance", unit:"%",
+    inputs:[{k:"correct",l:"Correct Records First Time"},{k:"total",l:"Total Records"}],
+    calc:v=>(v.correct/v.total)*100},
+  {name:"Rolled Throughput Yield (RTY)", formula:"FPY₁ × FPY₂ × FPY₃ (as decimals)", purpose:"Multi-step process quality", unit:"%",
+    inputs:[{k:"fpy1",l:"FPY Step 1 (e.g. 0.95)"},{k:"fpy2",l:"FPY Step 2 (e.g. 0.97)"},{k:"fpy3",l:"FPY Step 3 (e.g. 0.98)"}],
+    calc:v=>v.fpy1*v.fpy2*v.fpy3*100},
+  {name:"Rework Rate", formula:"Reworked Jobs ÷ Total Jobs × 100", purpose:"Measures rework required", unit:"%",
+    inputs:[{k:"rework",l:"Reworked Jobs"},{k:"total",l:"Total Jobs"}],
+    calc:v=>(v.rework/v.total)*100},
+  {name:"Scrap Rate", formula:"Discarded Jobs ÷ Total Jobs × 100", purpose:"Waste measurement", unit:"%",
+    inputs:[{k:"discarded",l:"Discarded Jobs"},{k:"total",l:"Total Jobs"}],
+    calc:v=>(v.discarded/v.total)*100},
+  {name:"Acceptance Rate", formula:"Accepted Jobs ÷ Submitted Jobs × 100", purpose:"Approval success rate", unit:"%",
+    inputs:[{k:"accepted",l:"Accepted Jobs"},{k:"submitted",l:"Submitted Jobs"}],
+    calc:v=>(v.accepted/v.submitted)*100},
+  {name:"Rejection Rate", formula:"Rejected Jobs ÷ Submitted Jobs × 100", purpose:"Rejection frequency", unit:"%",
+    inputs:[{k:"rejected",l:"Rejected Jobs"},{k:"submitted",l:"Submitted Jobs"}],
+    calc:v=>(v.rejected/v.submitted)*100},
+  {name:"Internal Failure Rate", formula:"Internal Errors ÷ Total Jobs × 100", purpose:"Errors caught internally before client", unit:"%",
+    inputs:[{k:"errors",l:"Internal Errors"},{k:"total",l:"Total Jobs"}],
+    calc:v=>(v.errors/v.total)*100},
+  {name:"External Failure Rate", formula:"Customer Errors ÷ Total Jobs × 100", purpose:"Errors found by clients", unit:"%",
+    inputs:[{k:"errors",l:"Customer-Found Errors"},{k:"total",l:"Total Jobs"}],
+    calc:v=>(v.errors/v.total)*100},
+  {name:"Defect Escape Rate", formula:"Customer Found Errors ÷ Total Errors × 100", purpose:"Defects that missed internal QC", unit:"%",
+    inputs:[{k:"custErrors",l:"Customer Found Errors"},{k:"totalErrors",l:"Total Errors"}],
+    calc:v=>(v.custErrors/v.totalErrors)*100},
+  {name:"Internal Detection Rate", formula:"Internal Errors Found ÷ Total Errors × 100", purpose:"QC detection effectiveness", unit:"%",
+    inputs:[{k:"found",l:"Internal Errors Found"},{k:"total",l:"Total Errors"}],
+    calc:v=>(v.found/v.total)*100},
+  {name:"Corrective Action Closure Rate", formula:"Closed Corrective Actions ÷ Total Corrective Actions × 100", purpose:"CAPA completion rate", unit:"%",
+    inputs:[{k:"closed",l:"Closed Corrective Actions"},{k:"total",l:"Total Corrective Actions"}],
+    calc:v=>(v.closed/v.total)*100},
+  {name:"Preventive Action Completion Rate", formula:"Closed Preventive Actions ÷ Total Preventive Actions × 100", purpose:"Preventive improvement completion", unit:"%",
+    inputs:[{k:"closed",l:"Closed Preventive Actions"},{k:"total",l:"Total Preventive Actions"}],
+    calc:v=>(v.closed/v.total)*100},
+  {name:"Repeat Error Rate", formula:"Repeat Errors ÷ Total Errors × 100", purpose:"Recurring issue tracking", unit:"%",
+    inputs:[{k:"repeat",l:"Repeat Errors"},{k:"total",l:"Total Errors"}],
+    calc:v=>(v.repeat/v.total)*100},
+  {name:"Non-Conformance Rate", formula:"Non-Conforming Jobs ÷ Total Jobs × 100", purpose:"Process non-compliance frequency", unit:"%",
+    inputs:[{k:"nonconf",l:"Non-Conforming Jobs"},{k:"total",l:"Total Jobs"}],
+    calc:v=>(v.nonconf/v.total)*100},
+]},
+{cat:"QC — Audit & Compliance", items:[
+  {name:"Audit Pass Rate", formula:"Passed Audits ÷ Total Audits × 100", purpose:"Audit performance", unit:"%",
+    inputs:[{k:"passed",l:"Passed Audits"},{k:"total",l:"Total Audits"}],
+    calc:v=>(v.passed/v.total)*100},
+  {name:"Audit Failure Rate", formula:"Failed Audits ÷ Total Audits × 100", purpose:"Audit failures", unit:"%",
+    inputs:[{k:"failed",l:"Failed Audits"},{k:"total",l:"Total Audits"}],
+    calc:v=>(v.failed/v.total)*100},
+  {name:"Compliance Rate", formula:"Compliant Jobs ÷ Total Jobs × 100", purpose:"Policy compliance", unit:"%",
+    inputs:[{k:"compliant",l:"Compliant Jobs"},{k:"total",l:"Total Jobs"}],
+    calc:v=>(v.compliant/v.total)*100},
+  {name:"SOP Compliance", formula:"SOP-Compliant Jobs ÷ Total Jobs × 100", purpose:"Process adherence to SOPs", unit:"%",
+    inputs:[{k:"compliant",l:"SOP-Compliant Jobs"},{k:"total",l:"Total Jobs"}],
+    calc:v=>(v.compliant/v.total)*100},
+  {name:"Regulatory Compliance", formula:"Regulatory-Compliant Jobs ÷ Total Jobs × 100", purpose:"Regulatory adherence rate", unit:"%",
+    inputs:[{k:"compliant",l:"Regulatory-Compliant Jobs"},{k:"total",l:"Total Jobs"}],
+    calc:v=>(v.compliant/v.total)*100},
+  {name:"Documentation Completeness", formula:"Complete Files ÷ Total Files × 100", purpose:"Documentation quality", unit:"%",
+    inputs:[{k:"complete",l:"Complete Files"},{k:"total",l:"Total Files"}],
+    calc:v=>(v.complete/v.total)*100},
+  {name:"Approval Compliance", formula:"Approved Jobs ÷ Submitted Jobs × 100", purpose:"Workflow compliance rate", unit:"%",
+    inputs:[{k:"approved",l:"Approved Jobs"},{k:"submitted",l:"Submitted Jobs"}],
+    calc:v=>(v.approved/v.submitted)*100},
+]},
+{cat:"QC — Service Delivery", items:[
+  {name:"SLA Compliance", formula:"Jobs Within SLA ÷ Total Jobs × 100", purpose:"SLA achievement rate", unit:"%",
+    inputs:[{k:"withinSla",l:"Jobs Within SLA"},{k:"total",l:"Total Jobs"}],
+    calc:v=>(v.withinSla/v.total)*100},
+  {name:"On-Time Delivery", formula:"Jobs Delivered On Time ÷ Total Jobs × 100", purpose:"Timeliness of delivery", unit:"%",
+    inputs:[{k:"onTime",l:"Jobs Delivered On Time"},{k:"total",l:"Total Jobs"}],
+    calc:v=>(v.onTime/v.total)*100},
+  {name:"Late Delivery Rate", formula:"Late Jobs ÷ Total Jobs × 100", purpose:"Delivery delay frequency", unit:"%",
+    inputs:[{k:"late",l:"Late Jobs"},{k:"total",l:"Total Jobs"}],
+    calc:v=>(v.late/v.total)*100},
+  {name:"Average Cycle Time", formula:"Total Processing Time ÷ Total Jobs", purpose:"Operational efficiency", unit:"",
+    inputs:[{k:"totalTime",l:"Total Processing Time (hrs)"},{k:"total",l:"Total Jobs"}],
+    calc:v=>v.totalTime/v.total},
+  {name:"Turnaround Time (TAT)", formula:"Completion Time − Request Time", purpose:"End-to-end processing time", unit:"hrs",
+    inputs:[{k:"completion",l:"Completion Time (hrs)"},{k:"request",l:"Request Time (hrs)"}],
+    calc:v=>v.completion-v.request},
+  {name:"Average Review Time", formula:"Total Review Time ÷ Jobs Reviewed", purpose:"Reviewer efficiency", unit:"",
+    inputs:[{k:"totalTime",l:"Total Review Time (hrs)"},{k:"jobs",l:"Jobs Reviewed"}],
+    calc:v=>v.totalTime/v.jobs},
+  {name:"Throughput", formula:"Total Jobs Processed ÷ Time Period", purpose:"Team capacity output", unit:"jobs",
+    inputs:[{k:"jobs",l:"Total Jobs Processed"},{k:"period",l:"Time Period (days/hrs)"}],
+    calc:v=>v.jobs/v.period},
+  {name:"Productivity Rate", formula:"Jobs Reviewed ÷ Reviewer Hours", purpose:"Staff productivity", unit:"jobs/hr",
+    inputs:[{k:"jobs",l:"Jobs Reviewed"},{k:"hours",l:"Reviewer Hours"}],
+    calc:v=>v.jobs/v.hours},
+  {name:"Escalation Rate", formula:"Escalated Issues ÷ Total Issues × 100", purpose:"Issue severity indicator", unit:"%",
+    inputs:[{k:"escalated",l:"Escalated Issues"},{k:"total",l:"Total Issues"}],
+    calc:v=>(v.escalated/v.total)*100},
+]},
+{cat:"QC — Media Planning", items:[
+  {name:"Planned vs Actual Reach", formula:"Actual Reach ÷ Planned Reach × 100", purpose:"Campaign reach accuracy", unit:"%",
+    inputs:[{k:"actual",l:"Actual Reach"},{k:"planned",l:"Planned Reach"}],
+    calc:v=>(v.actual/v.planned)*100},
+  {name:"Planned vs Actual Frequency", formula:"Actual Frequency ÷ Planned Frequency × 100", purpose:"Delivery validation", unit:"%",
+    inputs:[{k:"actual",l:"Actual Frequency"},{k:"planned",l:"Planned Frequency"}],
+    calc:v=>(v.actual/v.planned)*100},
+  {name:"Planned vs Actual GRP", formula:"Actual GRP ÷ Planned GRP × 100", purpose:"Campaign performance vs plan", unit:"%",
+    inputs:[{k:"actual",l:"Actual GRP"},{k:"planned",l:"Planned GRP"}],
+    calc:v=>(v.actual/v.planned)*100},
+  {name:"Planned vs Actual TRP", formula:"Actual TRP ÷ Planned TRP × 100", purpose:"Target audience delivery", unit:"%",
+    inputs:[{k:"actual",l:"Actual TRP"},{k:"planned",l:"Planned TRP"}],
+    calc:v=>(v.actual/v.planned)*100},
+  {name:"Click Delivery Rate", formula:"Actual Clicks ÷ Planned Clicks × 100", purpose:"Click achievement rate", unit:"%",
+    inputs:[{k:"actual",l:"Actual Clicks"},{k:"planned",l:"Planned Clicks"}],
+    calc:v=>(v.actual/v.planned)*100},
+  {name:"CPM Variance", formula:"Actual CPM − Planned CPM", purpose:"Buying efficiency variance", unit:"₦",
+    inputs:[{k:"actual",l:"Actual CPM (₦)"},{k:"planned",l:"Planned CPM (₦)"}],
+    calc:v=>v.actual-v.planned},
+  {name:"CPP Variance", formula:"Actual CPP − Planned CPP", purpose:"Cost per rating point variance", unit:"₦",
+    inputs:[{k:"actual",l:"Actual CPP (₦)"},{k:"planned",l:"Planned CPP (₦)"}],
+    calc:v=>v.actual-v.planned},
+  {name:"Budget Accuracy", formula:"Actual Spend ÷ Planned Budget × 100", purpose:"Financial accuracy of campaign", unit:"%",
+    inputs:[{k:"actual",l:"Actual Spend (₦)"},{k:"planned",l:"Planned Budget (₦)"}],
+    calc:v=>(v.actual/v.planned)*100},
+  {name:"Cost Variance", formula:"Planned Cost − Actual Cost", purpose:"Budget deviation", unit:"₦",
+    inputs:[{k:"planned",l:"Planned Cost (₦)"},{k:"actual",l:"Actual Cost (₦)"}],
+    calc:v=>v.planned-v.actual},
+]},
+{cat:"QC — Media Buying", items:[
+  {name:"Booking Accuracy", formula:"Correct Bookings ÷ Total Bookings × 100", purpose:"Booking correctness rate", unit:"%",
+    inputs:[{k:"correct",l:"Correct Bookings"},{k:"total",l:"Total Bookings"}],
+    calc:v=>(v.correct/v.total)*100},
+  {name:"Rate Accuracy", formula:"Correct Rates ÷ Total Rates × 100", purpose:"Pricing accuracy", unit:"%",
+    inputs:[{k:"correct",l:"Correct Rates"},{k:"total",l:"Total Rates"}],
+    calc:v=>(v.correct/v.total)*100},
+  {name:"Invoice Accuracy", formula:"Correct Invoices ÷ Total Invoices × 100", purpose:"Billing quality", unit:"%",
+    inputs:[{k:"correct",l:"Correct Invoices"},{k:"total",l:"Total Invoices"}],
+    calc:v=>(v.correct/v.total)*100},
+  {name:"Purchase Order Accuracy", formula:"Correct POs ÷ Total POs × 100", purpose:"Procurement accuracy", unit:"%",
+    inputs:[{k:"correct",l:"Correct POs"},{k:"total",l:"Total POs"}],
+    calc:v=>(v.correct/v.total)*100},
+  {name:"Media Owner Compliance", formula:"Compliant Deliveries ÷ Total Deliveries × 100", purpose:"Vendor/media owner performance", unit:"%",
+    inputs:[{k:"compliant",l:"Compliant Deliveries"},{k:"total",l:"Total Deliveries"}],
+    calc:v=>(v.compliant/v.total)*100},
+  {name:"Delivery Confirmation Rate", formula:"Confirmed Deliveries ÷ Planned Deliveries × 100", purpose:"Delivery verification rate", unit:"%",
+    inputs:[{k:"confirmed",l:"Confirmed Deliveries"},{k:"planned",l:"Planned Deliveries"}],
+    calc:v=>(v.confirmed/v.planned)*100},
+  {name:"Makegood Rate", formula:"Makegoods Issued ÷ Total Campaigns × 100", purpose:"Compensation/makegood tracking", unit:"%",
+    inputs:[{k:"makegoods",l:"Makegoods Issued"},{k:"campaigns",l:"Total Campaigns"}],
+    calc:v=>(v.makegoods/v.campaigns)*100},
+]},
+{cat:"QC — Financial", items:[
+  {name:"Payment Accuracy", formula:"Correct Payments ÷ Total Payments × 100", purpose:"Payment quality", unit:"%",
+    inputs:[{k:"correct",l:"Correct Payments"},{k:"total",l:"Total Payments"}],
+    calc:v=>(v.correct/v.total)*100},
+  {name:"Invoice Match Rate", formula:"Matched Invoices ÷ Total Invoices × 100", purpose:"Three-way matching accuracy", unit:"%",
+    inputs:[{k:"matched",l:"Matched Invoices"},{k:"total",l:"Total Invoices"}],
+    calc:v=>(v.matched/v.total)*100},
+  {name:"Reconciliation Accuracy", formula:"Balanced Accounts ÷ Total Accounts × 100", purpose:"Financial integrity", unit:"%",
+    inputs:[{k:"balanced",l:"Balanced Accounts"},{k:"total",l:"Total Accounts"}],
+    calc:v=>(v.balanced/v.total)*100},
+  {name:"Forecast Accuracy (QC)", formula:"1 − ABS(Forecast − Actual) ÷ Actual", purpose:"Forecast reliability", unit:"%",
+    inputs:[{k:"forecast",l:"Forecast Value"},{k:"actual",l:"Actual Value"}],
+    calc:v=>(1-(Math.abs(v.forecast-v.actual)/v.actual))*100},
+]},
+{cat:"QC — Data Quality", items:[
+  {name:"Data Accuracy", formula:"Correct Values ÷ Total Values × 100", purpose:"Percentage of correct data values", unit:"%",
+    inputs:[{k:"correct",l:"Correct Values"},{k:"total",l:"Total Values"}],
+    calc:v=>(v.correct/v.total)*100},
+  {name:"Data Completeness", formula:"Completed Fields ÷ Total Fields × 100", purpose:"Identifies missing information", unit:"%",
+    inputs:[{k:"completed",l:"Completed Fields"},{k:"total",l:"Total Fields"}],
+    calc:v=>(v.completed/v.total)*100},
+  {name:"Data Consistency", formula:"Matching Records ÷ Total Records × 100", purpose:"Cross-system consistency", unit:"%",
+    inputs:[{k:"matching",l:"Matching Records"},{k:"total",l:"Total Records"}],
+    calc:v=>(v.matching/v.total)*100},
+  {name:"Data Validity", formula:"Valid Records ÷ Total Records × 100", purpose:"Rule/format compliance", unit:"%",
+    inputs:[{k:"valid",l:"Valid Records"},{k:"total",l:"Total Records"}],
+    calc:v=>(v.valid/v.total)*100},
+  {name:"Duplicate Rate", formula:"Duplicate Records ÷ Total Records × 100", purpose:"Duplicate detection", unit:"%",
+    inputs:[{k:"dupes",l:"Duplicate Records"},{k:"total",l:"Total Records"}],
+    calc:v=>(v.dupes/v.total)*100},
+  {name:"Missing Value Rate", formula:"Missing Values ÷ Total Values × 100", purpose:"Data gaps measurement", unit:"%",
+    inputs:[{k:"missing",l:"Missing Values"},{k:"total",l:"Total Values"}],
+    calc:v=>(v.missing/v.total)*100},
+  {name:"Data Freshness", formula:"Updated Records ÷ Total Records × 100", purpose:"Timeliness of data", unit:"%",
+    inputs:[{k:"updated",l:"Updated Records"},{k:"total",l:"Total Records"}],
+    calc:v=>(v.updated/v.total)*100},
+]},
+{cat:"QC — Root Cause Analysis", items:[
+  {name:"Pareto Percentage", formula:"Category Errors ÷ Total Errors × 100", purpose:"Error prioritization (80/20 rule)", unit:"%",
+    inputs:[{k:"catErrors",l:"Category Errors"},{k:"totalErrors",l:"Total Errors"}],
+    calc:v=>(v.catErrors/v.totalErrors)*100},
+  {name:"Error Frequency", formula:"Error Count ÷ Total Transactions", purpose:"Error occurrence rate", unit:"",
+    inputs:[{k:"errors",l:"Error Count"},{k:"transactions",l:"Total Transactions"}],
+    calc:v=>v.errors/v.transactions},
+  {name:"Error Recurrence Rate", formula:"Repeat Errors ÷ Previous Errors × 100", purpose:"Recurring issues tracking", unit:"%",
+    inputs:[{k:"repeat",l:"Repeat Errors"},{k:"previous",l:"Previous Errors"}],
+    calc:v=>(v.repeat/v.previous)*100},
+  {name:"Mean Time to Detect (MTTD)", formula:"Total Detection Time ÷ Number of Incidents", purpose:"Detection efficiency", unit:"",
+    inputs:[{k:"totalTime",l:"Total Detection Time (hrs)"},{k:"incidents",l:"Number of Incidents"}],
+    calc:v=>v.totalTime/v.incidents},
+  {name:"Mean Time to Resolve (MTTR)", formula:"Total Resolution Time ÷ Number of Incidents", purpose:"Resolution efficiency", unit:"",
+    inputs:[{k:"totalTime",l:"Total Resolution Time (hrs)"},{k:"incidents",l:"Number of Incidents"}],
+    calc:v=>v.totalTime/v.incidents},
+]},
+{cat:"QC — Supplier Quality", items:[
+  {name:"Supplier Defect Rate", formula:"Supplier Defects ÷ Total Deliveries × 100", purpose:"Supplier quality measurement", unit:"%",
+    inputs:[{k:"defects",l:"Supplier Defects"},{k:"total",l:"Total Deliveries"}],
+    calc:v=>(v.defects/v.total)*100},
+  {name:"On-Time Supplier Delivery", formula:"On-Time Deliveries ÷ Total Deliveries × 100", purpose:"Supplier reliability", unit:"%",
+    inputs:[{k:"onTime",l:"On-Time Deliveries"},{k:"total",l:"Total Deliveries"}],
+    calc:v=>(v.onTime/v.total)*100},
+  {name:"Supplier Acceptance Rate", formula:"Accepted Deliveries ÷ Total Deliveries × 100", purpose:"Supplier performance", unit:"%",
+    inputs:[{k:"accepted",l:"Accepted Deliveries"},{k:"total",l:"Total Deliveries"}],
+    calc:v=>(v.accepted/v.total)*100},
+]},
+{cat:"QC — Quality Indexes", items:[
+  {name:"Quality Score (Weighted)", formula:"(Accuracy × W1) + (Compliance × W2) + (Timeliness × W3) + (Documentation × W4)", purpose:"Overall quality rating", unit:"",
+    inputs:[{k:"accuracy",l:"Accuracy Score"},{k:"w1",l:"Weight 1 (e.g. 0.3)"},{k:"compliance",l:"Compliance Score"},{k:"w2",l:"Weight 2 (e.g. 0.25)"},{k:"timeliness",l:"Timeliness Score"},{k:"w3",l:"Weight 3 (e.g. 0.25)"},{k:"documentation",l:"Documentation Score"},{k:"w4",l:"Weight 4 (e.g. 0.2)"}],
+    calc:v=>(v.accuracy*v.w1)+(v.compliance*v.w2)+(v.timeliness*v.w3)+(v.documentation*v.w4)},
+  {name:"Process Capability Index (Cpk)", formula:"min[(USL−μ)/(3σ), (μ−LSL)/(3σ)]", purpose:"Process capability vs spec limits", unit:"",
+    inputs:[{k:"usl",l:"Upper Spec Limit (USL)"},{k:"lsl",l:"Lower Spec Limit (LSL)"},{k:"mean",l:"Process Mean (μ)"},{k:"sigma",l:"Std Deviation (σ)"}],
+    calc:v=>Math.min((v.usl-v.mean)/(3*v.sigma),(v.mean-v.lsl)/(3*v.sigma))},
+  {name:"Customer Complaint Rate", formula:"Complaints ÷ Total Jobs × 100", purpose:"Customer dissatisfaction rate", unit:"%",
+    inputs:[{k:"complaints",l:"Complaints"},{k:"total",l:"Total Jobs"}],
+    calc:v=>(v.complaints/v.total)*100},
+  {name:"Complaint Resolution Rate", formula:"Resolved Complaints ÷ Total Complaints × 100", purpose:"Service recovery quality", unit:"%",
+    inputs:[{k:"resolved",l:"Resolved Complaints"},{k:"total",l:"Total Complaints"}],
+    calc:v=>(v.resolved/v.total)*100},
+]},
+{cat:"IT — Infrastructure", items:[
+  {name:"Server Availability (%)", formula:"(Uptime ÷ Total Time) × 100", purpose:"Server uptime measurement", unit:"%",
+    inputs:[{k:"uptime",l:"Uptime (hrs)"},{k:"total",l:"Total Time (hrs)"}],
+    calc:v=>(v.uptime/v.total)*100},
+  {name:"Downtime (%)", formula:"(Downtime ÷ Total Time) × 100", purpose:"Downtime measurement", unit:"%",
+    inputs:[{k:"downtime",l:"Downtime (hrs)"},{k:"total",l:"Total Time (hrs)"}],
+    calc:v=>(v.downtime/v.total)*100},
+  {name:"CPU Utilization (%)", formula:"(CPU Used ÷ Total CPU Capacity) × 100", purpose:"Server performance indicator", unit:"%",
+    inputs:[{k:"used",l:"CPU Used"},{k:"total",l:"Total CPU Capacity"}],
+    calc:v=>(v.used/v.total)*100},
+  {name:"Memory Utilization (%)", formula:"(Memory Used ÷ Total Memory) × 100", purpose:"RAM usage", unit:"%",
+    inputs:[{k:"used",l:"Memory Used (GB)"},{k:"total",l:"Total Memory (GB)"}],
+    calc:v=>(v.used/v.total)*100},
+  {name:"Disk Utilization (%)", formula:"(Used Storage ÷ Total Storage) × 100", purpose:"Storage capacity usage", unit:"%",
+    inputs:[{k:"used",l:"Used Storage (GB)"},{k:"total",l:"Total Storage (GB)"}],
+    calc:v=>(v.used/v.total)*100},
+  {name:"IOPS Utilization (%)", formula:"Actual IOPS ÷ Maximum IOPS × 100", purpose:"Storage performance", unit:"%",
+    inputs:[{k:"actual",l:"Actual IOPS"},{k:"max",l:"Maximum IOPS"}],
+    calc:v=>(v.actual/v.max)*100},
+]},
+{cat:"IT — Network", items:[
+  {name:"Bandwidth Utilization (%)", formula:"(Bandwidth Used ÷ Available Bandwidth) × 100", purpose:"Network usage", unit:"%",
+    inputs:[{k:"used",l:"Bandwidth Used (Mbps)"},{k:"available",l:"Available Bandwidth (Mbps)"}],
+    calc:v=>(v.used/v.available)*100},
+  {name:"Packet Loss (%)", formula:"(Packets Lost ÷ Packets Sent) × 100", purpose:"Network reliability", unit:"%",
+    inputs:[{k:"lost",l:"Packets Lost"},{k:"sent",l:"Packets Sent"}],
+    calc:v=>(v.lost/v.sent)*100},
+  {name:"Network Availability (%)", formula:"Uptime ÷ Total Time × 100", purpose:"Network availability", unit:"%",
+    inputs:[{k:"uptime",l:"Uptime (hrs)"},{k:"total",l:"Total Time (hrs)"}],
+    calc:v=>(v.uptime/v.total)*100},
+  {name:"Latency (ms)", formula:"Response Time − Request Time", purpose:"Network delay", unit:"ms",
+    inputs:[{k:"response",l:"Response Time (ms)"},{k:"request",l:"Request Time (ms)"}],
+    calc:v=>v.response-v.request},
+  {name:"Throughput", formula:"Data Transferred ÷ Time", purpose:"Transfer speed", unit:"Mbps",
+    inputs:[{k:"data",l:"Data Transferred (MB)"},{k:"time",l:"Time (seconds)"}],
+    calc:v=>v.data/v.time},
+  {name:"Goodput", formula:"Useful Data ÷ Time", purpose:"Effective (overhead-free) throughput", unit:"Mbps",
+    inputs:[{k:"useful",l:"Useful Data Transferred (MB)"},{k:"time",l:"Time (seconds)"}],
+    calc:v=>v.useful/v.time},
+  {name:"Error Rate (%)", formula:"Transmission Errors ÷ Packets Sent × 100", purpose:"Network quality", unit:"%",
+    inputs:[{k:"errors",l:"Transmission Errors"},{k:"sent",l:"Packets Sent"}],
+    calc:v=>(v.errors/v.sent)*100},
+]},
+{cat:"IT — Help Desk / ITSM", items:[
+  {name:"First Call Resolution (FCR)", formula:"Tickets Resolved First Contact ÷ Total Tickets × 100", purpose:"Support efficiency", unit:"%",
+    inputs:[{k:"resolved",l:"Tickets Resolved First Contact"},{k:"total",l:"Total Tickets"}],
+    calc:v=>(v.resolved/v.total)*100},
+  {name:"SLA Compliance (ITSM)", formula:"Tickets Within SLA ÷ Total Tickets × 100", purpose:"Service quality", unit:"%",
+    inputs:[{k:"withinSla",l:"Tickets Within SLA"},{k:"total",l:"Total Tickets"}],
+    calc:v=>(v.withinSla/v.total)*100},
+  {name:"Ticket Resolution Rate", formula:"Closed Tickets ÷ Total Tickets × 100", purpose:"Team performance", unit:"%",
+    inputs:[{k:"closed",l:"Closed Tickets"},{k:"total",l:"Total Tickets"}],
+    calc:v=>(v.closed/v.total)*100},
+  {name:"Ticket Backlog (%)", formula:"Open Tickets ÷ Total Tickets × 100", purpose:"Workload indicator", unit:"%",
+    inputs:[{k:"open",l:"Open Tickets"},{k:"total",l:"Total Tickets"}],
+    calc:v=>(v.open/v.total)*100},
+  {name:"Mean Time to Respond (MTTRsp)", formula:"Total Response Time ÷ Number of Tickets", purpose:"Response speed", unit:"hrs",
+    inputs:[{k:"totalTime",l:"Total Response Time (hrs)"},{k:"tickets",l:"Number of Tickets"}],
+    calc:v=>v.totalTime/v.tickets},
+  {name:"Mean Time to Resolve (MTTR)", formula:"Total Resolution Time ÷ Number of Tickets", purpose:"Resolution efficiency", unit:"hrs",
+    inputs:[{k:"totalTime",l:"Total Resolution Time (hrs)"},{k:"tickets",l:"Number of Tickets"}],
+    calc:v=>v.totalTime/v.tickets},
+  {name:"Mean Time Between Failures (MTBF)", formula:"Operating Time ÷ Number of Failures", purpose:"System reliability", unit:"hrs",
+    inputs:[{k:"opTime",l:"Operating Time (hrs)"},{k:"failures",l:"Number of Failures"}],
+    calc:v=>v.opTime/v.failures},
+  {name:"Mean Time to Failure (MTTF)", formula:"Total Operating Time ÷ Number of Failures", purpose:"Component lifespan", unit:"hrs",
+    inputs:[{k:"totalTime",l:"Total Operating Time (hrs)"},{k:"failures",l:"Number of Failures"}],
+    calc:v=>v.totalTime/v.failures},
+  {name:"Mean Time to Repair (MTTRep)", formula:"Total Repair Time ÷ Number of Repairs", purpose:"Repair performance", unit:"hrs",
+    inputs:[{k:"repairTime",l:"Total Repair Time (hrs)"},{k:"repairs",l:"Number of Repairs"}],
+    calc:v=>v.repairTime/v.repairs},
+]},
+{cat:"IT — Cybersecurity", items:[
+  {name:"Patch Compliance (%)", formula:"Patched Devices ÷ Total Devices × 100", purpose:"Patch management effectiveness", unit:"%",
+    inputs:[{k:"patched",l:"Patched Devices"},{k:"total",l:"Total Devices"}],
+    calc:v=>(v.patched/v.total)*100},
+  {name:"Antivirus Compliance (%)", formula:"Protected Devices ÷ Total Devices × 100", purpose:"Endpoint security coverage", unit:"%",
+    inputs:[{k:"protected",l:"Protected Devices"},{k:"total",l:"Total Devices"}],
+    calc:v=>(v.protected/v.total)*100},
+  {name:"Security Incident Rate", formula:"Incidents ÷ Total Assets", purpose:"Security posture indicator", unit:"",
+    inputs:[{k:"incidents",l:"Security Incidents"},{k:"assets",l:"Total Assets"}],
+    calc:v=>v.incidents/v.assets},
+  {name:"Vulnerability Remediation Rate (%)", formula:"Fixed Vulnerabilities ÷ Total Vulnerabilities × 100", purpose:"Risk reduction progress", unit:"%",
+    inputs:[{k:"fixed",l:"Fixed Vulnerabilities"},{k:"total",l:"Total Vulnerabilities"}],
+    calc:v=>(v.fixed/v.total)*100},
+  {name:"False Positive Rate (%)", formula:"False Alerts ÷ Total Alerts × 100", purpose:"Detection quality", unit:"%",
+    inputs:[{k:"false",l:"False Alerts"},{k:"total",l:"Total Alerts"}],
+    calc:v=>(v.false/v.total)*100},
+  {name:"Threat Detection Rate (%)", formula:"Threats Detected ÷ Threats Attempted × 100", purpose:"Detection effectiveness", unit:"%",
+    inputs:[{k:"detected",l:"Threats Detected"},{k:"attempted",l:"Threats Attempted"}],
+    calc:v=>(v.detected/v.attempted)*100},
+  {name:"Phishing Success Rate (%)", formula:"Successful Phishing ÷ Emails Sent × 100", purpose:"User security awareness level", unit:"%",
+    inputs:[{k:"successful",l:"Successful Phishing Attempts"},{k:"sent",l:"Emails Sent"}],
+    calc:v=>(v.successful/v.sent)*100},
+  {name:"MFA Adoption (%)", formula:"MFA Users ÷ Total Users × 100", purpose:"Identity security coverage", unit:"%",
+    inputs:[{k:"mfa",l:"Users with MFA"},{k:"total",l:"Total Users"}],
+    calc:v=>(v.mfa/v.total)*100},
+]},
+{cat:"IT — Cloud", items:[
+  {name:"Cloud Utilization (%)", formula:"Resources Used ÷ Resources Allocated × 100", purpose:"Cloud resource efficiency", unit:"%",
+    inputs:[{k:"used",l:"Resources Used"},{k:"allocated",l:"Resources Allocated"}],
+    calc:v=>(v.used/v.allocated)*100},
+  {name:"Reserved Instance Savings", formula:"On-Demand Cost − Reserved Cost", purpose:"Cloud cost optimization", unit:"₦",
+    inputs:[{k:"onDemand",l:"On-Demand Cost (₦)"},{k:"reserved",l:"Reserved Cost (₦)"}],
+    calc:v=>v.onDemand-v.reserved},
+  {name:"Auto-Scaling Efficiency (%)", formula:"Average Utilization ÷ Target Utilization × 100", purpose:"Scaling effectiveness", unit:"%",
+    inputs:[{k:"avg",l:"Average Utilization (%)"},{k:"target",l:"Target Utilization (%)"}],
+    calc:v=>(v.avg/v.target)*100},
+  {name:"Cloud Cost per User", formula:"Monthly Cloud Cost ÷ Number of Users", purpose:"Per-user cloud cost management", unit:"₦",
+    inputs:[{k:"cost",l:"Monthly Cloud Cost (₦)"},{k:"users",l:"Number of Users"}],
+    calc:v=>v.cost/v.users},
+  {name:"Storage Growth (%)", formula:"(Current Storage − Previous Storage) ÷ Previous Storage × 100", purpose:"Capacity planning", unit:"%",
+    inputs:[{k:"current",l:"Current Storage (GB)"},{k:"previous",l:"Previous Storage (GB)"}],
+    calc:v=>((v.current-v.previous)/v.previous)*100},
+]},
+{cat:"IT — Backup & DR", items:[
+  {name:"Backup Success Rate (%)", formula:"Successful Backups ÷ Total Backups × 100", purpose:"Backup reliability", unit:"%",
+    inputs:[{k:"success",l:"Successful Backups"},{k:"total",l:"Total Backups"}],
+    calc:v=>(v.success/v.total)*100},
+  {name:"Backup Failure Rate (%)", formula:"Failed Backups ÷ Total Backups × 100", purpose:"Backup quality", unit:"%",
+    inputs:[{k:"failed",l:"Failed Backups"},{k:"total",l:"Total Backups"}],
+    calc:v=>(v.failed/v.total)*100},
+  {name:"Restore Success Rate (%)", formula:"Successful Restores ÷ Restore Attempts × 100", purpose:"Recovery capability", unit:"%",
+    inputs:[{k:"success",l:"Successful Restores"},{k:"attempts",l:"Restore Attempts"}],
+    calc:v=>(v.success/v.attempts)*100},
+  {name:"RTO Achievement (%)", formula:"Actual Recovery Time ÷ Target RTO × 100", purpose:"Disaster recovery speed vs target", unit:"%",
+    inputs:[{k:"actual",l:"Actual Recovery Time (hrs)"},{k:"target",l:"Target RTO (hrs)"}],
+    calc:v=>(v.actual/v.target)*100},
+  {name:"RPO Achievement (%)", formula:"Actual Data Loss ÷ Target RPO × 100", purpose:"Data protection vs target", unit:"%",
+    inputs:[{k:"actual",l:"Actual Data Loss (hrs)"},{k:"target",l:"Target RPO (hrs)"}],
+    calc:v=>(v.actual/v.target)*100},
+]},
+{cat:"IT — Databases", items:[
+  {name:"Query Success Rate (%)", formula:"Successful Queries ÷ Total Queries × 100", purpose:"Database health", unit:"%",
+    inputs:[{k:"success",l:"Successful Queries"},{k:"total",l:"Total Queries"}],
+    calc:v=>(v.success/v.total)*100},
+  {name:"Query Performance (avg)", formula:"Total Execution Time ÷ Number of Queries", purpose:"Database efficiency", unit:"ms",
+    inputs:[{k:"totalTime",l:"Total Execution Time (ms)"},{k:"queries",l:"Number of Queries"}],
+    calc:v=>v.totalTime/v.queries},
+  {name:"Cache Hit Ratio (%)", formula:"Cache Hits ÷ Total Requests × 100", purpose:"Cache effectiveness", unit:"%",
+    inputs:[{k:"hits",l:"Cache Hits"},{k:"total",l:"Total Requests"}],
+    calc:v=>(v.hits/v.total)*100},
+  {name:"Database Availability (%)", formula:"Uptime ÷ Total Time × 100", purpose:"Database uptime", unit:"%",
+    inputs:[{k:"uptime",l:"Uptime (hrs)"},{k:"total",l:"Total Time (hrs)"}],
+    calc:v=>(v.uptime/v.total)*100},
+  {name:"Deadlock Rate (%)", formula:"Deadlocks ÷ Transactions × 100", purpose:"Database stability", unit:"%",
+    inputs:[{k:"deadlocks",l:"Deadlocks"},{k:"transactions",l:"Transactions"}],
+    calc:v=>(v.deadlocks/v.transactions)*100},
+]},
+{cat:"IT — Software Dev", items:[
+  {name:"Defect Density", formula:"Bugs ÷ KLOC", purpose:"Software quality per thousand lines of code", unit:"",
+    inputs:[{k:"bugs",l:"Total Bugs"},{k:"kloc",l:"KLOC (thousands of lines)"}],
+    calc:v=>v.bugs/v.kloc},
+  {name:"Code Coverage (%)", formula:"Tested Lines ÷ Total Lines × 100", purpose:"Test coverage", unit:"%",
+    inputs:[{k:"tested",l:"Tested Lines"},{k:"total",l:"Total Lines"}],
+    calc:v=>(v.tested/v.total)*100},
+  {name:"Deployment Success Rate (%)", formula:"Successful Deployments ÷ Total Deployments × 100", purpose:"DevOps quality", unit:"%",
+    inputs:[{k:"success",l:"Successful Deployments"},{k:"total",l:"Total Deployments"}],
+    calc:v=>(v.success/v.total)*100},
+  {name:"Build Success Rate (%)", formula:"Successful Builds ÷ Total Builds × 100", purpose:"CI/CD pipeline health", unit:"%",
+    inputs:[{k:"success",l:"Successful Builds"},{k:"total",l:"Total Builds"}],
+    calc:v=>(v.success/v.total)*100},
+  {name:"Change Failure Rate (%)", formula:"Failed Changes ÷ Total Changes × 100", purpose:"DORA metric — deployment stability", unit:"%",
+    inputs:[{k:"failed",l:"Failed Changes"},{k:"total",l:"Total Changes"}],
+    calc:v=>(v.failed/v.total)*100},
+  {name:"Deployment Frequency", formula:"Deployments ÷ Time Period", purpose:"DORA metric — delivery speed", unit:"deploys/day",
+    inputs:[{k:"deploys",l:"Number of Deployments"},{k:"days",l:"Time Period (days)"}],
+    calc:v=>v.deploys/v.days},
+  {name:"Lead Time for Changes", formula:"Deployment Date − Commit Date", purpose:"DORA metric — time from code to production", unit:"days",
+    inputs:[{k:"deploy",l:"Deployment Date (day number)"},{k:"commit",l:"Commit Date (day number)"}],
+    calc:v=>v.deploy-v.commit},
+]},
+{cat:"IT — Microsoft 365", items:[
+  {name:"License Utilization (%)", formula:"Assigned Licenses ÷ Purchased Licenses × 100", purpose:"License optimization", unit:"%",
+    inputs:[{k:"assigned",l:"Assigned Licenses"},{k:"purchased",l:"Purchased Licenses"}],
+    calc:v=>(v.assigned/v.purchased)*100},
+  {name:"Mailbox Utilization (%)", formula:"Mailbox Used ÷ Mailbox Quota × 100", purpose:"Mailbox capacity management", unit:"%",
+    inputs:[{k:"used",l:"Mailbox Used (GB)"},{k:"quota",l:"Mailbox Quota (GB)"}],
+    calc:v=>(v.used/v.quota)*100},
+  {name:"OneDrive Utilization (%)", formula:"Used Storage ÷ Allocated Storage × 100", purpose:"OneDrive storage monitoring", unit:"%",
+    inputs:[{k:"used",l:"Used Storage (GB)"},{k:"allocated",l:"Allocated Storage (GB)"}],
+    calc:v=>(v.used/v.allocated)*100},
+  {name:"MFA Compliance (%)", formula:"Users with MFA ÷ Total Users × 100", purpose:"M365 identity security", unit:"%",
+    inputs:[{k:"mfa",l:"Users with MFA"},{k:"total",l:"Total Users"}],
+    calc:v=>(v.mfa/v.total)*100},
+  {name:"Conditional Access Coverage (%)", formula:"Protected Users ÷ Total Users × 100", purpose:"Access control coverage", unit:"%",
+    inputs:[{k:"protected",l:"Protected Users"},{k:"total",l:"Total Users"}],
+    calc:v=>(v.protected/v.total)*100},
+]},
+{cat:"IT — IT Finance", items:[
+  {name:"Cost per User", formula:"Total IT Cost ÷ Number of Users", purpose:"IT budgeting per user", unit:"₦",
+    inputs:[{k:"cost",l:"Total IT Cost (₦)"},{k:"users",l:"Number of Users"}],
+    calc:v=>v.cost/v.users},
+  {name:"Cost per Device", formula:"Total Device Cost ÷ Number of Devices", purpose:"Asset cost management", unit:"₦",
+    inputs:[{k:"cost",l:"Total Device Cost (₦)"},{k:"devices",l:"Number of Devices"}],
+    calc:v=>v.cost/v.devices},
+  {name:"IT Spend per Employee", formula:"IT Budget ÷ Number of Employees", purpose:"IT financial planning", unit:"₦",
+    inputs:[{k:"budget",l:"IT Budget (₦)"},{k:"employees",l:"Number of Employees"}],
+    calc:v=>v.budget/v.employees},
+  {name:"Asset Utilization (%)", formula:"Active Assets ÷ Total Assets × 100", purpose:"Asset efficiency", unit:"%",
+    inputs:[{k:"active",l:"Active Assets"},{k:"total",l:"Total Assets"}],
+    calc:v=>(v.active/v.total)*100},
+  {name:"Device Refresh Rate (%)", formula:"Replaced Devices ÷ Total Devices × 100", purpose:"Device lifecycle management", unit:"%",
+    inputs:[{k:"replaced",l:"Replaced Devices"},{k:"total",l:"Total Devices"}],
+    calc:v=>(v.replaced/v.total)*100},
+]},
+{cat:"IT — Governance", items:[
+  {name:"Change Success Rate (%)", formula:"Successful Changes ÷ Total Changes × 100", purpose:"Change management effectiveness", unit:"%",
+    inputs:[{k:"success",l:"Successful Changes"},{k:"total",l:"Total Changes"}],
+    calc:v=>(v.success/v.total)*100},
+  {name:"CAB Approval Rate (%)", formula:"Approved Changes ÷ Submitted Changes × 100", purpose:"Governance and change control", unit:"%",
+    inputs:[{k:"approved",l:"Approved Changes"},{k:"submitted",l:"Submitted Changes"}],
+    calc:v=>(v.approved/v.submitted)*100},
+  {name:"Policy Compliance (%)", formula:"Compliant Systems ÷ Total Systems × 100", purpose:"IT policy compliance", unit:"%",
+    inputs:[{k:"compliant",l:"Compliant Systems"},{k:"total",l:"Total Systems"}],
+    calc:v=>(v.compliant/v.total)*100},
+  {name:"Risk Score", formula:"Likelihood × Impact", purpose:"IT risk assessment", unit:"",
+    inputs:[{k:"likelihood",l:"Likelihood (1–5)"},{k:"impact",l:"Impact (1–5)"}],
+    calc:v=>v.likelihood*v.impact},
+  {name:"Audit Finding Closure Rate (%)", formula:"Closed Findings ÷ Total Findings × 100", purpose:"Audit performance", unit:"%",
+    inputs:[{k:"closed",l:"Closed Findings"},{k:"total",l:"Total Findings"}],
+    calc:v=>(v.closed/v.total)*100},
+]},
+{cat:"Compliance — Campaign", items:[
+  {name:"Campaign Compliance Rate", formula:"(Compliant Campaigns ÷ Total Campaigns) × 100", purpose:"Overall campaign compliance", unit:"%",
+    inputs:[{k:"compliant",l:"Compliant Campaigns"},{k:"total",l:"Total Campaigns"}],
+    calc:v=>(v.compliant/v.total)*100},
+  {name:"Non-Compliance Rate", formula:"(Non-Compliant Campaigns ÷ Total Campaigns) × 100", purpose:"Measures violations", unit:"%",
+    inputs:[{k:"nonCompliant",l:"Non-Compliant Campaigns"},{k:"total",l:"Total Campaigns"}],
+    calc:v=>(v.nonCompliant/v.total)*100},
+  {name:"Campaign Approval Rate", formula:"(Approved Campaigns ÷ Submitted Campaigns) × 100", purpose:"Approval success rate", unit:"%",
+    inputs:[{k:"approved",l:"Approved Campaigns"},{k:"submitted",l:"Submitted Campaigns"}],
+    calc:v=>(v.approved/v.submitted)*100},
+  {name:"Pre-Launch Compliance Rate", formula:"(Campaigns Passing Review Before Launch ÷ Total Campaigns) × 100", purpose:"Readiness before go-live", unit:"%",
+    inputs:[{k:"passed",l:"Campaigns Passing Pre-Launch Review"},{k:"total",l:"Total Campaigns"}],
+    calc:v=>(v.passed/v.total)*100},
+  {name:"Post-Campaign Compliance", formula:"(Compliant Deliverables ÷ Total Deliverables) × 100", purpose:"Post-campaign verification", unit:"%",
+    inputs:[{k:"compliant",l:"Compliant Deliverables"},{k:"total",l:"Total Deliverables"}],
+    calc:v=>(v.compliant/v.total)*100},
+]},
+{cat:"Compliance — Contract & Commercial", items:[
+  {name:"Contract Compliance Rate", formula:"Compliant Contracts ÷ Total Contracts × 100", purpose:"Contract adherence", unit:"%",
+    inputs:[{k:"compliant",l:"Compliant Contracts"},{k:"total",l:"Total Contracts"}],
+    calc:v=>(v.compliant/v.total)*100},
+  {name:"Rate Card Compliance", formula:"Correct Rates ÷ Total Rates × 100", purpose:"Buying accuracy", unit:"%",
+    inputs:[{k:"correct",l:"Correct Rates"},{k:"total",l:"Total Rates"}],
+    calc:v=>(v.correct/v.total)*100},
+  {name:"Purchase Order Compliance", formula:"Valid POs ÷ Total POs × 100", purpose:"Procurement governance", unit:"%",
+    inputs:[{k:"valid",l:"Valid POs"},{k:"total",l:"Total POs"}],
+    calc:v=>(v.valid/v.total)*100},
+  {name:"Invoice Compliance", formula:"Correct Invoices ÷ Total Invoices × 100", purpose:"Financial controls", unit:"%",
+    inputs:[{k:"correct",l:"Correct Invoices"},{k:"total",l:"Total Invoices"}],
+    calc:v=>(v.correct/v.total)*100},
+  {name:"Payment Compliance", formula:"Payments Meeting Terms ÷ Total Payments × 100", purpose:"Payment governance", unit:"%",
+    inputs:[{k:"onTerms",l:"Payments Meeting Terms"},{k:"total",l:"Total Payments"}],
+    calc:v=>(v.onTerms/v.total)*100},
+  {name:"Commercial Compliance", formula:"Compliant Transactions ÷ Total Transactions × 100", purpose:"Commercial integrity", unit:"%",
+    inputs:[{k:"compliant",l:"Compliant Transactions"},{k:"total",l:"Total Transactions"}],
+    calc:v=>(v.compliant/v.total)*100},
+]},
+{cat:"Compliance — Media Delivery", items:[
+  {name:"Spot Delivery Compliance", formula:"Correct Spots Delivered ÷ Planned Spots × 100", purpose:"Broadcast delivery accuracy", unit:"%",
+    inputs:[{k:"delivered",l:"Correct Spots Delivered"},{k:"planned",l:"Planned Spots"}],
+    calc:v=>(v.delivered/v.planned)*100},
+  {name:"Impression Compliance", formula:"Delivered Impressions ÷ Contracted Impressions × 100", purpose:"Digital delivery compliance", unit:"%",
+    inputs:[{k:"delivered",l:"Delivered Impressions"},{k:"contracted",l:"Contracted Impressions"}],
+    calc:v=>(v.delivered/v.contracted)*100},
+  {name:"Reach Compliance", formula:"Actual Reach ÷ Planned Reach × 100", purpose:"Audience compliance", unit:"%",
+    inputs:[{k:"actual",l:"Actual Reach"},{k:"planned",l:"Planned Reach"}],
+    calc:v=>(v.actual/v.planned)*100},
+  {name:"GRP Compliance", formula:"Actual GRPs ÷ Planned GRPs × 100", purpose:"TV/radio compliance", unit:"%",
+    inputs:[{k:"actual",l:"Actual GRPs"},{k:"planned",l:"Planned GRPs"}],
+    calc:v=>(v.actual/v.planned)*100},
+  {name:"Frequency Compliance", formula:"Actual Frequency ÷ Planned Frequency × 100", purpose:"Exposure compliance", unit:"%",
+    inputs:[{k:"actual",l:"Actual Frequency"},{k:"planned",l:"Planned Frequency"}],
+    calc:v=>(v.actual/v.planned)*100},
+  {name:"Budget Compliance (Delivery)", formula:"Actual Spend ÷ Approved Budget × 100", purpose:"Budget adherence", unit:"%",
+    inputs:[{k:"actual",l:"Actual Spend (₦)"},{k:"approved",l:"Approved Budget (₦)"}],
+    calc:v=>(v.actual/v.approved)*100},
+]},
+{cat:"Compliance — Client", items:[
+  {name:"Client Requirement Compliance", formula:"Requirements Met ÷ Total Requirements × 100", purpose:"Meeting client briefs", unit:"%",
+    inputs:[{k:"met",l:"Requirements Met"},{k:"total",l:"Total Requirements"}],
+    calc:v=>(v.met/v.total)*100},
+  {name:"Brief Compliance", formula:"Delivered Requirements ÷ Brief Requirements × 100", purpose:"Execution accuracy vs brief", unit:"%",
+    inputs:[{k:"delivered",l:"Delivered Requirements"},{k:"brief",l:"Brief Requirements"}],
+    calc:v=>(v.delivered/v.brief)*100},
+  {name:"SLA Compliance (Client)", formula:"Jobs Within SLA ÷ Total Jobs × 100", purpose:"Timeliness to client SLAs", unit:"%",
+    inputs:[{k:"withinSla",l:"Jobs Within SLA"},{k:"total",l:"Total Jobs"}],
+    calc:v=>(v.withinSla/v.total)*100},
+  {name:"Deliverable Compliance", formula:"Accepted Deliverables ÷ Total Deliverables × 100", purpose:"Deliverable quality", unit:"%",
+    inputs:[{k:"accepted",l:"Accepted Deliverables"},{k:"total",l:"Total Deliverables"}],
+    calc:v=>(v.accepted/v.total)*100},
+]},
+{cat:"Compliance — Regulatory", items:[
+  {name:"Regulatory Compliance Rate", formula:"Compliant Campaigns ÷ Total Campaigns × 100", purpose:"Regulatory adherence", unit:"%",
+    inputs:[{k:"compliant",l:"Compliant Campaigns"},{k:"total",l:"Total Campaigns"}],
+    calc:v=>(v.compliant/v.total)*100},
+  {name:"Advertising Code Compliance", formula:"Compliant Ads ÷ Total Ads × 100", purpose:"Advertising standards adherence", unit:"%",
+    inputs:[{k:"compliant",l:"Compliant Ads"},{k:"total",l:"Total Ads"}],
+    calc:v=>(v.compliant/v.total)*100},
+  {name:"Privacy Compliance", formula:"Compliant Data Records ÷ Total Data Records × 100", purpose:"Privacy regulations adherence", unit:"%",
+    inputs:[{k:"compliant",l:"Compliant Data Records"},{k:"total",l:"Total Data Records"}],
+    calc:v=>(v.compliant/v.total)*100},
+  {name:"Consent Compliance", formula:"Valid Consents ÷ Total Records × 100", purpose:"Consent management", unit:"%",
+    inputs:[{k:"valid",l:"Valid Consents"},{k:"total",l:"Total Records"}],
+    calc:v=>(v.valid/v.total)*100},
+  {name:"Data Retention Compliance", formula:"Records Meeting Retention Policy ÷ Total Records × 100", purpose:"Record retention policy adherence", unit:"%",
+    inputs:[{k:"compliant",l:"Records Meeting Retention Policy"},{k:"total",l:"Total Records"}],
+    calc:v=>(v.compliant/v.total)*100},
+]},
+{cat:"Compliance — Digital", items:[
+  {name:"Cookie Consent Rate", formula:"Consented Users ÷ Total Visitors × 100", purpose:"Consent tracking", unit:"%",
+    inputs:[{k:"consented",l:"Consented Users"},{k:"visitors",l:"Total Visitors"}],
+    calc:v=>(v.consented/v.visitors)*100},
+  {name:"Tag Compliance", formula:"Correct Tags ÷ Total Tags × 100", purpose:"Analytics governance", unit:"%",
+    inputs:[{k:"correct",l:"Correct Tags"},{k:"total",l:"Total Tags"}],
+    calc:v=>(v.correct/v.total)*100},
+  {name:"Pixel Compliance", formula:"Correct Pixels ÷ Required Pixels × 100", purpose:"Measurement accuracy", unit:"%",
+    inputs:[{k:"correct",l:"Correct Pixels"},{k:"required",l:"Required Pixels"}],
+    calc:v=>(v.correct/v.required)*100},
+  {name:"Tracking Accuracy", formula:"Correctly Tracked Events ÷ Total Events × 100", purpose:"Analytics validation", unit:"%",
+    inputs:[{k:"correct",l:"Correctly Tracked Events"},{k:"total",l:"Total Events"}],
+    calc:v=>(v.correct/v.total)*100},
+]},
+{cat:"Compliance — Brand Safety", items:[
+  {name:"Brand Safety Rate", formula:"Safe Impressions ÷ Total Impressions × 100", purpose:"Safe ad placements", unit:"%",
+    inputs:[{k:"safe",l:"Safe Impressions"},{k:"total",l:"Total Impressions"}],
+    calc:v=>(v.safe/v.total)*100},
+  {name:"Unsafe Placement Rate", formula:"Unsafe Placements ÷ Total Placements × 100", purpose:"Brand risk exposure", unit:"%",
+    inputs:[{k:"unsafe",l:"Unsafe Placements"},{k:"total",l:"Total Placements"}],
+    calc:v=>(v.unsafe/v.total)*100},
+  {name:"Fraud-Free Traffic Rate", formula:"Valid Traffic ÷ Total Traffic × 100", purpose:"Invalid traffic monitoring", unit:"%",
+    inputs:[{k:"valid",l:"Valid Traffic"},{k:"total",l:"Total Traffic"}],
+    calc:v=>(v.valid/v.total)*100},
+  {name:"Invalid Traffic (IVT) Rate", formula:"Invalid Traffic ÷ Total Traffic × 100", purpose:"Ad fraud detection", unit:"%",
+    inputs:[{k:"invalid",l:"Invalid Traffic"},{k:"total",l:"Total Traffic"}],
+    calc:v=>(v.invalid/v.total)*100},
+  {name:"Viewability Compliance", formula:"Viewable Impressions ÷ Total Impressions × 100", purpose:"Industry viewability compliance", unit:"%",
+    inputs:[{k:"viewable",l:"Viewable Impressions"},{k:"total",l:"Total Impressions"}],
+    calc:v=>(v.viewable/v.total)*100},
+]},
+{cat:"Compliance — Financial", items:[
+  {name:"Budget Compliance (Financial)", formula:"Actual Spend ÷ Approved Budget × 100", purpose:"Budget governance", unit:"%",
+    inputs:[{k:"actual",l:"Actual Spend (₦)"},{k:"approved",l:"Approved Budget (₦)"}],
+    calc:v=>(v.actual/v.approved)*100},
+  {name:"Cost Compliance", formula:"Approved Costs ÷ Total Costs × 100", purpose:"Cost control", unit:"%",
+    inputs:[{k:"approved",l:"Approved Costs (₦)"},{k:"total",l:"Total Costs (₦)"}],
+    calc:v=>(v.approved/v.total)*100},
+  {name:"Billing Accuracy", formula:"Correct Bills ÷ Total Bills × 100", purpose:"Billing quality", unit:"%",
+    inputs:[{k:"correct",l:"Correct Bills"},{k:"total",l:"Total Bills"}],
+    calc:v=>(v.correct/v.total)*100},
+  {name:"Revenue Recognition Compliance", formula:"Correct Revenue Entries ÷ Total Entries × 100", purpose:"Accounting compliance", unit:"%",
+    inputs:[{k:"correct",l:"Correct Revenue Entries"},{k:"total",l:"Total Entries"}],
+    calc:v=>(v.correct/v.total)*100},
+]},
+{cat:"Compliance — Vendor", items:[
+  {name:"Vendor Compliance Rate", formula:"Compliant Vendors ÷ Total Vendors × 100", purpose:"Supplier governance", unit:"%",
+    inputs:[{k:"compliant",l:"Compliant Vendors"},{k:"total",l:"Total Vendors"}],
+    calc:v=>(v.compliant/v.total)*100},
+  {name:"On-Time Vendor Delivery", formula:"On-Time Deliveries ÷ Total Deliveries × 100", purpose:"Vendor delivery performance", unit:"%",
+    inputs:[{k:"onTime",l:"On-Time Deliveries"},{k:"total",l:"Total Deliveries"}],
+    calc:v=>(v.onTime/v.total)*100},
+  {name:"Contract Renewal Compliance", formula:"Renewed Contracts Before Expiry ÷ Total Renewals × 100", purpose:"Contract management", unit:"%",
+    inputs:[{k:"renewed",l:"Renewed Before Expiry"},{k:"total",l:"Total Renewals"}],
+    calc:v=>(v.renewed/v.total)*100},
+  {name:"Certificate Compliance", formula:"Vendors with Valid Certifications ÷ Total Vendors × 100", purpose:"Vendor qualification", unit:"%",
+    inputs:[{k:"certified",l:"Vendors with Valid Certifications"},{k:"total",l:"Total Vendors"}],
+    calc:v=>(v.certified/v.total)*100},
+]},
+{cat:"Compliance — Audit", items:[
+  {name:"Audit Pass Rate (Compliance)", formula:"Passed Audits ÷ Total Audits × 100", purpose:"Audit performance", unit:"%",
+    inputs:[{k:"passed",l:"Passed Audits"},{k:"total",l:"Total Audits"}],
+    calc:v=>(v.passed/v.total)*100},
+  {name:"Audit Finding Closure Rate", formula:"Closed Findings ÷ Total Findings × 100", purpose:"Issue resolution rate", unit:"%",
+    inputs:[{k:"closed",l:"Closed Findings"},{k:"total",l:"Total Findings"}],
+    calc:v=>(v.closed/v.total)*100},
+  {name:"Repeat Finding Rate", formula:"Repeat Findings ÷ Total Findings × 100", purpose:"Continuous improvement indicator", unit:"%",
+    inputs:[{k:"repeat",l:"Repeat Findings"},{k:"total",l:"Total Findings"}],
+    calc:v=>(v.repeat/v.total)*100},
+  {name:"Evidence Completeness", formula:"Complete Evidence ÷ Required Evidence × 100", purpose:"Audit readiness", unit:"%",
+    inputs:[{k:"complete",l:"Complete Evidence Items"},{k:"required",l:"Required Evidence Items"}],
+    calc:v=>(v.complete/v.required)*100},
+]},
+{cat:"Compliance — Info Security", items:[
+  {name:"Document Classification Compliance", formula:"Correctly Classified Documents ÷ Total Documents × 100", purpose:"Information governance", unit:"%",
+    inputs:[{k:"correct",l:"Correctly Classified Documents"},{k:"total",l:"Total Documents"}],
+    calc:v=>(v.correct/v.total)*100},
+  {name:"Secure File Transfer Compliance", formula:"Secure Transfers ÷ Total Transfers × 100", purpose:"Secure data exchange", unit:"%",
+    inputs:[{k:"secure",l:"Secure Transfers"},{k:"total",l:"Total Transfers"}],
+    calc:v=>(v.secure/v.total)*100},
+  {name:"Access Compliance", formula:"Users with Appropriate Access ÷ Total Users × 100", purpose:"Access governance", unit:"%",
+    inputs:[{k:"appropriate",l:"Users with Appropriate Access"},{k:"total",l:"Total Users"}],
+    calc:v=>(v.appropriate/v.total)*100},
+  {name:"MFA Compliance (InfoSec)", formula:"Users with MFA ÷ Total Users × 100", purpose:"Identity security compliance", unit:"%",
+    inputs:[{k:"mfa",l:"Users with MFA"},{k:"total",l:"Total Users"}],
+    calc:v=>(v.mfa/v.total)*100},
+]},
+{cat:"Compliance — Risk & Governance", items:[
+  {name:"Risk Mitigation Rate", formula:"Mitigated Risks ÷ Identified Risks × 100", purpose:"Risk management effectiveness", unit:"%",
+    inputs:[{k:"mitigated",l:"Mitigated Risks"},{k:"identified",l:"Identified Risks"}],
+    calc:v=>(v.mitigated/v.identified)*100},
+  {name:"Policy Compliance Rate", formula:"Policy-Compliant Activities ÷ Total Activities × 100", purpose:"Policy adherence", unit:"%",
+    inputs:[{k:"compliant",l:"Policy-Compliant Activities"},{k:"total",l:"Total Activities"}],
+    calc:v=>(v.compliant/v.total)*100},
+  {name:"Exception Rate", formula:"Approved Exceptions ÷ Total Activities × 100", purpose:"Governance exceptions tracking", unit:"%",
+    inputs:[{k:"exceptions",l:"Approved Exceptions"},{k:"total",l:"Total Activities"}],
+    calc:v=>(v.exceptions/v.total)*100},
+  {name:"Compliance Score (Weighted)", formula:"(Weighted Compliance KPIs) ÷ Total Weights", purpose:"Overall compliance rating", unit:"",
+    inputs:[{k:"weightedSum",l:"Sum of (Compliance KPI × Weight)"},{k:"totalWeights",l:"Total Weights"}],
+    calc:v=>v.weightedSum/v.totalWeights},
+]},
+];
+
+/* ============== STATE ============== */
+let activeCategory = "All";
+let searchTerm = "";
+let currentFormula = null;
+
+const catListEl = document.getElementById('cat-list');
+const gridEl = document.getElementById('grid');
+const panelTitle = document.getElementById('panel-title');
+const panelCount = document.getElementById('panel-count');
+
+const totalFormulas = DATA.reduce((s,c)=>s+c.items.length,0);
+document.getElementById('stat-total').textContent = totalFormulas;
+document.getElementById('stat-cats').textContent = DATA.length;
+document.getElementById('hero-eyebrow').textContent = `${totalFormulas} formulas · ${DATA.length} disciplines`;
+
+/* ============== SIDEBAR GROUPS ============== */
+const SIDEBAR_GROUPS = [
+  {
+    type: 'single', cat: 'All'
+  },
+  { type: 'divider' },
+  {
+    type: 'accordion',
+    label: 'Compliance',
+    icon: '',
+    cats: ['Compliance — Campaign','Compliance — Contract & Commercial',
+           'Compliance — Media Delivery','Compliance — Client',
+           'Compliance — Regulatory','Compliance — Digital',
+           'Compliance — Brand Safety','Compliance — Financial',
+           'Compliance — Vendor','Compliance — Audit',
+           'Compliance — Info Security','Compliance — Risk & Governance']
+  },
+  { type: 'divider' },
+  {
+    type: 'accordion',
+    label: 'Finance',
+    icon: '',
+    cats: ['Financial Planning','Financial Modeling','Investment Analysis',
+           'Economics','Nigerian Tax & Statutory']
+  },
+  { type: 'divider' },
+  {
+    type: 'accordion',
+    label: 'Media',
+    icon: '',
+    cats: ['Media Planning','Media Buying','Strategy','Media Agency KPIs','Procurement & Negotiation']
+  },
+  { type: 'divider' },
+  {
+    type: 'accordion',
+    label: 'Quality Control',
+    icon: '',
+    cats: ['QC — General Quality','QC — Audit & Compliance','QC — Service Delivery',
+           'QC — Media Planning','QC — Media Buying','QC — Financial',
+           'QC — Data Quality','QC — Root Cause Analysis','QC — Supplier Quality',
+           'QC — Quality Indexes']
+  },
+  { type: 'divider' },
+  {
+    type: 'accordion',
+    label: 'Research',
+    icon: '',
+    cats: ['Audience Research','Digital Research','Brand Research','Market Intelligence',
+           'Customer Research','Survey Research','Statistical Analysis',
+           'Media Mix Modelling','Research Quality','Advanced Analytics']
+  },
+  { type: 'divider' },
+  {
+    type: 'accordion',
+    label: 'Technology',
+    icon: '',
+    cats: ['IT — Infrastructure','IT — Network','IT — Help Desk / ITSM',
+           'IT — Cybersecurity','IT — Cloud','IT — Backup & DR',
+           'IT — Databases','IT — Software Dev','IT — Microsoft 365',
+           'IT — IT Finance','IT — Governance']
+  },
+];
+
+// Track open accordions
+const openAccordions = new Set(['Research','Quality Control']); // start collapsed
+
+function getCatCount(catName){
+  const found = DATA.find(d=>d.cat===catName);
+  return found ? found.items.length : 0;
+}
+
+function renderCategoryList(){
+  const searching = searchTerm.trim().length > 0;
+
+  let html = '';
+
+  // "All" button
+  html += `<button class="cat-btn ${(!searching && activeCategory==='All')?'active':''}" data-cat="All">
+    All Categories <span class="count">${totalFormulas}</span>
+  </button>`;
+
+  SIDEBAR_GROUPS.forEach(group=>{
+    if(group.type === 'divider'){
+      html += `<div class="sidebar-divider"></div>`;
+      return;
+    }
+    if(group.type === 'flat'){
+      group.cats.forEach(cat=>{
+        const count = getCatCount(cat);
+        if(!count) return;
+        html += `<button class="cat-btn ${(!searching && activeCategory===cat)?'active':''}" data-cat="${cat}">
+          ${cat} <span class="count">${count}</span>
+        </button>`;
+      });
+      return;
+    }
+    if(group.type === 'accordion'){
+      const isOpen = openAccordions.has(group.label);
+      const groupTotal = group.cats.reduce((s,c)=>s+getCatCount(c),0);
+      const hasActive = !searching && group.cats.includes(activeCategory);
+      html += `<div class="acc-group">
+        <button class="acc-header ${isOpen?'open':''} ${hasActive?'has-active':''}" data-acc="${group.label}">
+          <div class="acc-meta">
+            <span>${group.label}</span>
+            <span class="acc-count">${groupTotal}</span>
+          </div>
+          <span class="acc-arrow">▶</span>
+        </button>
+        <div class="acc-body ${isOpen?'open':''}">`;
+      group.cats.forEach(cat=>{
+        const count = getCatCount(cat);
+        if(!count) return;
+        const label = cat.replace(/^QC — /,'').replace(/^IT — /,'').replace(/^Compliance — /,'').replace(/^Nigerian /,'Nigeria ');
+        html += `<button class="cat-btn ${(!searching && activeCategory===cat)?'active':''}" data-cat="${cat}" style="font-size:13px;">
+          ${label} <span class="count">${count}</span>
+        </button>`;
+      });
+      html += `</div></div>`;
+    }
+  });
+
+  catListEl.innerHTML = html;
+
+  // Bind category buttons
+  catListEl.querySelectorAll('.cat-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      activeCategory = btn.dataset.cat;
+      searchTerm = '';
+      document.getElementById('search').value = '';
+      // Auto-open the accordion containing this category
+      SIDEBAR_GROUPS.forEach(g=>{
+        if(g.type==='accordion' && g.cats.includes(activeCategory)){
+          openAccordions.add(g.label);
+        }
+      });
+      renderCategoryList();
+      renderGrid();
+    });
+  });
+
+  // Bind accordion toggles
+  catListEl.querySelectorAll('.acc-header').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const key = btn.dataset.acc;
+      if(openAccordions.has(key)) openAccordions.delete(key);
+      else openAccordions.add(key);
+      renderCategoryList();
+    });
+  });
+}
+
+function getFiltered(){
+  let pool = [];
+  const searching = searchTerm.trim().length > 0;
+  DATA.forEach(c=>{
+    // While searching, ignore the category filter so results come from everywhere.
+    if(!searching && activeCategory!=='All' && activeCategory!==c.cat) return;
+    c.items.forEach(item=> pool.push({...item, cat:c.cat}));
+  });
+  if(searching){
+    const t = searchTerm.toLowerCase().trim();
+    pool = pool.filter(i=>{
+      const haystack = [
+        i.name,
+        i.purpose,
+        i.cat,
+        i.formula,
+        i.unit,
+        ...(i.inputs ? i.inputs.map(inp=>inp.l) : [])
+      ].filter(Boolean).join(' ').toLowerCase();
+      return haystack.includes(t);
+    });
+  }
+  return pool;
+}
+
+function renderGrid(){
+  const items = getFiltered();
+  const searching = searchTerm.trim().length > 0;
+  panelTitle.textContent = searching
+    ? `Results for "${searchTerm.trim()}"`
+    : (activeCategory==='All' ? 'All Categories' : activeCategory);
+  panelCount.textContent = `${items.length} formula${items.length!==1?'s':''}`;
+  if(items.length===0){
+    gridEl.innerHTML = `<div class="empty-state">No formulas match "${searchTerm}". Try a different term — e.g. a category name, a metric like "VAT" or "CPM", or a word from its purpose.</div>`;
+    return;
+  }
+  gridEl.innerHTML = items.map((it,idx)=>`
+    <div class="f-card" data-idx="${idx}">
+      <h3>${it.name}</h3>
+      <p>${it.purpose}</p>
+    </div>
+  `).join('');
+  gridEl.querySelectorAll('.f-card').forEach((card)=>{
+    card.addEventListener('click', ()=>{
+      const idx = parseInt(card.dataset.idx);
+      openCalculator(items[idx]);
+    });
+  });
+}
+
+/* ============== DRAWER ============== */
+const overlay = document.getElementById('overlay');
+const dCat = document.getElementById('d-cat');
+const dName = document.getElementById('d-name');
+const dFormula = document.getElementById('d-formula');
+const dPurposeText = document.getElementById('d-purpose-text');
+const dFields = document.getElementById('d-fields');
+const dCalc = document.getElementById('d-calc');
+const dResult = document.getElementById('d-result');
+const dResultValue = document.getElementById('d-result-value');
+const dResultNote = document.getElementById('d-result-note');
+const dError = document.getElementById('d-error');
+const dResultExtra = document.getElementById('d-result-extra');
+const dExtraLabel = document.getElementById('d-extra-label');
+const dExtraValue = document.getElementById('d-extra-value');
+
+function openCalculator(item){
+  currentFormula = item;
+  dCat.textContent = item.cat;
+  dName.textContent = item.name;
+  dFormula.textContent = item.formula;
+  dPurposeText.textContent = item.purpose;
+  dFields.innerHTML = item.inputs.map(inp=>`
+    <div class="field">
+      <label>${inp.l}</label>
+      <input type="number" step="any" data-key="${inp.k}" placeholder="Enter value">
+    </div>
+  `).join('');
+  dResult.classList.remove('show');
+  dResult.classList.remove('warn');
+  dResultExtra.style.display = 'none';
+  dError.classList.remove('show');
+  overlay.classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closeCalculator(){
+  overlay.classList.remove('open');
+  document.body.style.overflow='';
+}
+
+document.getElementById('closeBtn').addEventListener('click', closeCalculator);
+overlay.addEventListener('click', (e)=>{ if(e.target===overlay) closeCalculator(); });
+
+dCalc.addEventListener('click', ()=>{
+  if(!currentFormula) return;
+  const inputs = dFields.querySelectorAll('input');
+  const values = {};
+  let valid = true;
+  inputs.forEach(inp=>{
+    const val = parseFloat(inp.value);
+    if(isNaN(val)){ valid = false; }
+    values[inp.dataset.key] = val;
+  });
+  if(!valid){
+    dError.classList.add('show');
+    dResult.classList.remove('show');
+    return;
+  }
+  dError.classList.remove('show');
+  let result;
+  try{
+    result = currentFormula.calc(values);
+  }catch(e){
+    result = NaN;
+  }
+  dResult.classList.remove('warn');
+  dResultExtra.style.display = 'none';
+  if(!isFinite(result) || isNaN(result)){
+    dResult.classList.add('warn');
+    dResultValue.textContent = 'Undefined';
+    dResultNote.textContent = 'Check your inputs — this likely involves dividing by zero.';
+  } else {
+    const rounded = Math.abs(result) < 1000 ? Math.round(result*100)/100 : Math.round(result*100)/100;
+    const formatted = rounded.toLocaleString('en-US', {maximumFractionDigits:2});
+    dResultValue.textContent = `${formatted}${currentFormula.unit ? ' '+currentFormula.unit : ''}`;
+    dResultNote.textContent = currentFormula.purpose;
+    if(typeof currentFormula.extra === 'function'){
+      try{
+        const ex = currentFormula.extra(values);
+        if(ex && isFinite(ex.value) && !isNaN(ex.value)){
+          const exFormatted = (Math.round(ex.value*100)/100).toLocaleString('en-US',{maximumFractionDigits:2});
+          dExtraLabel.textContent = ex.label;
+          dExtraValue.textContent = `${exFormatted}${ex.unit ? ' '+ex.unit : ''}`;
+          dResultExtra.style.display = 'block';
+        }
+      }catch(e){ /* ignore */ }
+    }
+  }
+  dResult.classList.add('show');
+});
+
+document.getElementById('search').addEventListener('input', (e)=>{
+  searchTerm = e.target.value;
+  renderCategoryList();
+  renderGrid();
+});
+
+/* ============== CLOCK ============== */
+function tick(){
+  const now = new Date();
+  const opts = {hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false, timeZone:'Africa/Lagos'};
+  document.getElementById('clock').innerHTML = `<small>Lagos</small>${now.toLocaleTimeString('en-GB', opts)}`;
+}
+tick();
+setInterval(tick, 1000);
+
+/* ============== INIT ============== */
+renderCategoryList();
+renderGrid();
+</script>
+</body>
+</html>

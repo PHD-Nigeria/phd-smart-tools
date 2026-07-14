@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clockify Time Report 2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --bg:      #1a0040;
+  --surface: #200050;
+  --card:    #25005c;
+  --border:  #3a0080;
+  --purple:  #38008c;
+  --pink:    #FF70F2;
+  --lemon:   #9FEA47;
+  --orange:  #FF7373;
+  --text:    #F8F0FF;
+  --muted:   #c9a8ff;
+  --dim:     #7a50aa;
+  --font:    'Syne', sans-serif;
+  /* Conditional colour thresholds */
+  --col-high:   #9FEA47;  /* ≥160 h  lemon  */
+  --col-mid:    #FFD166;  /* 120–159 yellow */
+  --col-low:    #FF7373;  /* <120 h  orange */
+  --col-zero:   #3a0080;  /* 0       purple */
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);font-family:var(--font);color:var(--text);min-height:100vh;font-size:16px;}
+
+/* ── HEADER ── */
+.header{
+  background:linear-gradient(120deg,#200050,#2d0070 50%,#1a0040);
+  border-bottom:2px solid var(--purple);
+  padding:14px 24px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:200;
+}
+.hdr-left{display:flex;align-items:center;gap:12px;}
+.hdr-logo{
+  width:38px;height:38px;background:rgba(255,255,255,0.06);
+  border-radius:9px;border:1px solid rgba(255,255,255,0.1);
+  display:flex;align-items:center;justify-content:center;font-size:20px;
+}
+.hdr-title h1{
+  font-size:20px;font-weight:800;
+  background:linear-gradient(90deg,var(--pink),var(--lemon));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.hdr-title p{font-size:14px;color:var(--muted);margin-top:1px;}
+.hdr-right{display:flex;align-items:center;gap:10px;}
+.as-at{font-size:14px;color:var(--muted);background:rgba(56,0,140,0.4);border:1px solid var(--border);padding:5px 12px;border-radius:6px;font-weight:600;}
+
+.icon-btn{
+  display:flex;align-items:center;gap:7px;
+  border:none;padding:8px 14px;border-radius:8px;
+  cursor:pointer;font-family:var(--font);font-size:14px;font-weight:700;
+  transition:all 0.2s;letter-spacing:0.3px;
+}
+.icon-btn svg{width:13px;height:13px;flex-shrink:0;}
+.btn-upload{background:linear-gradient(135deg,var(--pink),var(--purple));color:#fff;}
+.btn-upload:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(255,112,242,0.4);}
+.btn-export{background:linear-gradient(135deg,var(--lemon),#5ab020);color:#0a1a00;}
+.btn-export:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(159,234,71,0.4);}
+.btn-leave{background:linear-gradient(135deg,#FFD166,var(--orange));color:#2a0a00;position:relative;}
+.btn-leave:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(255,209,102,0.4);}
+.leave-count{
+  background:#2a0a00;color:#FFD166;border-radius:20px;
+  font-size:11px;font-weight:800;padding:1px 7px;line-height:1.5;
+  min-width:18px;text-align:center;
+}
+#file-input{display:none;}
+
+/* ── LEAVE MODAL ── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(10,0,30,0.65);backdrop-filter:blur(2px);
+  display:none;align-items:center;justify-content:center;z-index:1000;padding:20px;
+}
+.modal-overlay.show{display:flex;}
+.modal-box{
+  background:var(--card);border:1px solid var(--border);border-radius:14px;
+  width:100%;max-width:420px;max-height:75vh;overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,0.55);display:flex;flex-direction:column;
+}
+.modal-head{
+  padding:16px 20px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
+}
+.modal-title{font-size:15px;font-weight:800;color:var(--text);text-transform:uppercase;letter-spacing:0.6px;display:flex;align-items:center;gap:8px;}
+.modal-sub{font-size:12px;color:var(--dim);font-weight:600;margin-top:2px;}
+.modal-close{
+  background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--muted);
+  font-size:16px;width:28px;height:28px;border-radius:7px;cursor:pointer;line-height:1;
+  display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;
+}
+.modal-close:hover{border-color:var(--pink);color:var(--pink);}
+.modal-body{padding:14px 20px 18px;overflow-y:auto;}
+.leave-item{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:10px 12px;border-radius:8px;background:rgba(255,209,102,0.07);
+  border:1px solid rgba(255,209,102,0.25);margin-bottom:8px;
+}
+.leave-item:last-child{margin-bottom:0;}
+.leave-name{font-weight:700;color:var(--text);font-size:14px;}
+.leave-team{
+  font-size:11px;color:#FFD166;font-weight:700;text-transform:uppercase;
+  letter-spacing:0.5px;background:rgba(255,209,102,0.12);padding:3px 8px;border-radius:5px;
+  white-space:nowrap;flex-shrink:0;
+}
+.leave-empty{color:var(--dim);font-size:14px;text-align:center;padding:34px 10px;font-weight:600;}
+
+.toast{
+  position:fixed;top:68px;right:24px;
+  background:var(--card);border:1px solid var(--pink);
+  border-radius:10px;padding:12px 18px;
+  font-size:14px;color:var(--pink);z-index:999;
+  transform:translateX(200%);transition:transform 0.3s ease;
+  max-width:290px;font-weight:600;
+}
+.toast.show{transform:translateX(0);}
+
+/* ── SLICERS ── */
+.slicers{
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:10px 24px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+}
+.sl-label{font-size:13px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;font-weight:700;white-space:nowrap;}
+.sl-grp{display:flex;align-items:center;gap:7px;}
+/* Custom multi-select */
+.ms-wrap{position:relative;display:inline-block;min-width:150px;}
+.ms-trigger{
+  background:var(--card);border:1px solid var(--border);color:var(--text);
+  font-family:var(--font);font-size:14px;padding:5px 28px 5px 10px;
+  border-radius:6px;cursor:pointer;outline:none;width:100%;font-weight:600;
+  text-align:left;display:flex;align-items:center;justify-content:space-between;
+  gap:6px;white-space:nowrap;overflow:hidden;transition:border-color 0.2s;
+}
+.ms-trigger:hover,.ms-trigger.open{border-color:var(--pink);}
+.ms-trigger .arrow{
+  flex-shrink:0;width:10px;height:6px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23FF70F2' fill='none' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:center;transition:transform 0.2s;
+}
+.ms-trigger.open .arrow{transform:rotate(180deg);}
+.ms-trigger .label{overflow:hidden;text-overflow:ellipsis;max-width:130px;}
+.ms-dropdown{
+  display:none;position:absolute;top:calc(100% + 4px);left:0;
+  background:var(--card);border:1px solid var(--pink);
+  border-radius:8px;z-index:500;min-width:100%;max-width:220px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.5);overflow:hidden;
+}
+.ms-dropdown.open{display:block;}
+.ms-search{
+  padding:8px 10px;border-bottom:1px solid var(--border);
+}
+.ms-search input{
+  width:100%;background:var(--surface);border:1px solid var(--border);
+  color:var(--text);font-family:var(--font);font-size:14px;
+  padding:4px 8px;border-radius:5px;outline:none;
+}
+.ms-search input:focus{border-color:var(--pink);}
+.ms-list{max-height:200px;overflow-y:auto;padding:4px 0;}
+.ms-item{
+  display:flex;align-items:center;gap:8px;
+  padding:6px 12px;cursor:pointer;transition:background 0.1s;font-size:14px;
+}
+.ms-item:hover{background:rgba(255,112,242,0.1);}
+.ms-item.selected{background:rgba(255,112,242,0.08);}
+.ms-item input[type=checkbox].ms-real-cb{
+  position:absolute;opacity:0;width:1px;height:1px;pointer-events:none;
+}
+.ms-checkbox{
+  width:16px;height:16px;border-radius:4px;flex-shrink:0;
+  border:1.5px solid var(--dim);background:var(--surface);
+  display:flex;align-items:center;justify-content:center;
+  transition:background 0.15s,border-color 0.15s;
+}
+.ms-item.selected .ms-checkbox{background:var(--pink);border-color:var(--pink);}
+.ms-checkbox svg{
+  width:11px;height:11px;opacity:0;transform:scale(0.4);
+  transition:opacity 0.15s,transform 0.15s;
+  fill:none;stroke:#2a0030;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;
+}
+.ms-item.selected .ms-checkbox svg{opacity:1;transform:scale(1);}
+.ms-item:hover .ms-checkbox{border-color:var(--pink);}
+.ms-item label{cursor:pointer;color:var(--text);font-weight:600;flex:1;}
+.ms-item.selected label{color:var(--pink);}
+.ms-footer{
+  padding:7px 10px;border-top:1px solid var(--border);
+  display:flex;gap:6px;
+}
+.ms-footer button{
+  flex:1;font-family:var(--font);font-size:13px;font-weight:700;
+  border-radius:5px;padding:4px 8px;cursor:pointer;border:none;
+}
+.ms-clear{background:rgba(255,115,115,0.15);color:var(--orange);}
+.ms-clear:hover{background:rgba(255,115,115,0.3);}
+.ms-all{background:rgba(159,234,71,0.15);color:var(--lemon);}
+.ms-all:hover{background:rgba(159,234,71,0.3);}
+.sl-div{width:1px;height:20px;background:var(--border);}
+.reset-btn{
+  background:transparent;border:1px solid var(--border);color:var(--muted);
+  font-family:var(--font);font-size:13px;padding:5px 10px;border-radius:6px;
+  cursor:pointer;transition:all 0.2s;font-weight:700;
+}
+.reset-btn:hover{border-color:var(--pink);color:var(--pink);}
+#rec-info{font-size:13px;color:var(--dim);margin-left:auto;font-weight:600;}
+#rec-info span{color:var(--lemon);font-weight:800;}
+
+/* ── MAIN ── */
+.main{padding:18px 24px 40px;}
+
+/* ── TEAM CARDS ── */
+.team-cards{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+  gap:10px;margin-bottom:18px;
+}
+.team-card{
+  position:relative;height:128px;perspective:1000px;cursor:pointer;
+}
+.tc-inner{
+  position:relative;width:100%;height:100%;
+  transition:transform 0.55s cubic-bezier(0.4,0.2,0.2,1);
+  transform-style:preserve-3d;
+}
+.team-card:hover .tc-inner{transform:translateY(-2px) rotateY(0deg);}
+.team-card.flipped .tc-inner{transform:rotateY(180deg);}
+.team-card.flipped:hover .tc-inner{transform:rotateY(180deg) translateY(-2px);}
+.tc-face{
+  position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:10px;padding:12px 14px;overflow:hidden;
+  transition:border-color 0.2s;
+}
+.team-card:hover .tc-face{border-color:var(--pink);}
+.tc-face::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.tc-back{transform:rotateY(180deg);display:flex;flex-direction:column;}
+.tc-0 .tc-face::before{background:var(--pink);}
+.tc-1 .tc-face::before{background:var(--lemon);}
+.tc-2 .tc-face::before{background:var(--orange);}
+.tc-3 .tc-face::before{background:#a78bfa;}
+.tc-4 .tc-face::before{background:#38bdf8;}
+.tc-5 .tc-face::before{background:#fb923c;}
+.tc-6 .tc-face::before{background:#f472b6;}
+.tc-7 .tc-face::before{background:#4ade80;}
+.tc-8 .tc-face::before{background:#facc15;}
+.tc-9 .tc-face::before{background:#818cf8;}
+.tc-10 .tc-face::before{background:#e879f9;}
+.tc-11 .tc-face::before{background:#34d399;}
+.tc-12 .tc-face::before{background:#ff7070;}
+.tc-13 .tc-face::before{background:#22d3ee;}
+.tc-name{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;}
+.tc-hours{font-size:22px;font-weight:800;color:var(--text);line-height:1;}
+.tc-sub{font-size:12px;color:var(--dim);margin-top:3px;font-weight:600;text-transform:uppercase;}
+.tc-flip-hint{position:absolute;bottom:6px;right:8px;font-size:9px;color:var(--dim);opacity:0.7;letter-spacing:0.4px;}
+.tc-back-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:2px;}
+.tc-trend-svg{flex:1;width:100%;min-height:0;}
+.tc-trend-labels{display:flex;justify-content:space-between;font-size:8.5px;color:var(--dim);font-weight:700;padding:0 1px;}
+
+/* ── LEGEND ── */
+.legend-row{
+  display:flex;align-items:center;gap:16px;
+  margin-bottom:14px;flex-wrap:wrap;
+}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--muted);font-weight:600;}
+.legend-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0;}
+.ld-high{background:rgba(159,234,71,0.25);border:1px solid var(--lemon);}
+.ld-mid{background:rgba(255,209,102,0.25);border:1px solid #FFD166;}
+.ld-low{background:rgba(255,115,115,0.25);border:1px solid var(--orange);}
+.ld-zero{background:rgba(58,0,128,0.6);border:1px solid #6030b0;}
+
+/* ── TABLE WRAPPER ── */
+.tbl-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:12px;overflow:hidden;
+}
+.tbl-head-bar{
+  padding:13px 18px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.tbl-title{font-size:14px;font-weight:800;color:var(--text);text-transform:uppercase;letter-spacing:0.8px;}
+.tbl-badge{
+  background:rgba(255,112,242,0.12);border:1px solid rgba(255,112,242,0.3);
+  color:var(--pink);font-size:13px;padding:3px 8px;border-radius:4px;font-weight:700;
+}
+
+.tbl-wrap{overflow-x:auto;max-height:calc(100vh - 420px);overflow-y:auto;min-height:300px;}
+table{width:100%;border-collapse:collapse;font-size:14px;}
+
+thead th{
+  background:rgba(56,0,140,0.6);color:var(--muted);
+  font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;
+  padding:10px 14px;text-align:left;
+  position:sticky;top:0;z-index:10;border-bottom:1px solid var(--border);
+  font-family:var(--font);white-space:nowrap;
+}
+thead th:first-child{min-width:180px;}
+thead th:nth-child(2){min-width:110px;}
+thead th.num-col{text-align:right;min-width:90px;}
+thead th.total-col{text-align:right;min-width:90px;color:var(--pink);}
+
+tbody tr{border-bottom:1px solid rgba(58,0,128,0.35);transition:background 0.1s;}
+tbody tr:hover{background:rgba(255,112,242,0.05);}
+
+/* Group header row */
+.grp-row td{
+  background:rgba(56,0,140,0.45);color:var(--pink);
+  font-size:13px;font-weight:800;text-transform:uppercase;
+  letter-spacing:1px;padding:6px 14px;
+  border-top:1px solid var(--border);
+}
+
+tbody td{padding:8px 14px;color:var(--text);white-space:nowrap;}
+tbody td:first-child{font-weight:600;}
+tbody td.num-col{text-align:right;font-family:var(--font);font-weight:600;}
+tbody td.total-col{text-align:right;font-weight:800;color:var(--pink);font-family:var(--font);}
+
+/* Conditional cell colours — 5-tier */
+.c-t1{ background:rgba(220,38,38,0.22);  color:#f87171; border-radius:4px;font-weight:700; }
+.c-t2{ background:rgba(251,113,133,0.2); color:#fca5a5; border-radius:4px;font-weight:700; }
+.c-t3{ background:rgba(245,158,11,0.22); color:#fcd34d; border-radius:4px;font-weight:700; }
+.c-t4{ background:rgba(134,239,172,0.2); color:#86efac; border-radius:4px;font-weight:700; }
+.c-t5{ background:rgba(22,163,74,0.22);  color:#4ade80; border-radius:4px;font-weight:700; }
+.c-leave{ background:rgba(199,168,255,0.18); color:var(--muted); border:1px dashed var(--dim); border-radius:4px;font-weight:700;font-size:12px;letter-spacing:0.5px; }
+.c-zero{ background:rgba(58,0,128,0.5);color:var(--dim); border-radius:4px;font-weight:600; }
+
+/* Team subtotal row */
+.sub-row td{
+  background:rgba(255,112,242,0.06);
+  font-weight:800;font-size:14px;padding:7px 14px;
+  border-top:1px solid rgba(255,112,242,0.2);
+  color:var(--muted);
+}
+.sub-row td.num-col{color:var(--lemon);}
+.sub-row td.total-col{color:var(--pink);}
+
+/* Grand total */
+.grand-row td{
+  background:rgba(56,0,140,0.55);
+  font-weight:800;font-size:15px;padding:9px 14px;
+  border-top:2px solid var(--pink);color:var(--text);
+}
+.grand-row td.num-col,.grand-row td.total-col{color:var(--lemon);}
+
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:var(--surface);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+::-webkit-scrollbar-thumb:hover{background:var(--purple);}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"><div id="toast-msg">Loading…</div></div>
+
+<!-- LEAVE MODAL -->
+<div class="modal-overlay" id="leave-modal-overlay" onclick="if(event.target===this) closeLeaveModal()">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">🌴 On Leave</div>
+        <div class="modal-sub" id="leave-modal-sub">This month</div>
+      </div>
+      <button class="modal-close" onclick="closeLeaveModal()">✕</button>
+    </div>
+    <div class="modal-body" id="leave-modal-body"></div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="hdr-left">
+    <div class="hdr-logo">⏱️</div>
+    <div class="hdr-title">
+      <h1>Clockify Time Report — 2026</h1>
+      <p>2026 Summary · Hours Worked by Team &amp; User</p>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <div class="as-at" id="as-at">As at: 12 Jul 2026</div>
+    <input type="file" id="file-input" accept=".xlsx,.xls,.csv">
+    <button class="icon-btn btn-upload" onclick="document.getElementById('file-input').click()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+        <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+      </svg>
+      Upload Data
+    </button>
+    <button class="icon-btn btn-export" onclick="exportExcel()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      Export Excel
+    </button>
+    <button class="icon-btn btn-leave" id="btn-leave" onclick="openLeaveModal()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="4" width="18" height="18" rx="3"/>
+        <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+        <line x1="3" y1="10" x2="21" y2="10"/><path d="M9 16l2 2 4-4"/>
+      </svg>
+      On Leave
+      <span class="leave-count" id="leave-count">0</span>
+    </button>
+  </div>
+</header>
+
+<!-- SLICERS -->
+<div class="slicers">
+  <span class="sl-label">Filter by:</span>
+  <div class="sl-grp">
+    <span class="sl-label">Team</span>
+    <div class="ms-wrap" id="ms-team">
+      <button class="ms-trigger" onclick="toggleDropdown('ms-team')">
+        <span class="label" id="ms-team-label">All Teams</span>
+        <span class="arrow"></span>
+      </button>
+      <div class="ms-dropdown" id="ms-team-dd">
+        <div class="ms-search"><input type="text" placeholder="Search…" oninput="filterDropdown('ms-team',this.value)"></div>
+        <div class="ms-list" id="ms-team-list"></div>
+        <div class="ms-footer">
+          <button class="ms-clear" onclick="clearMs('ms-team')">✕ Clear</button>
+          <button class="ms-all" onclick="selectAllMs('ms-team')">✓ All</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="sl-div"></div>
+  <div class="sl-grp">
+    <span class="sl-label">User</span>
+    <div class="ms-wrap" id="ms-user">
+      <button class="ms-trigger" onclick="toggleDropdown('ms-user')">
+        <span class="label" id="ms-user-label">All Users</span>
+        <span class="arrow"></span>
+      </button>
+      <div class="ms-dropdown" id="ms-user-dd">
+        <div class="ms-search"><input type="text" placeholder="Search…" oninput="filterDropdown('ms-user',this.value)"></div>
+        <div class="ms-list" id="ms-user-list"></div>
+        <div class="ms-footer">
+          <button class="ms-clear" onclick="clearMs('ms-user')">✕ Clear</button>
+          <button class="ms-all" onclick="selectAllMs('ms-user')">✓ All</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="sl-div"></div>
+  <div class="sl-grp">
+    <span class="sl-label">Month</span>
+    <div class="ms-wrap" id="ms-month">
+      <button class="ms-trigger" onclick="toggleDropdown('ms-month')">
+        <span class="label" id="ms-month-label">All Months</span>
+        <span class="arrow"></span>
+      </button>
+      <div class="ms-dropdown" id="ms-month-dd">
+        <div class="ms-list" id="ms-month-list"></div>
+        <div class="ms-footer">
+          <button class="ms-clear" onclick="clearMs('ms-month')">✕ Clear</button>
+          <button class="ms-all" onclick="selectAllMs('ms-month')">✓ All</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <button class="reset-btn" onclick="resetFilters()">✕ Reset</button>
+  <div id="rec-info">Showing <span id="rc-n">60</span> of <span id="rc-t">60</span> users</div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- TEAM CARDS -->
+  <div class="team-cards" id="team-cards"></div>
+
+  <!-- LEGEND -->
+  <div class="legend-row">
+    <span class="sl-label">Conditional Colour:</span>
+    <div class="legend-item"><div class="legend-dot" style="background:rgba(220,38,38,0.22);border:1px solid #f87171;"></div>0 – 50 hrs (Red)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:rgba(251,113,133,0.2);border:1px solid #fca5a5;"></div>51 – 100 hrs (Light Red)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:rgba(245,158,11,0.22);border:1px solid #fcd34d;"></div>101 – 110 hrs (Amber)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:rgba(134,239,172,0.2);border:1px solid #86efac;"></div>111 – 120 hrs (Light Green)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:rgba(22,163,74,0.22);border:1px solid #4ade80;"></div>121+ hrs (Deep Green)</div>
+    <div class="legend-item"><div class="legend-dot ld-zero"></div>0 hrs (None)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:rgba(199,168,255,0.18);border:1px dashed var(--dim);"></div>On Leave</div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="tbl-card">
+    <div class="tbl-head-bar">
+      <span class="tbl-title">📋 Hours Worked — Detail View</span>
+      <span class="tbl-badge" id="tbl-badge">60 users</span>
+    </div>
+    <div class="tbl-wrap">
+      <table id="main-table">
+        <thead id="tbl-thead"></thead>
+        <tbody id="tbl-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ══════════════════════════════════════
+// DATA
+// ══════════════════════════════════════
+let RAW = [{"User":"Ogechukwu Okoli","Team":"ACE","January":117,"February":144,"March":180,"April":198,"May":189,"June":45,"July":0,"onLeave":false},{"User":"Chima Amadi","Team":"ACE","January":133.7,"February":191.54999999999998,"March":312.25,"April":70.85,"May":131.7,"June":147,"July":0,"onLeave":false},{"User":"Mary Olayiwola","Team":"ACE","January":139.25,"February":122.5,"March":138.25,"April":166.25,"May":82.5,"June":57.25,"July":26.25,"onLeave":false},{"User":"Kachi Ekwem","Team":"ACE","January":164.18999999999997,"February":177.35999999999996,"March":191.31999999999996,"April":137.45000000000002,"May":219.02,"June":94,"July":71.7,"onLeave":false},{"User":"Nmesoma Njepuome","Team":"ACE","January":0,"February":0,"March":57.25,"April":195.51999999999998,"May":142,"June":156.99,"July":63.16,"onLeave":false},{"User":"Blessing Philip","Team":"ACE","January":0,"February":0,"March":52.85999999999999,"April":143.5,"May":88,"June":152,"July":26.5,"onLeave":false},{"User":"Michael Peters","Team":"Alpha","January":131.19,"February":175,"March":87.46,"April":158.42000000000002,"May":141.84,"June":183.11,"July":43.459999999999994,"onLeave":false},{"User":"Tracey Afuwape","Team":"Alpha","January":103.33,"February":100.97999999999998,"March":106.15,"April":88.41,"May":92.83,"June":39.18,"July":7.5,"onLeave":false},{"User":"Ajeh Anwuli","Team":"Alpha","January":127.38999999999999,"February":70.94999999999999,"March":162.51999999999998,"April":127.01999999999998,"May":102.38999999999999,"June":124.34,"July":51.26,"onLeave":false},{"User":"Vera Ogor","Team":"Alpha","January":140.20999999999998,"February":170,"March":111.20999999999998,"April":189.70999999999998,"May":133.14,"June":90.14,"July":0,"onLeave":false},{"User":"Sam Adeniyi","Team":"CRU","January":144.5,"February":160.5,"March":171.5,"April":168,"May":168,"June":176,"July":64,"onLeave":false},{"User":"Ngozi Mbonu","Team":"Alpha","January":85.34,"February":101.89999999999999,"March":173.62,"April":160.25,"May":141.25,"June":176.5,"July":50.75,"onLeave":false},{"User":"Ibukun Ayandiran","Team":"Alpha","January":14,"February":144,"March":93,"April":129.5,"May":121,"June":120.5,"July":29,"onLeave":false},{"User":"Henry Ononiwu","Team":"Business Development","January":136.5,"February":182,"March":91,"April":82,"May":136.5,"June":91,"July":45.5,"onLeave":false},{"User":"Oganihu Og Oluigbo","Team":"Business Development","January":136.75,"February":103.25,"March":96.5,"April":89,"May":107,"June":146.75,"July":20.75,"onLeave":false},{"User":"Kehinde Oziwo","Team":"CRU","January":0,"February":195,"March":260.0600000000001,"April":117.59000000000003,"May":63.52000000000001,"June":89.04,"July":133.02000000000004,"onLeave":false},{"User":"Remilekun Dosumu","Team":"Compliance","January":225,"February":204,"March":102,"April":134,"May":113,"June":129,"July":30,"onLeave":false},{"User":"Chijioke Njoku","Team":"Compliance","January":148.80000000000004,"February":136.21,"March":171.07,"April":9.92,"May":122.05,"June":119.56,"July":15.349999999999998,"onLeave":false},{"User":"Bayo Sutton","Team":"Compliance","January":180.60999999999999,"February":210.41999999999996,"March":212.73999999999992,"April":226.79000000000002,"May":54.05999999999999,"June":167.41,"July":68.22999999999999,"onLeave":false},{"User":"Chibuike Agba","Team":"Compliance","January":25.27,"February":54,"March":36.76,"April":10.21,"May":33.94,"June":104.02,"July":22.47,"onLeave":false},{"User":"Johnson Adeyera","Team":"Compliance","January":155.70000000000002,"February":179.78,"March":173.43999999999997,"April":170.78999999999996,"May":144.78,"June":79.16,"July":56.42,"onLeave":false},{"User":"Olanrewaju Oladimeji","Team":"Digital","January":166.5,"February":181,"March":188,"April":182.75,"May":174.25,"June":185.25,"July":66.5,"onLeave":false},{"User":"Olamide Arowa","Team":"Digital","January":107,"February":126,"March":183.5,"April":185.5,"May":135,"June":41,"July":0,"onLeave":false},{"User":"David Nwogwugwu","Team":"Digital","January":174.5,"February":163,"March":176.5,"April":143.75,"May":128,"June":152,"July":0,"onLeave":false},{"User":"Rachael Akuwudike","Team":"Emerald","January":118.40000000000002,"February":138.22,"March":164.17999999999998,"April":158.07999999999998,"May":161.24,"June":167.46,"July":46.239999999999995,"onLeave":false},{"User":"Wilkie William","Team":"Emerald","January":246,"February":165,"March":206,"April":148,"May":129,"June":319,"July":124,"onLeave":false},{"User":"Richard Akalugwa","Team":"Emerald","January":105.75,"February":121.5,"March":163,"April":131,"May":163.75,"June":179.5,"July":54,"onLeave":false},{"User":"Amaka Micheal","Team":"Emerald","January":110.23999999999997,"February":118.44999999999996,"March":132.34999999999997,"April":79.07999999999998,"May":178.8400000000001,"June":57.11,"July":26.21,"onLeave":false},{"User":"Leke Dairo","Team":"Finance","January":79.00999999999999,"February":172.05999999999995,"March":243.82000000000002,"April":245.55000000000004,"May":125.02,"June":57.03,"July":14.5,"onLeave":false},{"User":"Chioma Mercy Ojike","Team":"Finance","January":157.5,"February":223.5,"March":180,"April":72,"May":181,"June":132,"July":27.5,"onLeave":false},{"User":"Bashir Mustapha","Team":"Finance","January":0,"February":0,"March":153.23999999999998,"April":241.89999999999992,"May":187.29,"June":249.45,"July":81.01,"onLeave":false},{"User":"Kehinde Adeyemi","Team":"Finance","January":218.54999999999998,"February":102.96999999999998,"March":145.22,"April":191.43000000000006,"May":203.08999999999997,"June":145.26,"July":0,"onLeave":false},{"User":"Agboola Damilola Nofisat","Team":"Finance","January":201.7599999999999,"February":195.57999999999984,"March":219.23999999999987,"April":209.6699999999998,"May":162.94999999999996,"June":100.35,"July":57.20000000000002,"onLeave":false},{"User":"Emmanuel Olawepo","Team":"Finance","January":153,"February":183,"March":154,"April":118,"May":145,"June":136,"July":0,"onLeave":false},{"User":"Damilola Afolabi","Team":"Finance","January":168,"February":126,"March":184.5,"April":185.5,"May":176,"June":199.5,"July":70.5,"onLeave":false},{"User":"Adesewa Abiodun","Team":"Finance","January":185,"February":185,"March":179.25,"April":189,"May":175,"June":184,"July":24,"onLeave":false},{"User":"Abiodun Bello","Team":"Finance","January":107,"February":197,"March":103,"April":136,"May":111,"June":215,"July":0,"onLeave":false},{"User":"Inemesit Akinrinlola","Team":"Finance","January":224,"February":100,"March":119,"April":237.33,"May":227.25,"June":18,"July":45,"onLeave":false},{"User":"Olawale Odukoya","Team":"Finance","January":122.57999999999998,"February":202,"March":225.44000000000005,"April":28.410000000000004,"May":214.5900000000001,"June":99.84,"July":0,"onLeave":false},{"User":"Alaba Omitogun","Team":"Finance","January":160,"February":188,"March":183,"April":186,"May":163,"June":156,"July":78,"onLeave":false},{"User":"Ayomide Orimolade","Team":"Finance","January":173.17,"February":183.75,"March":202.5,"April":205,"May":189.5,"June":208,"July":52,"onLeave":false},{"User":"Simeon Agabi","Team":"Finance","January":180,"February":260,"March":123,"April":85,"May":140,"June":127,"July":27,"onLeave":false},{"User":"Emmanuel Ujah","Team":"HR & Admin","January":407.88,"February":364.56000000000006,"March":365.56000000000006,"April":241.76000000000013,"May":303.58000000000015,"June":273.42,"July":150.62000000000003,"onLeave":false},{"User":"Oladimeji Famodimu","Team":"HR & Admin","January":92.73,"February":181.17000000000002,"March":213.42000000000002,"April":115.67,"May":142.09000000000003,"June":94.25,"July":7.75,"onLeave":false},{"User":"Uju Ononuju","Team":"HR & Admin","January":0,"February":0,"March":0,"April":18.5,"May":8.75,"June":21.68,"July":12.270000000000001,"onLeave":false},{"User":"Michael Adelaja","Team":"ICT","January":176.5,"February":199,"March":197.5,"April":108.5,"May":209.5,"June":220,"July":80,"onLeave":false},{"User":"Uche Obilom","Team":"ICT","January":139.4,"February":164.00000000000003,"March":178.10000000000002,"April":180.38000000000002,"May":133.51999999999998,"June":15,"July":67.9,"onLeave":false},{"User":"Adebanjo Sunday Felix","Team":"ICT","January":151.19,"February":168.35999999999999,"March":67.01,"April":183.60000000000002,"May":134.60999999999999,"June":138.69,"July":62.35000000000001,"onLeave":false},{"User":"Brendan Aiwuyo","Team":"OOH","January":187.47,"February":173.44,"March":173.44,"April":151.46,"May":48.68,"June":147.2,"July":0,"onLeave":false},{"User":"Tope Sanni","Team":"OOH","January":419,"February":276,"March":396,"April":340,"May":109,"June":154,"July":10,"onLeave":false},{"User":"Nnaji Johnson Obinna","Team":"OOH","January":105,"February":72,"March":59,"April":80,"May":101,"June":51,"July":37,"onLeave":false},{"User":"Awodiji Ololade Kadijat","Team":"QCU","January":154.99999999999997,"February":161.07000000000002,"March":174.07000000000002,"April":148.47,"May":143.22,"June":116.75,"July":45.67,"onLeave":false},{"User":"Adeyanju Kuju","Team":"QCU","January":134.76,"February":163,"March":75.47999999999999,"April":49.58,"May":115.75,"June":165.92,"July":49.400000000000006,"onLeave":false},{"User":"Nnamdi Okwudinma","Team":"QCU","January":165.53000000000003,"February":218.04000000000008,"March":195.16,"April":179.35999999999996,"May":172.74,"June":107.64,"July":74.4,"onLeave":false},{"User":"Cornelia Babatunde","Team":"Research","January":144.42000000000002,"February":115.5,"March":177,"April":169.07999999999998,"May":142,"June":166,"July":21.5,"onLeave":true},{"User":"Ibrahim Adigun","Team":"Research","January":115,"February":141,"March":159.75,"April":167.25,"May":159.75,"June":24,"July":62,"onLeave":false},{"User":"Bukola Owulade","Team":"Switch","January":216.16000000000014,"February":197.1200000000001,"March":217.29000000000008,"April":221.30000000000015,"May":182.81000000000012,"June":164,"July":62.650000000000006,"onLeave":false},{"User":"Ajibade Damola","Team":"Switch","January":166.31,"February":165.67,"March":165.09,"April":166.18,"May":124.14000000000001,"June":189.98,"July":66.46999999999998,"onLeave":false},{"User":"Adebayo Amosun","Team":"Switch","January":170,"February":159,"March":179.5,"April":150,"May":170,"June":162,"July":0,"onLeave":true},{"User":"Oyinkansola Ologun","Team":"Switch","January":192.17000000000002,"February":164.51,"March":184.69,"April":178.93,"May":171.94999999999996,"June":162.5,"July":65.6,"onLeave":false}];
+
+const ALL_MONTHS = ['January','February','March','April','May','June','July'];
+const ACCENT_COLORS = ['#FF70F2','#9FEA47','#FF7373','#a78bfa','#38bdf8','#fb923c','#f472b6','#4ade80','#facc15','#818cf8','#e879f9','#34d399','#ff7070','#22d3ee'];
+
+let filters = { teams:new Set(), users:new Set(), months:new Set() };
+
+// ══════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════
+function isLeave(raw) { return raw === 'LEAVE'; }
+function numVal(raw) { return typeof raw === 'number' ? raw : 0; }
+
+function fmt(raw) {
+  if (isLeave(raw)) return 'LEAVE';
+  const n = numVal(raw);
+  return n === 0 ? '—' : n.toFixed(1);
+}
+
+function cellClass(raw) {
+  if (isLeave(raw)) return 'c-leave';
+  const v = numVal(raw);
+  if (v === 0)    return 'c-zero';
+  if (v <= 50)    return 'c-t1';   /* 0-50   red        */
+  if (v <= 100)   return 'c-t2';   /* 51-100 light red  */
+  if (v <= 110)   return 'c-t3';   /* 101-110 amber     */
+  if (v <= 120)   return 'c-t4';   /* 111-120 light grn */
+  return 'c-t5';                   /* 121+   deep green */
+}
+
+function getMonths() {
+  return filters.months.size ? ALL_MONTHS.filter(m => filters.months.has(m)) : ALL_MONTHS;
+}
+
+function getFiltered() {
+  return RAW.filter(d => {
+    if (filters.teams.size && !filters.teams.has(d.Team)) return false;
+    if (filters.users.size && !filters.users.has(d.User.trim())) return false;
+    return true;
+  });
+}
+
+// ══════════════════════════════════════
+// POPULATE SLICERS
+// ══════════════════════════════════════
+function populateSlicers() {
+  const teams = [...new Set(RAW.map(d => d.Team))].sort();
+  const filteredUsers = filters.teams.size
+    ? RAW.filter(d => filters.teams.has(d.Team)).map(d => d.User.trim())
+    : RAW.map(d => d.User.trim());
+  const users = [...new Set(filteredUsers)].sort();
+
+  buildMsList('ms-team', teams);
+  buildMsList('ms-user', users);
+  buildMsList('ms-month', ALL_MONTHS);
+}
+
+// ══════════════════════════════════════
+// TREND SPARKLINE (Jan → Jul, per team)
+// ══════════════════════════════════════
+function buildTrendSVG(values, color) {
+  const w = 140, h = 56, padX = 3, padY = 5;
+  const max = Math.max(...values, 1);
+  const min = Math.min(...values, 0);
+  const range = (max - min) || 1;
+  const stepX = values.length > 1 ? (w - padX * 2) / (values.length - 1) : 0;
+  const pts = values.map((v, i) => {
+    const x = padX + i * stepX;
+    const y = h - padY - ((v - min) / range) * (h - padY * 2);
+    return [x, y];
+  });
+  const line = pts.map((p, i) => (i === 0 ? 'M' : 'L') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+  const area = line +
+    ` L${pts[pts.length - 1][0].toFixed(1)},${h - padY}` +
+    ` L${pts[0][0].toFixed(1)},${h - padY} Z`;
+  const dots = pts.map(p => `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.1" fill="${color}"/>`).join('');
+  return `<svg class="tc-trend-svg" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
+    <path d="${area}" fill="${color}" opacity="0.16"></path>
+    <path d="${line}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+    ${dots}
+  </svg>`;
+}
+
+// ══════════════════════════════════════
+// RENDER TEAM CARDS (flip: front = total, back = Jan–Jul trend)
+// ══════════════════════════════════════
+function renderCards(data) {
+  const months = getMonths();
+  const trendMonths = ALL_MONTHS; // trend side always spans the full Jan–Jul range
+  const monthAbbr = { January:'J',February:'F',March:'M',April:'A',May:'M',June:'J',July:'J',August:'A',September:'S',October:'O',November:'N',December:'D' };
+
+  // Group by team
+  const teamTotals = {};
+  data.forEach(d => {
+    if (!teamTotals[d.Team]) {
+      teamTotals[d.Team] = { hours: 0, users: new Set(), monthly: {} };
+      trendMonths.forEach(m => { teamTotals[d.Team].monthly[m] = 0; });
+    }
+    months.forEach(m => { teamTotals[d.Team].hours += numVal(d[m]); });
+    trendMonths.forEach(m => { teamTotals[d.Team].monthly[m] += numVal(d[m]); });
+    teamTotals[d.Team].users.add(d.User.trim());
+  });
+
+  const container = document.getElementById('team-cards');
+  container.innerHTML = '';
+  Object.entries(teamTotals)
+    .sort((a, b) => b[1].hours - a[1].hours)
+    .forEach(([team, info], i) => {
+      const h = info.hours;
+      const color = ACCENT_COLORS[i % ACCENT_COLORS.length];
+      const trendValues = trendMonths.map(m => info.monthly[m]);
+      const svg = buildTrendSVG(trendValues, color);
+      const labels = trendMonths.map(m => `<span>${monthAbbr[m] || m}</span>`).join('');
+
+      const card = document.createElement('div');
+      card.className = `team-card tc-${i % 14}`;
+      card.innerHTML = `
+        <div class="tc-inner">
+          <div class="tc-face tc-front">
+            <div class="tc-name">${team}</div>
+            <div class="tc-hours">${h.toLocaleString("en-US",{maximumFractionDigits:0})}<span style="font-size:14px;color:var(--dim);font-weight:600"> hrs</span></div>
+            <div class="tc-sub">${info.users.size} user${info.users.size !== 1 ? 's' : ''} · ${months.length} month${months.length !== 1 ? 's' : ''}</div>
+            <div class="tc-flip-hint">↻ trend</div>
+          </div>
+          <div class="tc-face tc-back">
+            <div class="tc-back-title">${team} · Jan–Jul</div>
+            ${svg}
+            <div class="tc-trend-labels">${labels}</div>
+          </div>
+        </div>`;
+      card.addEventListener('click', () => card.classList.toggle('flipped'));
+      container.appendChild(card);
+    });
+}
+
+// ══════════════════════════════════════
+// RENDER TABLE
+// ══════════════════════════════════════
+function renderTable(data) {
+  const months = getMonths();
+  document.getElementById('rc-n').textContent = data.length;
+  document.getElementById('rc-t').textContent = RAW.length;
+  document.getElementById('tbl-badge').textContent = data.length + ' users';
+
+  // Build thead
+  const thead = document.getElementById('tbl-thead');
+  thead.innerHTML = `<tr>
+    <th>User</th>
+    <th>Team</th>
+    ${months.map(m => `<th class="num-col">${m}</th>`).join('')}
+    <th class="total-col">Total</th>
+  </tr>`;
+
+  // Group by team
+  const grouped = {};
+  data.forEach(d => {
+    if (!grouped[d.Team]) grouped[d.Team] = [];
+    grouped[d.Team].push(d);
+  });
+
+  const tbody = document.getElementById('tbl-body');
+  tbody.innerHTML = '';
+
+  // Grand totals accumulator
+  const grandTotals = {};
+  months.forEach(m => grandTotals[m] = 0);
+  let grandTotal = 0;
+
+  const teams = Object.keys(grouped).sort();
+
+  teams.forEach(team => {
+    const rows = grouped[team];
+    const teamTotals = {};
+    months.forEach(m => teamTotals[m] = 0);
+    let teamTotal = 0;
+
+    // Team group header
+    tbody.innerHTML += `<tr class="grp-row">
+      <td colspan="${2 + months.length + 1}">▸ ${team} &nbsp;·&nbsp; ${rows.length} user${rows.length !== 1 ? 's' : ''}</td>
+    </tr>`;
+
+    // User rows
+    rows.forEach(d => {
+      let rowTotal = 0;
+      const cells = months.map(m => {
+        const raw = d[m];
+        const v = numVal(raw);
+        teamTotals[m] += v;
+        rowTotal += v;
+        return `<td class="num-col"><span class="${cellClass(raw)}" style="display:inline-block;padding:2px 7px;border-radius:4px;min-width:54px;text-align:right;">${fmt(raw)}</span></td>`;
+      });
+      teamTotal += rowTotal;
+
+      tbody.innerHTML += `<tr>
+        <td>${d.User.trim()}${d.onLeave ? ' <span style="font-size:10px;background:rgba(255,209,102,0.18);color:#FFD166;border:1px solid rgba(255,209,102,0.4);padding:1px 6px;border-radius:4px;font-weight:700;letter-spacing:0.4px;">ON LEAVE</span>' : ''}</td>
+        <td style="color:var(--muted);font-weight:600">${d.Team}</td>
+        ${cells.join('')}
+        <td class="total-col">${rowTotal.toFixed(1)}</td>
+      </tr>`;
+    });
+
+    // Team subtotal
+    months.forEach(m => { grandTotals[m] += teamTotals[m]; });
+    grandTotal += teamTotal;
+
+    tbody.innerHTML += `<tr class="sub-row">
+      <td colspan="2" style="color:var(--muted);font-weight:800">Subtotal — ${team}</td>
+      ${months.map(m => `<td class="num-col">${teamTotals[m].toFixed(1)}</td>`).join('')}
+      <td class="total-col">${teamTotal.toFixed(1)}</td>
+    </tr>`;
+  });
+
+  // Grand total row
+  tbody.innerHTML += `<tr class="grand-row">
+    <td colspan="2" style="color:var(--lemon);font-weight:800;font-size:14px;">GRAND TOTAL</td>
+    ${months.map(m => `<td class="num-col">${grandTotals[m].toFixed(1)}</td>`).join('')}
+    <td class="total-col">${grandTotal.toFixed(1)}</td>
+  </tr>`;
+}
+
+// ══════════════════════════════════════
+// RENDER ALL
+// ══════════════════════════════════════
+function render() {
+  const data = getFiltered();
+  renderCards(data);
+  renderTable(data);
+  updateLeaveBadge();
+}
+
+// ══════════════════════════════════════
+// LEAVE TRACKER
+// ══════════════════════════════════════
+function getCurrentMonth() {
+  // "This month" = most recent month present in the dataset
+  return ALL_MONTHS[ALL_MONTHS.length - 1];
+}
+
+function getLeaveUsers() {
+  const month = getCurrentMonth();
+  return RAW
+    .filter(d => d.onLeave === true)
+    .map(d => ({ user: d.User.trim(), team: d.Team, hours: numVal(d[month]) }))
+    .sort((a, b) => a.user.localeCompare(b.user));
+}
+
+function updateLeaveBadge() {
+  const badge = document.getElementById('leave-count');
+  if (badge) badge.textContent = getLeaveUsers().length;
+}
+
+function openLeaveModal() {
+  const month = getCurrentMonth();
+  const list = getLeaveUsers();
+  document.getElementById('leave-modal-sub').textContent = month + ' · ' + list.length + ' user' + (list.length !== 1 ? 's' : '');
+  const body = document.getElementById('leave-modal-body');
+  if (!list.length) {
+    body.innerHTML = `<div class="leave-empty">🎉 No one is on leave in ${month}.</div>`;
+  } else {
+    body.innerHTML = list.map(u => `
+      <div class="leave-item">
+        <span class="leave-name">${u.user}</span>
+        <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+          <span style="font-size:12px;color:#9FEA47;font-weight:700;background:rgba(159,234,71,0.1);padding:2px 7px;border-radius:5px;">${u.hours > 0 ? u.hours.toFixed(1) + ' hrs' : '—'}</span>
+          <span class="leave-team">${u.team}</span>
+        </div>
+      </div>`).join('');
+  }
+  document.getElementById('leave-modal-overlay').classList.add('show');
+}
+
+function closeLeaveModal() {
+  document.getElementById('leave-modal-overlay').classList.remove('show');
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeLeaveModal();
+});
+
+// ══════════════════════════════════════
+// SLICER EVENTS
+// ══════════════════════════════════════
+// ══════════════════════════════════════
+// MULTI-SELECT ENGINE
+// ══════════════════════════════════════
+const msState = { 'ms-team': new Set(), 'ms-user': new Set(), 'ms-month': new Set() };
+
+function buildMsList(id, items) {
+  const list = document.getElementById(id + '-list');
+  const selected = msState[id];
+  list.innerHTML = '';
+  items.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'ms-item' + (selected.has(item) ? ' selected' : '');
+    div.dataset.value = item;
+    div.innerHTML = `<input type="checkbox" class="ms-real-cb" id="${id}-${item.replace(/\s/g,'_')}" ${selected.has(item)?'checked':''}>
+      <span class="ms-checkbox"><svg viewBox="0 0 16 16"><polyline points="3.5 8.5 6.5 11.5 12.5 4.5"/></svg></span>
+      <label for="${id}-${item.replace(/\s/g,'_')}">${item}</label>`;
+    div.addEventListener('click', (e) => { e.preventDefault(); toggleMsItem(id, item, div); });
+    list.appendChild(div);
+  });
+  updateTriggerLabel(id);
+}
+
+function toggleMsItem(id, value, div) {
+  const s = msState[id];
+  if (s.has(value)) { s.delete(value); div.classList.remove('selected'); div.querySelector('input').checked = false; }
+  else { s.add(value); div.classList.add('selected'); div.querySelector('input').checked = true; }
+  updateTriggerLabel(id);
+  syncFilters();
+  // If team changed, refresh user list
+  if (id === 'ms-team') {
+    filters.users = new Set(); msState['ms-user'] = new Set();
+    const filteredUsers = filters.teams.size
+      ? RAW.filter(d => filters.teams.has(d.Team)).map(d => d.User.trim())
+      : RAW.map(d => d.User.trim());
+    buildMsList('ms-user', [...new Set(filteredUsers)].sort());
+  }
+  render();
+}
+
+function updateTriggerLabel(id) {
+  const s = msState[id];
+  const label = document.getElementById(id + '-label');
+  if (!s.size) {
+    const defaults = {'ms-team':'All Teams','ms-user':'All Users','ms-month':'All Months'};
+    label.textContent = defaults[id];
+  } else if (s.size === 1) {
+    label.textContent = [...s][0];
+  } else {
+    label.textContent = s.size + ' selected';
+  }
+}
+
+function toggleDropdown(id) {
+  const dd = document.getElementById(id + '-dd');
+  const btn = document.querySelector(`#${id} .ms-trigger`);
+  const isOpen = dd.classList.contains('open');
+  // Close all
+  document.querySelectorAll('.ms-dropdown.open').forEach(d => d.classList.remove('open'));
+  document.querySelectorAll('.ms-trigger.open').forEach(b => b.classList.remove('open'));
+  if (!isOpen) { dd.classList.add('open'); btn.classList.add('open'); }
+}
+
+function filterDropdown(id, query) {
+  const q = query.toLowerCase();
+  document.querySelectorAll(`#${id}-list .ms-item`).forEach(item => {
+    item.style.display = item.dataset.value.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+
+function clearMs(id) {
+  msState[id] = new Set();
+  buildMsList(id, [...document.querySelectorAll(`#${id}-list .ms-item`)].map(d => d.dataset.value));
+  syncFilters();
+  if (id === 'ms-team') {
+    msState['ms-user'] = new Set();
+    buildMsList('ms-user', [...new Set(RAW.map(d => d.User.trim()))].sort());
+  }
+  render();
+}
+
+function selectAllMs(id) {
+  const items = [...document.querySelectorAll(`#${id}-list .ms-item`)].map(d => d.dataset.value);
+  items.forEach(v => msState[id].add(v));
+  buildMsList(id, items);
+  syncFilters();
+  render();
+}
+
+function syncFilters() {
+  filters.teams  = msState['ms-team'];
+  filters.users  = msState['ms-user'];
+  filters.months = msState['ms-month'];
+}
+
+// Close dropdowns on outside click
+document.addEventListener('click', e => {
+  if (!e.target.closest('.ms-wrap')) {
+    document.querySelectorAll('.ms-dropdown.open').forEach(d => d.classList.remove('open'));
+    document.querySelectorAll('.ms-trigger.open').forEach(b => b.classList.remove('open'));
+  }
+});
+
+function resetFilters() {
+  filters = { teams:new Set(), users:new Set(), months:new Set() };
+  ['ms-team','ms-user','ms-month'].forEach(id => { msState[id] = new Set(); });
+  populateSlicers();
+  render();
+}
+
+// ══════════════════════════════════════
+// EXPORT EXCEL
+// ══════════════════════════════════════
+function exportExcel() {
+  const data = getFiltered();
+  const months = getMonths();
+
+  const rows = [['User','Team',...months,'Total']];
+
+  // Group by team
+  const grouped = {};
+  data.forEach(d => { if(!grouped[d.Team]) grouped[d.Team]=[]; grouped[d.Team].push(d); });
+  const teamTotalsAll = {};
+  months.forEach(m => teamTotalsAll[m] = 0);
+  let grandAll = 0;
+
+  Object.keys(grouped).sort().forEach(team => {
+    const tRows = grouped[team];
+    const tTotals = {};
+    months.forEach(m => tTotals[m] = 0);
+    let tTotal = 0;
+
+    tRows.forEach(d => {
+      let rt = 0;
+      const vals = months.map(m => { const raw = d[m]; const v = numVal(raw); tTotals[m]+=v; rt+=v; return (raw===undefined?0:raw); });
+      tTotal += rt;
+      rows.push([d.User.trim(), d.Team, ...vals, rt]);
+    });
+    months.forEach(m => teamTotalsAll[m] += tTotals[m]);
+    grandAll += tTotal;
+    rows.push([`Subtotal — ${team}`, '', ...months.map(m => tTotals[m]), tTotal]);
+    rows.push([]);
+  });
+  rows.push(['GRAND TOTAL','', ...months.map(m => teamTotalsAll[m]), grandAll]);
+
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, '2026 Summary');
+  XLSX.writeFile(wb, `Clockify_2026_Summary_${new Date().toISOString().slice(0,10)}.xlsx`);
+}
+
+// ══════════════════════════════════════
+// FILE UPLOAD
+// ══════════════════════════════════════
+document.getElementById('file-input').addEventListener('change', function(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const toast = document.getElementById('toast');
+  const msg   = document.getElementById('toast-msg');
+  msg.textContent = '⏳ Reading ' + file.name + '…';
+  toast.classList.add('show');
+
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    try {
+      const wb = XLSX.read(ev.target.result, {type:'array'});
+      // Try '2026 Summary' sheet first, else first sheet
+      const sheetName = wb.SheetNames.includes('2026 Summary') ? '2026 Summary' : wb.SheetNames[0];
+      const ws = wb.Sheets[sheetName];
+      const arr = XLSX.utils.sheet_to_json(ws, {header:1, defval:0});
+
+      // Find header row
+      let hRow = -1;
+      for (let i = 0; i < arr.length; i++) {
+        if (arr[i].some(c => String(c).trim().toLowerCase() === 'user')) { hRow = i; break; }
+      }
+      if (hRow === -1) throw new Error('Cannot find header row with "User" column');
+
+      const headers = arr[hRow].map(h => String(h).trim());
+      const userIdx  = headers.findIndex(h => h.toLowerCase() === 'user');
+      const teamIdx  = headers.findIndex(h => h.toLowerCase() === 'unit' || h.toLowerCase() === 'team');
+      const monthIdxMap = {};
+      ['January','February','March','April','May','June','July','August','September','October','November','December'].forEach(m => {
+        const idx = headers.findIndex(h => h === m);
+        if (idx >= 0) monthIdxMap[m] = idx;
+      });
+
+      const newData = [];
+      for (let i = hRow + 1; i < arr.length; i++) {
+        const row = arr[i];
+        const user = String(row[userIdx]||'').trim();
+        const team = String(row[teamIdx]||'').trim();
+        if (!user || !team) continue;
+        const rec = { User: user, Team: team };
+        Object.entries(monthIdxMap).forEach(([m, idx]) => {
+          const cell = row[idx];
+          const num = parseFloat(cell);
+          rec[m] = isNaN(num) ? (cell === 0 || cell === '' || cell === undefined ? 0 : String(cell).trim()) : num;
+        });
+        newData.push(rec);
+      }
+
+      if (!newData.length) throw new Error('No data rows found');
+      RAW = newData;
+
+      // Update available months
+      const availMonths = Object.keys(monthIdxMap);
+      ALL_MONTHS.length = 0;
+      availMonths.forEach(m => ALL_MONTHS.push(m));
+
+      document.getElementById('as-at').textContent = 'Updated: ' + new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+      populateSlicers();
+      resetFilters();
+      msg.textContent = '✅ Loaded ' + newData.length + ' users from ' + sheetName;
+      setTimeout(() => toast.classList.remove('show'), 3500);
+    } catch(err) {
+      msg.textContent = '❌ ' + err.message;
+      setTimeout(() => toast.classList.remove('show'), 4000);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+  this.value = '';
+});
+
+// ══════════════════════════════════════
+// INIT
+// ══════════════════════════════════════
+populateSlicers();
+render();
+</script>
+</body>
+</html>

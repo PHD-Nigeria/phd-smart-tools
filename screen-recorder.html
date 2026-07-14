@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Screen Recorder | Internal Tools</title>
+
+<style>
+:root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --panel-2: #334155;
+    --primary: #2563eb;
+    --success: #16a34a;
+    --danger: #dc2626;
+    --warning: #f59e0b;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+}
+
+.header {
+    padding: 20px 40px;
+    border-bottom: 1px solid var(--panel-2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-weight: 600;
+    font-size: 18px;
+    letter-spacing: 0.5px;
+}
+
+.status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--muted);
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--muted);
+}
+
+.recording .dot {
+    background: var(--danger);
+    animation: pulse 1.2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.4; }
+    100% { opacity: 1; }
+}
+
+.main {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.card {
+    background: var(--panel);
+    border-radius: 14px;
+    padding: 30px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.35);
+}
+
+h1 {
+    margin: 0 0 10px 0;
+    font-size: 24px;
+}
+
+.subtitle {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 25px;
+}
+
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+button {
+    padding: 10px 18px;
+    border-radius: 8px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.primary { background: var(--primary); color: white; }
+.success { background: var(--success); color: white; }
+.danger { background: var(--danger); color: white; }
+.warning { background: var(--warning); color: white; }
+
+.timer {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.video-wrapper {
+    background: black;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+video {
+    width: 100%;
+    display: block;
+}
+
+.footer-note {
+    margin-top: 15px;
+    font-size: 12px;
+    color: var(--muted);
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <div class="logo">Internal Tools · Screen Recorder</div>
+    <div id="status" class="status">
+        <div class="dot"></div>
+        <span id="statusText">Idle</span>
+    </div>
+</div>
+
+<div class="main">
+    <div class="card">
+        <h1>Screen Recording</h1>
+        <div class="subtitle">
+            Capture full screen, windows, browser tabs, or external monitors with system and microphone audio.
+        </div>
+
+        <div class="controls">
+            <button class="success" onclick="startRecording()">Start Recording</button>
+            <button class="warning" onclick="pauseRecording()" disabled id="pauseBtn">Pause</button>
+            <button class="primary" onclick="resumeRecording()" disabled id="resumeBtn">Resume</button>
+            <button class="danger" onclick="stopRecording()" disabled id="stopBtn">Stop</button>
+            <button class="primary" onclick="downloadRecording()" disabled id="downloadBtn">Download</button>
+        </div>
+
+        <div class="timer">
+            Recording Time: <span id="timer">00:00:00</span>
+        </div>
+
+        <div class="video-wrapper">
+            <video id="preview" controls></video>
+        </div>
+
+        <div class="footer-note">
+            Note: For system audio capture, ensure “Share system audio” is enabled in the browser prompt.
+        </div>
+    </div>
+</div>
+
+<script>
+let mediaRecorder;
+let recordedChunks = [];
+let recordedBlob;
+let timerInterval;
+let seconds = 0;
+let combinedStream;
+
+function updateStatus(text, recording=false) {
+    const status = document.getElementById("status");
+    document.getElementById("statusText").innerText = text;
+    status.classList.toggle("recording", recording);
+}
+
+function startTimer() {
+    seconds = 0;
+    timerInterval = setInterval(() => {
+        seconds++;
+        document.getElementById("timer").innerText =
+            new Date(seconds * 1000).toISOString().substr(11, 8);
+    }, 1000);
+}
+
+function stopTimer() {
+    clearInterval(timerInterval);
+}
+
+async function startRecording() {
+    recordedChunks = [];
+    updateStatus("Initializing...", false);
+
+    const screenStream = await navigator.mediaDevices.getDisplayMedia({
+        video: true,
+        audio: true
+    });
+
+    const micStream = await navigator.mediaDevices.getUserMedia({
+        audio: true
+    });
+
+    const audioContext = new AudioContext();
+    const destination = audioContext.createMediaStreamDestination();
+
+    if (screenStream.getAudioTracks().length > 0) {
+        audioContext.createMediaStreamSource(screenStream).connect(destination);
+    }
+
+    audioContext.createMediaStreamSource(micStream).connect(destination);
+
+    combinedStream = new MediaStream([
+        ...screenStream.getVideoTracks(),
+        ...destination.stream.getAudioTracks()
+    ]);
+
+    mediaRecorder = new MediaRecorder(combinedStream, {
+        mimeType: "video/webm; codecs=vp9"
+    });
+
+    mediaRecorder.ondataavailable = e => {
+        if (e.data.size > 0) recordedChunks.push(e.data);
+    };
+
+    mediaRecorder.onstop = () => {
+        recordedBlob = new Blob(recordedChunks, { type: "video/webm" });
+        document.getElementById("preview").src =
+            URL.createObjectURL(recordedBlob);
+        document.getElementById("downloadBtn").disabled = false;
+        updateStatus("Recording Stopped", false);
+    };
+
+    screenStream.getVideoTracks()[0].addEventListener("ended", () => {
+        if (mediaRecorder.state !== "inactive") stopRecording();
+    });
+
+    mediaRecorder.start();
+    startTimer();
+    updateStatus("Recording", true);
+
+    document.getElementById("stopBtn").disabled = false;
+    document.getElementById("pauseBtn").disabled = false;
+}
+
+function pauseRecording() {
+    mediaRecorder.pause();
+    document.getElementById("pauseBtn").disabled = true;
+    document.getElementById("resumeBtn").disabled = false;
+    updateStatus("Paused", true);
+}
+
+function resumeRecording() {
+    mediaRecorder.resume();
+    document.getElementById("pauseBtn").disabled = false;
+    document.getElementById("resumeBtn").disabled = true;
+    updateStatus("Recording", true);
+}
+
+function stopRecording() {
+    mediaRecorder.stop();
+    stopTimer();
+
+    document.getElementById("stopBtn").disabled = true;
+    document.getElementById("pauseBtn").disabled = true;
+    document.getElementById("resumeBtn").disabled = true;
+}
+
+function downloadRecording() {
+    const now = new Date();
+    const timestamp = now.toISOString().replace(/[:.]/g, "-");
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(recordedBlob);
+    a.download = `Screen-Recording-${timestamp}.webm`;
+    a.click();
+}
+</script>
+
+</body>
+</html>
