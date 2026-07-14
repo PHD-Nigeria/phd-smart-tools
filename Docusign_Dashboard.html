@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Docusign Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --purple: #38008C;
+    --purple-deep: #22005C;
+    --purple-bg: #14002E;
+    --purple-panel: #1D0140;
+    --purple-panel-2: #250352;
+    --lemon: #9FEA47;
+    --lemon-dim: #C9F58F;
+    --white: #F5F3FA;
+    --muted: #B6A8D6;
+    --faint: #7A6BA0;
+    --border: rgba(159,234,71,0.14);
+    --border-soft: rgba(255,255,255,0.08);
+
+    --c-completed: #3CE580;
+    --c-completed-bg: rgba(60,229,128,0.14);
+    --c-sent: #3FB6FF;
+    --c-sent-bg: rgba(63,182,255,0.14);
+    --c-voided: #FF5C7A;
+    --c-voided-bg: rgba(255,92,122,0.14);
+    --c-declined: #FFB443;
+    --c-declined-bg: rgba(255,180,67,0.14);
+
+    --t-alpha: #FF5FA2;
+    --t-ace: #A972FF;
+    --t-emerald: #3CE580;
+    --t-ict: #45D8E0;
+    --t-switch: #FFC843;
+    --t-cru: #4E93FF;
+    --t-phd: #9FEA47;
+    --t-research: #FF8A5C;
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background: radial-gradient(1200px 600px at 10% -10%, #2A0A5E 0%, transparent 60%),
+                radial-gradient(900px 500px at 100% 0%, #1A0640 0%, transparent 55%),
+                var(--purple-bg);
+    color: var(--white);
+    font-family: 'Syne', sans-serif;
+    min-height:100vh;
+    padding: 20px;
+  }
+  h1,h2,h3,.display{font-family:'Syne', sans-serif;}
+
+  .wrap{ max-width: 1360px; margin: 0 auto; }
+
+  /* ===== HEADER ===== */
+  .header{
+    display:flex; align-items:center; justify-content:space-between;
+    background: linear-gradient(135deg, var(--purple-panel) 0%, var(--purple-panel-2) 100%);
+    border: 1px solid var(--border-soft);
+    border-radius: 18px;
+    padding: 18px 26px;
+    gap: 20px;
+    flex-wrap: wrap;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.35);
+  }
+  .brand{ display:flex; align-items:center; gap:14px; }
+  .brand-icon{
+    width:46px; height:46px; border-radius:13px;
+    background: linear-gradient(135deg, var(--lemon), #6FD1E8);
+    display:flex; align-items:center; justify-content:center;
+    font-size:22px; flex-shrink:0;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.15) inset, 0 8px 20px rgba(159,234,71,0.25);
+  }
+  .brand-title{
+    font-size: 23px; font-weight: 800; margin:0; letter-spacing:-0.02em;
+    background: linear-gradient(90deg, var(--lemon) 0%, #7FD8FF 60%, #C7B4FF 100%);
+    -webkit-background-clip: text; background-clip:text; color:transparent;
+  }
+  .brand-sub{ font-size:12.5px; color: var(--muted); margin-top:3px; }
+
+  .header-actions{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .pill{
+    padding: 9px 16px; border-radius: 10px; font-size: 12.5px; font-weight:600;
+    display:flex; align-items:center; gap:8px; white-space:nowrap;
+  }
+  .pill-date{ background: rgba(255,255,255,0.05); border:1px solid var(--border-soft); color: var(--muted); }
+  .btn{
+    border:none; cursor:pointer; padding:10px 18px; border-radius:10px;
+    font-size:13px; font-weight:700; font-family:'Syne',sans-serif;
+    display:flex; align-items:center; gap:8px; transition: transform .15s ease, filter .15s ease;
+  }
+  .btn:hover{ filter:brightness(1.08); transform: translateY(-1px); }
+  .btn-upload{ background: linear-gradient(135deg, #B14CFF, var(--purple)); color:#fff; }
+  .btn-export{ background: linear-gradient(135deg, var(--lemon), #6FE07A); color:#123300; }
+  .badge-total{ background: linear-gradient(135deg,#3A0F7A,#511496); color: var(--lemon-dim); border:1px solid rgba(159,234,71,0.35); }
+
+  /* ===== FILTER BAR ===== */
+  .filterbar{
+    margin-top:16px;
+    background: var(--purple-panel);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: 14px 20px;
+    display:flex; align-items:center; gap:18px; flex-wrap:wrap;
+  }
+  .filter-group{ display:flex; align-items:center; gap:9px; }
+  .filter-label{ font-size:11px; font-weight:700; letter-spacing:.06em; color: var(--faint); text-transform:uppercase; }
+  input[type=text]{
+    background: rgba(255,255,255,0.05);
+    border:1px solid var(--border-soft);
+    color: var(--white);
+    padding: 8px 12px; border-radius: 9px; font-size:13px; font-family:'Syne',sans-serif;
+    outline:none;
+  }
+  input[type=text]:focus{ border-color: var(--lemon); }
+  input[type=text]{ cursor:text; min-width:190px; }
+
+  /* ===== MULTI-SELECT SLICER ===== */
+  .msel{ position:relative; }
+  .msel-btn{
+    display:flex; align-items:center; gap:8px;
+    background: rgba(255,255,255,0.05);
+    border:1px solid var(--border-soft);
+    color: var(--white);
+    padding: 8px 12px; border-radius: 9px; font-size:13px; font-family:'Syne',sans-serif;
+    cursor:pointer; min-width:150px; justify-content:space-between;
+  }
+  .msel-btn:hover{ border-color: rgba(159,234,71,0.4); }
+  .msel.open .msel-btn{ border-color: var(--lemon); }
+  .msel-btn-label{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; overflow:hidden; }
+  .msel-caret{ font-size:9px; color: var(--faint); flex-shrink:0; transition: transform .15s ease; }
+  .msel.open .msel-caret{ transform: rotate(180deg); }
+  .msel-chip{
+    background: #38008C; color: #fff;
+    border: 1px solid rgba(159,234,71,0.35);
+    padding: 2px 9px; border-radius: 100px; font-size:11px; font-weight:700;
+  }
+  .msel-placeholder{ color: var(--muted); font-weight:500; }
+  .msel-panel{
+    display:none; position:absolute; top: calc(100% + 6px); left:0; z-index:20;
+    min-width: 230px; max-height: 280px; overflow-y:auto;
+    background: var(--purple-panel-2);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    padding: 8px;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.45);
+  }
+  .msel.open .msel-panel{ display:block; }
+  .msel-panel-actions{
+    display:flex; justify-content:space-between; gap:8px;
+    padding: 4px 8px 8px; border-bottom: 1px solid var(--border-soft); margin-bottom:6px;
+  }
+  .msel-link{ background:none; border:none; color: var(--lemon); font-size:11px; font-weight:700; cursor:pointer; padding:0; font-family:'Syne',sans-serif; }
+  .msel-option{
+    display:flex; align-items:center; gap:10px;
+    padding: 7px 8px; border-radius: 8px; cursor:pointer; font-size:12.8px;
+  }
+  .msel-option:hover{ background: rgba(255,255,255,0.05); }
+  .msel-option input[type=checkbox]{
+    appearance:none; -webkit-appearance:none;
+    width:16px; height:16px; border-radius:5px;
+    border: 1.5px solid var(--faint);
+    background: rgba(255,255,255,0.04);
+    cursor:pointer; flex-shrink:0; position:relative;
+  }
+  .msel-option input[type=checkbox]:checked{
+    background: #38008C; border-color: var(--lemon);
+  }
+  .msel-option input[type=checkbox]:checked::after{
+    content:'✓'; position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-size:11px; color: var(--lemon);
+  }
+  .msel-option-count{ margin-left:auto; color: var(--faint); font-size:10.5px; }
+
+  /* ===== PERIOD: YEAR / MONTH TREE ===== */
+  .msel-year{ margin-bottom:2px; }
+  .msel-year-row{ display:flex; align-items:center; gap:8px; padding:6px 8px; border-radius:8px; }
+  .msel-year-row:hover{ background: rgba(255,255,255,0.05); }
+  .msel-year-toggle{
+    background:none; border:none; color: var(--lemon); font-size:10px; cursor:pointer;
+    width:16px; height:16px; flex-shrink:0; padding:0; display:flex; align-items:center; justify-content:center;
+    border-radius:4px; background: rgba(159,234,71,0.12);
+  }
+  .msel-year-toggle:hover{ background: rgba(159,234,71,0.22); }
+  .msel-year-checkbox{
+    appearance:none; -webkit-appearance:none;
+    width:16px; height:16px; border-radius:5px;
+    border: 1.5px solid var(--faint);
+    background: rgba(255,255,255,0.04);
+    cursor:pointer; flex-shrink:0; position:relative;
+  }
+  .msel-year-checkbox:checked, .msel-year-checkbox:indeterminate{ background:#38008C; border-color: var(--lemon); }
+  .msel-year-checkbox:checked::after{ content:'✓'; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--lemon); }
+  .msel-year-checkbox:indeterminate::after{ content:'–'; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--lemon); }
+  .msel-year-label{ font-weight:700; font-size:12.8px; flex:1; }
+  .msel-month-list{ padding-left: 32px; margin: 2px 0 6px; }
+  .msel-month-option{ padding:5px 8px; font-size:12px; }
+  .btn-reset{
+    background: rgba(255,92,122,0.12); color:#FF8CA3; border:1px solid rgba(255,92,122,0.3);
+    padding:8px 14px; font-size:12.5px;
+  }
+  .filter-spacer{ flex:1; }
+  .results-count{ font-size:12.5px; color: var(--muted); white-space:nowrap; }
+  .results-count b{ color: var(--lemon); }
+
+  /* ===== TEAM CARDS ===== */
+  .cards-grid{
+    margin-top:18px;
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+  }
+  .team-card{
+    background: var(--purple-panel);
+    border: 1px solid var(--border-soft);
+    border-top: 3px solid var(--accent, var(--lemon));
+    border-radius: 14px;
+    padding: 14px 16px;
+    cursor:pointer;
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+    position:relative;
+  }
+  .team-card:hover{ transform: translateY(-3px); box-shadow: 0 10px 24px rgba(0,0,0,0.3); }
+  .team-card.active{ border-color: var(--accent); background: var(--purple-panel-2); }
+  .team-name{ font-size:11px; font-weight:700; letter-spacing:.05em; color: var(--accent, var(--lemon)); text-transform:uppercase; }
+  .team-count{ font-size: 26px; font-weight:800; margin-top:6px; font-family:'Syne',sans-serif; }
+  .team-count span{ font-size:12px; font-weight:600; color: var(--muted); margin-left:4px; }
+  .team-meta{ font-size:11px; color: var(--faint); margin-top:6px; line-height:1.5; }
+
+  /* ===== LEGEND ===== */
+  .legend{
+    margin-top:16px;
+    display:flex; align-items:center; gap:22px; flex-wrap:wrap;
+    font-size:11.5px; color: var(--faint);
+    padding: 0 4px;
+  }
+  .legend-title{ font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); }
+  .legend-item{ display:flex; align-items:center; gap:7px; }
+  .legend-swatch{ width:11px; height:11px; border-radius:3px; }
+
+  /* ===== TABLE PANEL ===== */
+  .table-panel{
+    margin-top:16px;
+    background: var(--purple-panel);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    overflow:hidden;
+  }
+  .table-panel-head{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 16px 22px; border-bottom: 1px solid var(--border-soft);
+  }
+  .table-panel-head h3{ margin:0; font-size:15px; display:flex; align-items:center; gap:8px; }
+  .count-chip{ background: rgba(159,234,71,0.14); color: var(--lemon); padding:3px 10px; border-radius:100px; font-size:11.5px; font-weight:700; }
+
+  .group{ border-bottom: 1px solid var(--border-soft); }
+  .group:last-child{ border-bottom:none; }
+  .group-head{
+    display:flex; align-items:center; gap:10px;
+    padding: 12px 22px; cursor:pointer; user-select:none;
+    background: rgba(255,255,255,0.02);
+  }
+  .group-head:hover{ background: rgba(255,255,255,0.045); }
+  .group-arrow{ transition: transform .18s ease; color: var(--faint); font-size:11px; }
+  .group.open .group-arrow{ transform: rotate(90deg); }
+  .group-dot{ width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+  .group-title{ font-weight:700; font-size:13.5px; }
+  .group-sub{ font-size:11.5px; color: var(--faint); }
+  .group-spacer{ flex:1; }
+  .group-stats{ display:flex; gap:8px; }
+  .mini-stat{ font-size:10.5px; padding:2px 8px; border-radius:100px; font-weight:700; }
+
+  .group-body{ display:none; }
+  .group.open .group-body{ display:block; }
+
+  table{ width:100%; border-collapse: collapse; }
+  thead th{
+    text-align:left; font-size:10.5px; letter-spacing:.06em; text-transform:uppercase;
+    color: var(--faint); padding: 10px 22px; font-weight:700;
+    border-bottom:1px solid var(--border-soft);
+  }
+  tbody td{
+    padding: 11px 22px; font-size:12.8px; color: var(--white);
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    vertical-align: top;
+  }
+  tbody tr:hover{ background: rgba(255,255,255,0.03); }
+  .subj-cell{ max-width:340px; }
+  .subj-title{ font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:340px; display:block; }
+  .subj-brand{ font-size:11px; color: var(--faint); margin-top:2px; }
+  .muted-cell{ color: var(--muted); }
+  .status-badge{
+    display:inline-block; padding: 4px 11px; border-radius:100px;
+    font-size:11px; font-weight:700; white-space:nowrap;
+  }
+  .date-cell{ font-size:12px; color: var(--muted); white-space:nowrap; }
+  .date-cell .time{ display:block; font-size:10.5px; color: var(--faint); margin-top:1px; }
+
+  .empty-state{ padding: 60px 20px; text-align:center; color: var(--faint); }
+  .empty-state .big{ font-size:34px; margin-bottom:10px; }
+
+  footer{ text-align:center; color: var(--faint); font-size:11.5px; margin: 22px 0 6px; }
+
+  ::-webkit-scrollbar{ height:8px; width:8px; }
+  ::-webkit-scrollbar-thumb{ background: rgba(159,234,71,0.25); border-radius:8px; }
+
+  /* ===== CHARTS ===== */
+  .charts-grid{
+    margin-top:16px;
+    display:grid;
+    grid-template-columns: 1.3fr 1.3fr 1fr;
+    gap: 14px;
+    align-items:stretch;
+  }
+  .chart-panel{
+    background: var(--purple-panel);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: 18px 20px;
+    display:flex; flex-direction:column;
+  }
+  .chart-panel h4{
+    margin:0 0 14px; font-size:13.5px; font-weight:700; display:flex; align-items:center; gap:8px;
+    color: var(--white);
+  }
+  .chart-panel h4 .chip-sub{ font-size:10.5px; font-weight:600; color: var(--faint); margin-left:auto; }
+
+  /* vertical bars (AST) */
+  .vbar-chart{ display:flex; align-items:flex-end; gap:10px; height:200px; padding-top:10px; }
+  .vbar-col{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; min-width:0; }
+  .vbar-value{ font-size:11.5px; font-weight:700; margin-bottom:6px; color: var(--white); }
+  .vbar{ width:100%; max-width:34px; border-radius: 7px 7px 3px 3px; transition: height .4s ease; min-height:3px; }
+  .vbar-label{ font-size:10px; color: var(--faint); margin-top:8px; text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; width:100%; }
+
+  /* horizontal bars (Client) */
+  .hbar-chart{ max-height:280px; overflow-y:auto; padding-right:6px; display:flex; flex-direction:column; gap:9px; }
+  .hbar-row{ display:flex; align-items:center; gap:10px; }
+  .hbar-label{ font-size:11px; color: var(--muted); width:108px; flex-shrink:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .hbar-track{ flex:1; background: rgba(255,255,255,0.05); border-radius:6px; height:14px; overflow:hidden; }
+  .hbar-fill{ height:100%; background: linear-gradient(90deg, #38008C, var(--lemon)); border-radius:6px; transition: width .4s ease; }
+  .hbar-value{ font-size:11px; font-weight:700; width:26px; text-align:right; flex-shrink:0; }
+
+  /* pie chart */
+  .pie-wrap{ display:flex; align-items:center; gap:16px; flex:1; }
+  .pie-circle{
+    width:130px; height:130px; border-radius:50%; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    position:relative;
+  }
+  .pie-center{
+    width:78px; height:78px; border-radius:50%;
+    background: var(--purple-panel);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+  }
+  .pie-center .num{ font-size:19px; font-weight:800; font-family:'Syne',sans-serif; }
+  .pie-center .lbl{ font-size:9px; color: var(--faint); text-transform:uppercase; letter-spacing:.04em; }
+  .pie-legend{ display:flex; flex-direction:column; gap:9px; flex:1; min-width:0; }
+  .pie-legend-item{ display:flex; align-items:center; gap:8px; font-size:11.5px; }
+  .pie-dot{ width:10px; height:10px; border-radius:3px; flex-shrink:0; }
+  .pie-legend-name{ flex:1; color: var(--white); font-weight:600; }
+  .pie-legend-pct{ font-weight:700; }
+  .pie-legend-count{ color: var(--faint); font-size:10.5px; }
+
+  @media (max-width: 980px){
+    .charts-grid{ grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 760px){
+    .header{ flex-direction:column; align-items:flex-start; }
+    .filterbar{ flex-direction:column; align-items:stretch; }
+    .filter-group{ justify-content:space-between; }
+    input[type=text]{ flex:1; }
+    .msel{ flex:1; }
+    .msel-btn{ width:100%; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <div class="brand">
+      <div class="brand-icon">✒️</div>
+      <div>
+        <h1 class="brand-title">Docusign Dashboard</h1>
+        <div class="brand-sub" id="subtitleText">Envelope Report · All-Time Summary · by Team &amp; Client</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="pill pill-date" id="asAtPill">As at: —</div>
+      <button class="btn btn-upload" onclick="document.getElementById('fileInput').click()">⭱ Upload Data</button>
+      <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" style="display:none">
+      <button class="btn btn-export" id="exportBtn">⭳ Export Excel</button>
+      <div class="pill badge-total">📩 <span id="totalBadge">0</span> Envelopes</div>
+    </div>
+  </div>
+
+  <div class="filterbar">
+    <div class="filter-group">
+      <span class="filter-label">Team</span>
+      <div class="msel" id="teamFilter" data-key="team">
+        <button type="button" class="msel-btn"><span class="msel-btn-label"><span class="msel-placeholder">All Teams</span></span><span class="msel-caret">▼</span></button>
+        <div class="msel-panel"><div class="msel-panel-actions"><button type="button" class="msel-link" data-act="all">Select all</button><button type="button" class="msel-link" data-act="clear">Clear</button></div><div class="msel-options"></div></div>
+      </div>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Client</span>
+      <div class="msel" id="clientFilter" data-key="client">
+        <button type="button" class="msel-btn"><span class="msel-btn-label"><span class="msel-placeholder">All Clients</span></span><span class="msel-caret">▼</span></button>
+        <div class="msel-panel"><div class="msel-panel-actions"><button type="button" class="msel-link" data-act="all">Select all</button><button type="button" class="msel-link" data-act="clear">Clear</button></div><div class="msel-options"></div></div>
+      </div>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Status</span>
+      <div class="msel" id="statusFilter" data-key="status">
+        <button type="button" class="msel-btn"><span class="msel-btn-label"><span class="msel-placeholder">All Status</span></span><span class="msel-caret">▼</span></button>
+        <div class="msel-panel"><div class="msel-panel-actions"><button type="button" class="msel-link" data-act="all">Select all</button><button type="button" class="msel-link" data-act="clear">Clear</button></div><div class="msel-options"></div></div>
+      </div>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Period</span>
+      <div class="msel" id="periodFilter" data-key="period">
+        <button type="button" class="msel-btn"><span class="msel-btn-label"><span class="msel-placeholder">All Time</span></span><span class="msel-caret">▼</span></button>
+        <div class="msel-panel"><div class="msel-panel-actions"><button type="button" class="msel-link" data-act="all">Select all</button><button type="button" class="msel-link" data-act="clear">Clear</button></div><div class="msel-options"></div></div>
+      </div>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Search</span>
+      <input type="text" id="searchBox" placeholder="Subject, brand, sender…">
+    </div>
+    <button class="btn-reset" onclick="resetFilters()">✕ Reset</button>
+    <div class="filter-spacer"></div>
+    <div class="results-count">Showing <b id="shownCount">0</b> of <b id="totalCount">0</b> envelopes</div>
+  </div>
+
+  <div class="cards-grid" id="cardsGrid"></div>
+
+  <div class="legend">
+    <span class="legend-title">Status:</span>
+    <div class="legend-item"><span class="legend-swatch" style="background:var(--c-completed)"></span> Completed</div>
+    <div class="legend-item"><span class="legend-swatch" style="background:var(--c-sent)"></span> Sent</div>
+    <div class="legend-item"><span class="legend-swatch" style="background:var(--c-voided)"></span> Voided</div>
+    <div class="legend-item"><span class="legend-swatch" style="background:var(--c-declined)"></span> Declined</div>
+  </div>
+
+  <div class="charts-grid">
+    <div class="chart-panel">
+      <h4>📊 Envelopes by AST <span class="chip-sub" id="astChartSub"></span></h4>
+      <div class="vbar-chart" id="astBarChart"></div>
+    </div>
+    <div class="chart-panel">
+      <h4>📊 Envelopes by Client <span class="chip-sub" id="clientChartSub"></span></h4>
+      <div class="hbar-chart" id="clientBarChart"></div>
+    </div>
+    <div class="chart-panel">
+      <h4>🥧 Status Breakdown</h4>
+      <div class="pie-wrap">
+        <div class="pie-circle" id="statusPie"><div class="pie-center"><span class="num" id="pieTotal">0</span><span class="lbl">total</span></div></div>
+        <div class="pie-legend" id="statusLegend"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-panel">
+    <div class="table-panel-head">
+      <h3>📄 Envelope Records</h3>
+      <span class="count-chip" id="panelCount">0 records</span>
+    </div>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>AST</th>
+            <th>Client</th>
+            <th>Brand</th>
+            <th>Status</th>
+            <th>Sender Name</th>
+            <th>Recipient Name</th>
+            <th>Sent On (Date)</th>
+          </tr>
+        </thead>
+        <tbody id="recordsTbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer>Docusign Dashboard · Generated from Envelope Report export</footer>
+</div>
+
+<script id="envelope-data" type="application/json">[{"id":1,"subject":"Golden Penny Pasta What's Your Reason April-June '26 Media Plan OOH 18 ...","team":"Alpha","client":"FMN","brand":"Golden Penny Pasta","status":"Sent","sender":"Quality Control","recipient":"Multiple","sentDate":"2026-07-03","sentTime":"13:30:39 WAT","lastDate":"2026-07-03","lastTime":"13:52:40 WAT"},{"id":2,"subject":"Golden Penny Spread 2026 Campaign 30.6.2026 (002).pdf","team":"Alpha","client":"FMN","brand":"Golden Penny Spread","status":"Sent","sender":"Quality Control","recipient":"Multiple","sentDate":"2026-07-03","sentTime":"13:24:48 WAT","lastDate":"2026-07-03","lastTime":"13:57:40 WAT"},{"id":3,"subject":"Golden Penny Semovita Thematic  Media Plan 3rd June 2026 - Optimized (0...","team":"Alpha","client":"FMN","brand":"Golden Penny Semovita","status":"Sent","sender":"Quality Control","recipient":"Multiple","sentDate":"2026-07-03","sentTime":"13:13:30 WAT","lastDate":"2026-07-03","lastTime":"13:52:46 WAT"},{"id":4,"subject":"Golden penny oil OOH  Radio 30.6.2026 revised (Korope  Taxi branding) (...","team":"Alpha","client":"FMN","brand":"Golden Penny Oil","status":"Sent","sender":"Quality Control","recipient":"Multiple","sentDate":"2026-07-03","sentTime":"12:40:59 WAT","lastDate":"2026-07-03","lastTime":"13:50:14 WAT"},{"id":5,"subject":"Golden Penny Noodles TV Radio and OOH 8 Month Media Plan 30.6.20266 ._ ...","team":"Alpha","client":"FMN","brand":"Golden Penny Noodles","status":"Sent","sender":"Quality Control","recipient":"Multiple","sentDate":"2026-07-03","sentTime":"12:10:52 WAT","lastDate":"2026-07-03","lastTime":"13:50:46 WAT"},{"id":6,"subject":"American Cola Ilupeju OOH plan_r2 18thMay26.pdf","team":"Emerald","client":"Planet Bottling","brand":"American Cola","status":"Sent","sender":"Quality Control","recipient":"Multiple","sentDate":"2026-07-02","sentTime":"17:24:01 WAT","lastDate":"2026-07-03","lastTime":"19:11:34 WAT"},{"id":7,"subject":"American Cola Ilupeju OOH plan_r2 18thMay26.pdf","team":"Emerald","client":"Planet Bottling","brand":"American Cola","status":"Voided","sender":"Quality Control","recipient":"Multiple","sentDate":"2026-07-02","sentTime":"13:59:24 WAT","lastDate":"2026-07-02","lastTime":"14:03:17 WAT"},{"id":8,"subject":"American Cola Ilupeju OOH plan_r2 18thMay26.pdf","team":"Emerald","client":"Planet Bottling","brand":"American Cola","status":"Voided","sender":"Quality Control","recipient":"Multiple","sentDate":"2026-07-02","sentTime":"13:26:34 WAT","lastDate":"2026-07-02","lastTime":"13:53:26 WAT"},{"id":9,"subject":"Reaktor Energy Drink_Radio 30secs Jul-Sept'26_Media plan_25Jun2026 (002...","team":"Emerald","client":"Planet Bottling","brand":"Reaktor","status":"Sent","sender":"Quality Control","recipient":"Multiple","sentDate":"2026-07-01","sentTime":"17:17:28 WAT","lastDate":"2026-07-02","lastTime":"13:34:37 WAT"},{"id":10,"subject":"American Cola_Radio 30secs Jul-Sept'26_Media plan_25June2026.pdf","team":"Emerald","client":"Planet Bottling","brand":"American Cola","status":"Sent","sender":"Quality Control","recipient":"Multiple","sentDate":"2026-07-01","sentTime":"17:10:59 WAT","lastDate":"2026-07-02","lastTime":"13:36:13 WAT"},{"id":11,"subject":"Reaktor Energy Drink_Radio 30secs Jul-Sept'26_Media plan_25Jun2026.pdf","team":"Emerald","client":"Planet Bottling","brand":"Reaktor","status":"Voided","sender":"Quality Control","recipient":"Multiple","sentDate":"2026-07-01","sentTime":"16:01:50 WAT","lastDate":"2026-07-01","lastTime":"16:54:27 WAT"},{"id":12,"subject":"American Cola Ilupeju OOH plan_r2 18thMay26.pdf","team":"Emerald","client":"Planet Bottling","brand":"American Cola","status":"Voided","sender":"Quality Control","recipient":"Multiple","sentDate":"2026-07-01","sentTime":"15:52:41 WAT","lastDate":"2026-07-01","lastTime":"16:54:49 WAT"},{"id":13,"subject":"Ashesi University_NIG_Radio  ARCON Regulatory_Media Plan_22Jun2026.pdf","team":"Emerald","client":"Ashesi University","brand":"Ashesi University","status":"Sent","sender":"Quality Control","recipient":"Multiple","sentDate":"2026-06-29","sentTime":"15:26:18 WAT","lastDate":"2026-07-04","lastTime":"09:55:14 WAT"},{"id":14,"subject":"Ashesi University_NIG_Radio  ARCON Regulatory_Media Plan_22Jun2026.pdf","team":"Emerald","client":"Ashesi University","brand":"Ashesi University","status":"Voided","sender":"Quality Control","recipient":"Quality Control","sentDate":"2026-06-29","sentTime":"14:31:56 WAT","lastDate":"2026-06-29","lastTime":"14:33:44 WAT"},{"id":15,"subject":"Ashesi University_NIG_Radio  ARCON Regulatory_Media Plan_22Jun2026.pdf","team":"Emerald","client":"Ashesi University","brand":"Ashesi University","status":"Sent","sender":"Quality Control","recipient":"Multiple","sentDate":"2026-06-29","sentTime":"12:32:44 WAT","lastDate":"2026-06-29","lastTime":"12:35:45 WAT"},{"id":16,"subject":"PHDNICT_SMT_23062026","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2026-06-23","sentTime":"14:38:10 WAT","lastDate":"2026-06-24","lastTime":"22:04:25 WAT"},{"id":17,"subject":"American Cola PR Media Plan - June 2026","team":"Emerald","client":"Planet Bottling","brand":"American Cola","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2026-06-18","sentTime":"17:18:08 WAT","lastDate":"2026-07-01","lastTime":"12:37:05 WAT"},{"id":18,"subject":"BetKing Media Plans","team":"Switch","client":"SV Gaming","brand":"Betking","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2026-06-08","sentTime":"14:48:06 WAT","lastDate":"2026-06-11","lastTime":"15:59:48 WAT"},{"id":19,"subject":"BetKing Media Plans","team":"Switch","client":"SV Gaming","brand":"Betking","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2026-06-04","sentTime":"16:24:37 WAT","lastDate":"2026-06-08","lastTime":"14:55:30 WAT"},{"id":20,"subject":"LG Media Plans","team":"ACE","client":"LG","brand":"LG","status":"Sent","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2026-06-04","sentTime":"16:11:25 WAT","lastDate":"2026-06-08","lastTime":"14:49:59 WAT"},{"id":21,"subject":"Kremela and Cowbell Media Plans","team":"Switch","client":"Promasidor","brand":"Kremela","status":"Sent","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2026-06-04","sentTime":"16:06:00 WAT","lastDate":"2026-06-08","lastTime":"14:31:52 WAT"},{"id":22,"subject":"Lipton Q2 Media Plan -Docusign.pdf, Lipton Ramadan Q1 Media Plan -Docus...","team":"ACE","client":"Ekaterra","brand":"Lipton","status":"Sent","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2026-06-04","sentTime":"16:00:00 WAT","lastDate":"2026-06-05","lastTime":"13:03:06 WAT"},{"id":23,"subject":"APPROVED DULUX SPRUCE  OPEBI ALLEN OOH PLAN 14MAY26.pdf","team":"Emerald","client":"Dulux","brand":"Dulux","status":"Sent","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2026-05-28","sentTime":"18:12:57 WAT","lastDate":"2026-06-03","lastTime":"08:55:01 WAT"},{"id":24,"subject":"APPROVED DULUX SPRUCE OZUMBA MBADIWE OOH PLAN 12MAY26.pdf","team":"Emerald","client":"Dulux","brand":"Dulux","status":"Sent","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2026-05-28","sentTime":"18:10:46 WAT","lastDate":"2026-06-10","lastTime":"11:04:48 WAT"},{"id":25,"subject":"Approved Dulux SPRUCE Kano and Lagos OOH plan Cut down 1stApr26.pdf","team":"Emerald","client":"Dulux","brand":"Dulux","status":"Sent","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2026-05-28","sentTime":"17:59:03 WAT","lastDate":"2026-05-28","lastTime":"17:59:03 WAT"},{"id":26,"subject":"Dulux_Spruce_LWL_Digital Media_Plan_11052026.pdf","team":"Emerald","client":"Dulux","brand":"Dulux","status":"Sent","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2026-05-28","sentTime":"16:37:00 WAT","lastDate":"2026-06-04","lastTime":"15:36:20 WAT"},{"id":27,"subject":"Jumia FY26 Q2 Media Plan_.pdf","team":"ACE","client":"Ecart","brand":"Jumia","status":"Sent","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2026-05-11","sentTime":"10:16:41 WAT","lastDate":"2026-07-03","lastTime":"13:51:20 WAT"},{"id":28,"subject":"Robb Extra Menthol Radio Media Plan _Mar.5.26.pdf, Premier Cool consume...","team":"ACE","client":"PZ CBS","brand":"Rob","status":"Sent","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2026-05-11","sentTime":"10:09:51 WAT","lastDate":"2026-05-21","lastTime":"14:46:44 WAT"},{"id":29,"subject":"PHDICT_LAPTOPPURCHASE_28042026.pdf","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2026-04-28","sentTime":"12:52:54 WAT","lastDate":"2026-04-30","lastTime":"10:09:04 WAT"},{"id":30,"subject":"PHDICT_CAMERASMARTLOCK_23042026.pdf","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2026-04-23","sentTime":"16:58:28 WAT","lastDate":"2026-04-23","lastTime":"17:17:01 WAT"},{"id":31,"subject":"PHDICT_CAMERASMARTLOCK_23042026.pdf","team":"ICT","client":"PHD","brand":"Internal","status":"Declined","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2026-04-23","sentTime":"11:44:40 WAT","lastDate":"2026-04-23","lastTime":"16:42:31 WAT"},{"id":32,"subject":"Golden Penny Motherbrand (Feb - Mar 2026) Ramadan Campaign 190126- Rev ...","team":"Alpha","client":"FMN","brand":"Golden Penny M.B","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2026-04-16","sentTime":"14:44:04 WAT","lastDate":"2026-04-23","lastTime":"04:29:47 WAT"},{"id":33,"subject":"Martell Tower Model Cost schedule_12Apr2026.pdf","team":"Emerald","client":"Pernod Ricard","brand":"Martell","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2026-04-16","sentTime":"14:39:44 WAT","lastDate":"2026-04-29","lastTime":"17:50:55 WAT"},{"id":34,"subject":"PHDICT_Mac_15042026","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2026-04-15","sentTime":"16:46:23 WAT","lastDate":"2026-04-18","lastTime":"18:58:44 WAT"},{"id":35,"subject":"PHDNICT_ MainOneIQ2_05042026","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2026-04-05","sentTime":"11:42:18 WAT","lastDate":"2026-04-06","lastTime":"09:53:28 WAT"},{"id":36,"subject":"PHDNICT_PRINTER&INVERTER_MEMO_270326","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2026-03-27","sentTime":"15:33:51 WAT","lastDate":"2026-03-27","lastTime":"15:50:50 WAT"},{"id":37,"subject":"Martell Swift Pop Up Abuja locations  Recce Travel cost 15thMarch26_V5.pdf","team":"Emerald","client":"Pernod Ricard","brand":"Martell","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2026-03-16","sentTime":"12:26:53 WAT","lastDate":"2026-04-29","lastTime":"18:12:01 WAT"},{"id":38,"subject":"GLENFIDDICH 2026 MEDIA PLAN & DELIVERABLE.pdf","team":"CRU","client":"William Grant & Sons","brand":"Glenfiddich","status":"Sent","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2026-03-11","sentTime":"11:40:24 WAT","lastDate":"2026-03-18","lastTime":"07:47:04 WAT"},{"id":39,"subject":"Appoved Smoov OOH Proposed Ramadan Campaign plan 27thFeb26_V11.pdf","team":"Emerald","client":"TBWA","brand":"Smoov","status":"Sent","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2026-03-11","sentTime":"10:29:11 WAT","lastDate":"2026-03-16","lastTime":"12:54:35 WAT"},{"id":40,"subject":"Morning Fresh IWD OOH Plan 24thFebruary26_V2 (002).pdf","team":"ACE","client":"PZ CBS","brand":"Morning Fresh","status":"Declined","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2026-03-11","sentTime":"10:20:38 WAT","lastDate":"2026-04-07","lastTime":"13:43:01 WAT"},{"id":41,"subject":"PHDICT_SSD_Purchase_10.03.2026","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2026-03-10","sentTime":"09:35:54 WAT","lastDate":"2026-03-10","lastTime":"09:51:21 WAT"},{"id":42,"subject":"Amaizing Day Updated Media and Digital Plans.pdf","team":"Alpha","client":"FMN","brand":"Amaizing Day","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2026-03-03","sentTime":"09:49:44 WAT","lastDate":"2026-07-02","lastTime":"15:30:02 WAT"},{"id":43,"subject":"Golden Penny Motherbrand (Feb - Mar 2026) Ramadan Campaign 190126- Rev.pdf","team":"Alpha","client":"FMN","brand":"Golden Penny M.B","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2026-03-03","sentTime":"09:46:24 WAT","lastDate":"2026-03-10","lastTime":"04:47:06 WAT"},{"id":44,"subject":"Golden Penny Pasta Mar- Apr 2026 OOH Media Plan - 16 Jan 2025 - Deploye...","team":"Alpha","client":"FMN","brand":"Golden Penny Pasta","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2026-03-03","sentTime":"09:42:34 WAT","lastDate":"2026-07-02","lastTime":"15:30:00 WAT"},{"id":45,"subject":"Cussons Baby Moment Season 9 Media Schedule-V8.pdf","team":"ACE","client":"PZ CBS","brand":"Cussons Baby","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2026-02-18","sentTime":"17:20:27 WAT","lastDate":"2026-06-19","lastTime":"13:35:55 WAT"},{"id":46,"subject":"Premier Cool consumer promo Jan-Feb '26 radio campaign_10.12.25RV.pdf","team":"ACE","client":"PZ CBS","brand":"Premier Cool","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2026-02-18","sentTime":"16:20:57 WAT","lastDate":"2026-06-19","lastTime":"13:35:24 WAT"},{"id":47,"subject":"Updated Approved Jumia H2 Media Plan_20thNov25_V12.pdf","team":"ACE","client":"Ecart","brand":"Jumia","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2026-02-18","sentTime":"16:10:08 WAT","lastDate":"2026-06-19","lastTime":"13:35:36 WAT"},{"id":48,"subject":"Updated Morning Fresh Media Schedule_13thNovt25_v3.pdf","team":"ACE","client":"PZ CBS","brand":"Morning Fresh","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2026-02-18","sentTime":"16:07:04 WAT","lastDate":"2026-04-22","lastTime":"03:21:53 WAT"},{"id":49,"subject":"Devon King's Soya Oil Thematic Campaign Media Plan-3rdOCT'25_Approved.R...","team":"ACE","client":"PZ Wilmar","brand":"Devon King Oil","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2026-02-18","sentTime":"15:57:37 WAT","lastDate":"2026-06-19","lastTime":"13:35:32 WAT"},{"id":50,"subject":"HPZ Brand Communication Media Plan_14OCT'25_RV3(final as deployed).pdf","team":"ACE","client":"HPZ","brand":"Haier Thermocool","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2026-02-18","sentTime":"15:54:31 WAT","lastDate":"2026-03-25","lastTime":"11:34:41 WAT"},{"id":52,"subject":"IAS_Box Digital_ Order Form _Pernod Ricard Nigeria PHD.pdf","team":"Emerald","client":"Pernod Ricard","brand":"Chivas","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2026-02-12","sentTime":"12:23:03 WAT","lastDate":"2026-02-12","lastTime":"12:28:13 WAT"},{"id":53,"subject":"CAP Dulux OOH Media Plan_r2_10Feb2026.pdf","team":"Emerald","client":"Dulux","brand":"Dulux","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2026-02-11","sentTime":"11:47:03 WAT","lastDate":"2026-06-13","lastTime":"12:28:16 WAT"},{"id":57,"subject":"PHDNICT_SOPHOS_GCP_03022026","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2026-02-03","sentTime":"13:25:20 WAT","lastDate":"2026-02-03","lastTime":"23:38:08 WAT"},{"id":58,"subject":"Staff exit form for Rebecca Arogbo.pdf","team":"Emerald","client":"PHD","brand":"Welfare","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Nnamdi Okwudinma","sentDate":"2026-01-29","sentTime":"16:32:11 WAT","lastDate":"2026-01-29","lastTime":"16:42:53 WAT"},{"id":59,"subject":"Staff exit form for Rebecca Arogbo.pdf","team":"Emerald","client":"PHD","brand":"Welfare","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2026-01-27","sentTime":"15:59:32 WAT","lastDate":"2026-01-30","lastTime":"12:21:10 WAT"},{"id":60,"subject":"PHDICT_Repairs_22012025","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2026-01-22","sentTime":"11:38:45 WAT","lastDate":"2026-01-23","lastTime":"15:28:55 WAT"},{"id":69,"subject":"BUDGET SHIFT FORM.pdf","team":"PHD","client":"PHD","brand":"PHD","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2026-01-07","sentTime":"17:45:33 WAT","lastDate":"2026-01-08","lastTime":"12:39:17 WAT"},{"id":70,"subject":"PHDNICT_MAINONESUB_07012026","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2026-01-07","sentTime":"14:50:13 WAT","lastDate":"2026-01-07","lastTime":"14:53:12 WAT"},{"id":71,"subject":"PHDICT_SOPHOS_02122025","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2025-12-02","sentTime":"11:27:46 WAT","lastDate":"2025-12-02","lastTime":"11:58:28 WAT"},{"id":72,"subject":"PHDN_ICT_MI_LAPTOP_09102025","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2025-10-09","sentTime":"15:58:30 WAT","lastDate":"2025-10-09","lastTime":"17:34:13 WAT"},{"id":73,"subject":"MainOne Internet Renewal For 3months Oct -Dec","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2025-10-02","sentTime":"12:18:12 WAT","lastDate":"2025-10-02","lastTime":"13:19:52 WAT"},{"id":74,"subject":"Mamador Thematic Campaign Media Plan - 30_07_25.pdf","team":"ACE","client":"PZ Wilmar","brand":"Mamador","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-09-22","sentTime":"13:01:30 WAT","lastDate":"2026-01-21","lastTime":"00:11:19 WAT"},{"id":75,"subject":"Mamador Thematic Campaign Media Plan - 30_07_25.pdf","team":"ACE","client":"PZ Wilmar","brand":"Mamador","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-09-03","sentTime":"16:39:40 WAT","lastDate":"2025-09-18","lastTime":"16:47:34 WAT"},{"id":76,"subject":"Updated Approved Jumia H2 Media Plan_15thAug25_V6.pdf","team":"ACE","client":"Ecart","brand":"Jumia","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-09-03","sentTime":"16:31:59 WAT","lastDate":"2026-01-02","lastTime":"00:39:04 WAT"},{"id":77,"subject":"GP Semovita 2025 Ramadan Media Plan.pdf","team":"Alpha","client":"FMN","brand":"Golden Penny Semovita","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-08-25","sentTime":"14:33:35 WAT","lastDate":"2025-08-28","lastTime":"17:00:33 WAT"},{"id":78,"subject":"Chivas FY26 consolidated Media Plan_Less Portfolio_18Aug25_v5.pdf, The ...","team":"Emerald","client":"Pernod Ricard","brand":"Chivas","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-08-25","sentTime":"14:28:56 WAT","lastDate":"2025-09-02","lastTime":"12:33:31 WAT"},{"id":79,"subject":"Martell FY26 Media Plan_r5_Less Portfolio_18Aug25.pdf","team":"Emerald","client":"Pernod Ricard","brand":"Martell","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-08-25","sentTime":"14:23:56 WAT","lastDate":"2025-09-02","lastTime":"12:30:39 WAT"},{"id":80,"subject":"EPL SQUEEZE BACK SPONSORSHIP (004).pdf","team":"Alpha","client":"FMN","brand":"Golden Penny M.B","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-08-13","sentTime":"11:53:34 WAT","lastDate":"2025-12-12","lastTime":"06:43:04 WAT"},{"id":81,"subject":"EPL SQUEEZE BACK SPONSORSHIP 8.11.pdf","team":"Alpha","client":"FMN","brand":"Golden Penny M.B","status":"Declined","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-08-12","sentTime":"11:07:34 WAT","lastDate":"2025-08-12","lastTime":"11:17:39 WAT"},{"id":82,"subject":"Golden Penny Pasta What's Your Reason July-Sept. Approved Media Plan TV...","team":"Alpha","client":"FMN","brand":"Golden Penny Pasta","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-08-12","sentTime":"11:02:54 WAT","lastDate":"2025-12-11","lastTime":"06:40:33 WAT"},{"id":83,"subject":"Golden Penny Pasta OOH Media Plan 6th Aug 2025.pdf","team":"Alpha","client":"FMN","brand":"Golden Penny Pasta","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-08-11","sentTime":"18:18:56 WAT","lastDate":"2025-12-10","lastTime":"06:32:47 WAT"},{"id":84,"subject":"REVISED Enugu Food Festival Media Plan 150725 v2.pdf","team":"Alpha","client":"FMN","brand":"Golden Penny Semovita","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-08-04","sentTime":"11:03:13 WAT","lastDate":"2025-12-03","lastTime":"11:51:44 WAT"},{"id":85,"subject":"MORNING FRESH LE TV OOH Media Plan (With Diecut)- 2ndJuly25_V6.pdf","team":"ACE","client":"PZ CBS","brand":"Morning Fresh","status":"Declined","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-08-04","sentTime":"10:58:05 WAT","lastDate":"2025-08-04","lastTime":"11:39:59 WAT"},{"id":86,"subject":"Carex Relaunch Media Schedule 15thJuly25_V2.pdf","team":"ACE","client":"PZ CBS","brand":"Carex","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-08-04","sentTime":"10:33:06 WAT","lastDate":"2025-12-03","lastTime":"11:51:21 WAT"},{"id":87,"subject":"AFRIBIZ PRESS MEDIA PLAN.pdf","team":"ACE","client":"HPZ","brand":"Haier Thermocool","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-08-04","sentTime":"10:22:54 WAT","lastDate":"2025-08-05","lastTime":"10:48:34 WAT"},{"id":88,"subject":"PZ BBN MEDIA PLANS","team":"ACE","client":"PZ CBS","brand":"Morning Fresh","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-08-04","sentTime":"10:10:59 WAT","lastDate":"2025-08-11","lastTime":"12:29:47 WAT"},{"id":89,"subject":"PHD_ICT_Coursera_OOH_28072025","team":"ICT","client":"PHD","brand":"Internal","status":"Declined","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2025-07-28","sentTime":"14:28:51 WAT","lastDate":"2025-07-28","lastTime":"14:37:07 WAT"},{"id":90,"subject":"PHD_ICT_Maintenace|repairs_28072025","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2025-07-28","sentTime":"14:22:36 WAT","lastDate":"2025-07-29","lastTime":"22:27:39 WAT"},{"id":91,"subject":"Jumia FY25 H1 Approved Media Plan April to June.pdf","team":"ACE","client":"Ecart","brand":"Jumia","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-07-23","sentTime":"13:17:49 WAT","lastDate":"2025-11-21","lastTime":"06:46:21 WAT"},{"id":92,"subject":"Martell FY25 Actual 08.07.2025.pdf","team":"Emerald","client":"Pernod Ricard","brand":"Martell","status":"Declined","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-07-08","sentTime":"15:15:02 WAT","lastDate":"2025-08-29","lastTime":"10:32:13 WAT"},{"id":93,"subject":"Chivas FY25 Actual 08.07.2025.pdf","team":"Emerald","client":"Pernod Ricard","brand":"Chivas","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-07-08","sentTime":"15:11:01 WAT","lastDate":"2025-07-10","lastTime":"09:47:17 WAT"},{"id":94,"subject":"PHDICT_HP_Monitor_07072025","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2025-07-07","sentTime":"09:29:49 WAT","lastDate":"2025-07-07","lastTime":"09:36:09 WAT"},{"id":95,"subject":"PHDN_ICT_INVERTER_MAINTENANCE_03072025","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2025-07-03","sentTime":"17:46:29 WAT","lastDate":"2025-07-03","lastTime":"18:51:32 WAT"},{"id":96,"subject":"Golden Penny Semovita Uninvited Bride Media Plan.pdf","team":"Alpha","client":"FMN","brand":"Golden Penny Semovita","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-07-03","sentTime":"10:20:33 WAT","lastDate":"2025-11-01","lastTime":"04:28:50 WAT"},{"id":97,"subject":"FMN x Masoyinbo Additional Cost Media Plan.pdf","team":"Alpha","client":"FMN","brand":"Golden Penny Spread","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-07-03","sentTime":"10:06:53 WAT","lastDate":"2025-11-01","lastTime":"04:28:50 WAT"},{"id":98,"subject":"Lipton June-July 2025 Tea so good 2025 Media Plan_.pdf","team":"ACE","client":"Ekaterra","brand":"Lipton","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-07-03","sentTime":"09:57:27 WAT","lastDate":"2025-07-03","lastTime":"13:50:45 WAT"},{"id":99,"subject":"PHDN_ICT_DATACENTER_02072025","team":"ICT","client":"PHD","brand":"Internal","status":"Declined","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2025-07-02","sentTime":"15:28:44 WAT","lastDate":"2025-07-07","lastTime":"09:15:34 WAT"},{"id":100,"subject":"Docusign of Lipton June-July 2025 Tea so good 2025 Media Plan.pdf","team":"ACE","client":"Ekaterra","brand":"Lipton","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-07-01","sentTime":"17:23:53 WAT","lastDate":"2025-07-02","lastTime":"11:19:29 WAT"},{"id":101,"subject":"DEMO: MARTELL CAMPAIGN INVOICING FY25 NOV-DEC.pdf","team":"Emerald","client":"Pernod Ricard","brand":"Martell","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2025-07-01","sentTime":"03:21:05 WAT","lastDate":"2025-07-01","lastTime":"12:14:58 WAT"},{"id":102,"subject":"GP Noodles OOH media plan 150525.pdf","team":"Alpha","client":"FMN","brand":"Golden Penny Noodles","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-06-24","sentTime":"08:30:06 WAT","lastDate":"2025-10-23","lastTime":"04:05:43 WAT"},{"id":103,"subject":"The Glenlivet FY25_Dig-OOH_Launch Plan_r5_10.Apr-25.pdf","team":"CRU","client":"William Grant & Sons","brand":"The Glenlivet","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-06-19","sentTime":"13:57:47 WAT","lastDate":"2025-09-02","lastTime":"12:34:10 WAT"},{"id":104,"subject":"Signed Copy of Dabur TV Media Plan 06 June 2025 v3 (004).pdf","team":"Alpha","client":"African Care","brand":"Dabur","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-06-19","sentTime":"11:53:52 WAT","lastDate":"2025-10-18","lastTime":"03:58:46 WAT"},{"id":105,"subject":"The Glenlivet FY25_Dig-OOH_Launch Plan_r5_10.Apr-25.pdf","team":"CRU","client":"William Grant & Sons","brand":"The Glenlivet","status":"Declined","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-06-18","sentTime":"11:58:01 WAT","lastDate":"2025-06-19","lastTime":"12:14:09 WAT"},{"id":106,"subject":"Martell FY25 Media Plan_03Sep24_r8_PO Based.pdf","team":"Emerald","client":"Pernod Ricard","brand":"Martell","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-06-18","sentTime":"11:28:46 WAT","lastDate":"2025-07-10","lastTime":"09:48:42 WAT"},{"id":108,"subject":"PHDN_ICT_MAINONESUB_17062025","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2025-06-17","sentTime":"16:44:46 WAT","lastDate":"2025-06-17","lastTime":"17:13:48 WAT"},{"id":110,"subject":"PHDN_ICT_IPNXSUB_16062025","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2025-06-16","sentTime":"13:24:28 WAT","lastDate":"2025-06-16","lastTime":"13:25:13 WAT"},{"id":111,"subject":"GP Noodles OOH media plan 150525.pdf","team":"Alpha","client":"FMN","brand":"Golden Penny Noodles","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-06-16","sentTime":"09:32:49 WAT","lastDate":"2025-10-15","lastTime":"04:17:23 WAT"},{"id":112,"subject":"FMN x Masoyinbo Additional Cost Media Plan (002).pdf","team":"Alpha","client":"FMN","brand":"Golden Penny Spread","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-06-16","sentTime":"09:30:14 WAT","lastDate":"2025-07-03","lastTime":"10:18:15 WAT"},{"id":113,"subject":"FMN x Masoyinbo Additional Cost Media Plan (002).pdf","team":"Alpha","client":"FMN","brand":"Golden Penny Spread","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-06-03","sentTime":"14:04:59 WAT","lastDate":"2025-06-16","lastTime":"09:21:43 WAT"},{"id":114,"subject":"McVities All Butter Short Bread Feb - Mar'25 Radio  OOH Media Plan v9 -...","team":"Alpha","client":"Pladis","brand":"Mcvities","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-05-29","sentTime":"18:39:49 WAT","lastDate":"2025-09-27","lastTime":"03:22:58 WAT"},{"id":115,"subject":"Amaizing Day Media plan Additional Budget  OOH plan ( March- April'25) ...","team":"Alpha","client":"FMN","brand":"Amaizing Day","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-05-29","sentTime":"13:13:31 WAT","lastDate":"2025-09-27","lastTime":"03:23:22 WAT"},{"id":116,"subject":"GP Noodles OOH media plan.pdf","team":"Alpha","client":"FMN","brand":"Golden Penny Noodles","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-05-29","sentTime":"13:00:58 WAT","lastDate":"2025-09-27","lastTime":"03:23:00 WAT"},{"id":117,"subject":"FMN x EPL Sponsorship Media Plan v1 signed.pdf","team":"Alpha","client":"FMN","brand":"Golden Penny Spread","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Omoefe O. Ohworakpo","sentDate":"2025-05-28","sentTime":"10:42:14 WAT","lastDate":"2025-05-28","lastTime":"10:44:06 WAT"},{"id":118,"subject":"Golden Penny Pasta What's Your Reason Media Plan OOH 02 Apr 2025.pdf, G...","team":"Alpha","client":"FMN","brand":"Golden Penny Pasta","status":"Declined","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-05-21","sentTime":"12:04:16 WAT","lastDate":"2025-05-21","lastTime":"13:11:40 WAT"},{"id":119,"subject":"SC Johnson 2025 WMD - Additional Cost Media Plan 05 May 2025.pdf","team":"Alpha","client":"SC Johnson","brand":"SC Johnson","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-05-21","sentTime":"11:38:33 WAT","lastDate":"2025-05-22","lastTime":"10:01:38 WAT"},{"id":120,"subject":"PHDN_ICT_DocuSign_Google_02052025","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2025-05-02","sentTime":"10:00:22 WAT","lastDate":"2025-05-02","lastTime":"12:21:28 WAT"},{"id":121,"subject":"Promasidor_Kremela 2025 Media Plan_V1 - DOCUSIGN.pdf, Promasidor_Cowbel...","team":"Switch","client":"Promasidor","brand":"Kremela","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-04-16","sentTime":"17:19:33 WAT","lastDate":"2025-08-15","lastTime":"02:34:20 WAT"},{"id":122,"subject":"SC Johnson 2025 WMD Media Plan 03 April  2025.pdf","team":"Alpha","client":"SC Johnson","brand":"SC Johnson","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-04-14","sentTime":"12:41:57 WAT","lastDate":"2025-05-07","lastTime":"11:06:42 WAT"},{"id":123,"subject":"PHD_ICT_SWIFT_10042025","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2025-04-10","sentTime":"14:43:28 WAT","lastDate":"2025-04-11","lastTime":"10:46:02 WAT"},{"id":124,"subject":"Lipton Ramadan 2025 Media Plan_RV2.pdf","team":"ACE","client":"Ekaterra","brand":"Lipton","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-03-25","sentTime":"08:05:40 WAT","lastDate":"2025-04-02","lastTime":"12:29:59 WAT"},{"id":125,"subject":"FMN GP Spread Radio  OOH Campaign Media Plan (unutilized budget) 20thMar...","team":"Alpha","client":"FMN","brand":"Golden Penny Spread","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-03-25","sentTime":"08:02:29 WAT","lastDate":"2025-07-24","lastTime":"03:10:50 WAT"},{"id":126,"subject":"Nixoxoderm Docusign.pdf","team":"Alpha","client":"SC Johnson","brand":"Nixoderm","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-03-24","sentTime":"15:27:32 WAT","lastDate":"2025-07-23","lastTime":"03:13:44 WAT"},{"id":127,"subject":"PHDICT_LAPTOPS10_24032025","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2025-03-24","sentTime":"08:15:10 WAT","lastDate":"2025-03-24","lastTime":"08:52:01 WAT"},{"id":128,"subject":"FMN GP Spread Radio  OOH Campaign Media Plan (unutilsed budget) 20thMar...","team":"Alpha","client":"FMN","brand":"Golden Penny Spread","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-03-20","sentTime":"15:18:21 WAT","lastDate":"2025-07-19","lastTime":"03:21:43 WAT"},{"id":129,"subject":"TECNO CAMON 40 RADIO AND CINEMA MARCH AND APRIL MEDIA PLAN.pdf","team":"ACE","client":"Transsion","brand":"Tecno","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-03-20","sentTime":"11:23:32 WAT","lastDate":"2025-03-24","lastTime":"08:26:25 WAT"},{"id":130,"subject":"ROBB EXTRA MENTHOL FEBRUARY AND MARCH RADIO CAMPAIGN.pdf","team":"ACE","client":"PZ CBS","brand":"Rob","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-03-20","sentTime":"11:17:39 WAT","lastDate":"2025-03-27","lastTime":"13:48:42 WAT"},{"id":131,"subject":"JOY SOAP RELAUNCH TV AND OOH MARCH APRIL AND MAY MEDIA PLAN.pdf","team":"ACE","client":"PZ CBS","brand":"Joy","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-03-18","sentTime":"14:58:29 WAT","lastDate":"2025-03-19","lastTime":"10:42:18 WAT"},{"id":132,"subject":"MPS (MI) - Memo.pdf","team":"ICT","client":"PHD","brand":"PHD","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-03-11","sentTime":"15:43:33 WAT","lastDate":"2025-03-24","lastTime":"15:26:23 WAT"},{"id":133,"subject":"PHDN_ICT_CRU_MTN5G_11032025","team":"Emerald","client":"MTN","brand":"MTN","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2025-03-11","sentTime":"13:37:19 WAT","lastDate":"2025-03-12","lastTime":"10:41:47 WAT"},{"id":134,"subject":"DOCUSIGN for Lipton Ramadan 2025 Media Plan_RV...pdf","team":"ACE","client":"Ekaterra","brand":"Lipton","status":"Declined","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-03-06","sentTime":"17:05:25 WAT","lastDate":"2025-03-24","lastTime":"09:01:57 WAT"},{"id":135,"subject":"PHDN_ICT_MTN_5G_26022025","team":"Emerald","client":"MTN","brand":"MTN","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2025-02-26","sentTime":"12:37:38 WAT","lastDate":"2025-02-26","lastTime":"13:29:34 WAT"},{"id":136,"subject":"Glenfiddich FY25 OOH TV PRINT Media Plan_v5 18thFebAPPROVED.pdf","team":"CRU","client":"William Grant & Sons","brand":"Glenfiddich","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-02-24","sentTime":"17:02:59 WAT","lastDate":"2025-06-25","lastTime":"02:21:33 WAT"},{"id":137,"subject":"Glenfiddich ROLLS ROYCE Amplification Plan.pdf","team":"CRU","client":"William Grant & Sons","brand":"Glenfiddich","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-02-24","sentTime":"17:00:21 WAT","lastDate":"2025-06-25","lastTime":"02:21:17 WAT"},{"id":138,"subject":"Semovita Thematic  Media Plan 24Jan 2025 v8 (Revised for 60secs).pdf","team":"Alpha","client":"FMN","brand":"Golden Penny Smovita","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-02-17","sentTime":"18:14:41 WAT","lastDate":"2025-06-18","lastTime":"02:39:00 WAT"},{"id":139,"subject":"PHD_ICT_ECOFLOW_17022025","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2025-02-17","sentTime":"13:36:00 WAT","lastDate":"2025-02-17","lastTime":"15:13:16 WAT"},{"id":140,"subject":"FMN x EPL Sponsorship Media Plan v1.pdf, FMN x Family Feud Sponsorship ...","team":"Alpha","client":"FMN","brand":"Golden Penny Spread","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-02-12","sentTime":"10:30:25 WAT","lastDate":"2025-06-03","lastTime":"13:22:02 WAT"},{"id":141,"subject":"Golden Penny Pasta Radio Schedule 27.02.2024 R1.pdf, Pasta Ramadan Medi...","team":"Alpha","client":"FMN","brand":"Golden Penny Pasta","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-02-10","sentTime":"10:33:49 WAT","lastDate":"2025-05-07","lastTime":"12:06:26 WAT"},{"id":142,"subject":"Golden Penny Pasta Radio Schedule 27.02.2024 R1.pdf, Pasta Ramadan Medi...","team":"Alpha","client":"FMN","brand":"Golden Penny Pasta","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-02-05","sentTime":"19:07:43 WAT","lastDate":"2025-05-07","lastTime":"12:04:45 WAT"},{"id":143,"subject":"Copy of Executed Raid 2024 WMD Phase 1 costing ( media plan).pdf, Copy ...","team":"Alpha","client":"SC Johnson","brand":"Raid","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-02-05","sentTime":"19:06:38 WAT","lastDate":"2025-02-05","lastTime":"19:07:03 WAT"},{"id":144,"subject":"Copy of Executed Raid 2024 WMD Phase 1 costing ( media plan).pdf, Copy ...","team":"Alpha","client":"SC Johnson","brand":"Raid","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-02-05","sentTime":"19:06:09 WAT","lastDate":"2025-02-05","lastTime":"19:07:12 WAT"},{"id":145,"subject":"Copy of Executed Raid 2024 WMD Phase 1 costing ( media plan).pdf, Copy ...","team":"Alpha","client":"SC Johnson","brand":"Raid","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-02-05","sentTime":"19:04:33 WAT","lastDate":"2025-05-07","lastTime":"11:04:20 WAT"},{"id":146,"subject":"PHDN_ICT_UPS&More_05022025","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2025-02-05","sentTime":"11:11:35 WAT","lastDate":"2025-02-06","lastTime":"09:36:27 WAT"},{"id":147,"subject":"FMN x EPL Sponsorship Media Plan.pdf","team":"Alpha","client":"FMN","brand":"Golden Penny Spread","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-02-04","sentTime":"10:47:13 WAT","lastDate":"2025-06-03","lastTime":"13:23:03 WAT"},{"id":148,"subject":"PZ Cussons_Morning Fresh claim Test-Ocular.pdf","team":"ACE","client":"PZ CBS","brand":"Morning Fresh","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-01-30","sentTime":"14:01:51 WAT","lastDate":"2025-02-17","lastTime":"09:13:35 WAT"},{"id":149,"subject":"Devon Kings Docusign 290125_organized.pdf","team":"ACE","client":"PZ Wilmar","brand":"Devon King Oil","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-01-30","sentTime":"11:45:01 WAT","lastDate":"2025-05-31","lastTime":"02:18:34 WAT"},{"id":150,"subject":"Golden penny oil TV 17.pdf","team":"Alpha","client":"FMN","brand":"Golden Penny Oil","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-01-21","sentTime":"19:09:03 WAT","lastDate":"2025-05-22","lastTime":"02:05:08 WAT"},{"id":151,"subject":"PHDN_ICT_SHARP_16.01.2025","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2025-01-16","sentTime":"11:48:21 WAT","lastDate":"2025-01-16","lastTime":"12:11:46 WAT"},{"id":152,"subject":"PZ Cussons_Carex Name Test-Ocular_13_01_25.pdf","team":"ACE","client":"PZ CBS","brand":"Carex","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-01-15","sentTime":"11:27:02 WAT","lastDate":"2025-01-21","lastTime":"10:56:05 WAT"},{"id":153,"subject":"PHD_ICT_Network_Repairs_08012025.pdf","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2025-01-08","sentTime":"17:14:37 WAT","lastDate":"2025-01-08","lastTime":"19:05:07 WAT"},{"id":154,"subject":"Red_Bull_Total_Filling_Station_Glass_Branding_Permit_Media_Plan_16thDec...","team":"ACE","client":"Fareast","brand":"Redbull","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2025-01-07","sentTime":"07:55:24 WAT","lastDate":"2025-05-08","lastTime":"01:58:25 WAT"},{"id":155,"subject":"PHD_ICT_Internet_02012025","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2025-01-02","sentTime":"11:49:46 WAT","lastDate":"2025-01-02","lastTime":"13:51:59 WAT"},{"id":156,"subject":"PHD_ICT_Internet_02012025","team":"ICT","client":"PHD","brand":"Internal","status":"Voided","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2025-01-02","sentTime":"11:45:24 WAT","lastDate":"2025-01-02","lastTime":"11:46:21 WAT"},{"id":157,"subject":"Rexona May-June(changed to december) PO Balance (003).pdf","team":"Alpha","client":"Unilever","brand":"Rexona","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-12-27","sentTime":"10:28:25 WAT","lastDate":"2025-01-02","lastTime":"08:20:40 WAT"},{"id":158,"subject":"Rexona REMA sponsorship (Pepsodent  Vaseline) (003).pdf","team":"Switch","client":"Unilever","brand":"Rexona","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-12-27","sentTime":"10:26:34 WAT","lastDate":"2024-12-31","lastTime":"03:28:46 WAT"},{"id":159,"subject":"Copy of Golden Penny Amaizing Day TV   Campaign December 2024 - Februar...","team":"Alpha","client":"FMN","brand":"Amaizing Day","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-12-27","sentTime":"10:24:35 WAT","lastDate":"2025-04-27","lastTime":"01:30:14 WAT"},{"id":160,"subject":"CloseUp Project Knowles December 06 Dec 24 v3.pdf, Docusign CloseUp Pro...","team":"Alpha","client":"Unilever","brand":"Closeup","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-12-26","sentTime":"18:27:29 WAT","lastDate":"2025-01-02","lastTime":"08:23:54 WAT"},{"id":161,"subject":"FMN GP Spread OOH Campaign Media Plan (unutilsed budget) Optimization 1...","team":"Alpha","client":"FMN","brand":"Golden Penny Spread","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-12-09","sentTime":"18:37:22 WAT","lastDate":"2025-04-09","lastTime":"00:59:12 WAT"},{"id":162,"subject":"Semovita Soup Festival +Thematic + 60 Days of Nourishment 9 Media Plan ...","team":"Alpha","client":"FMN","brand":"Golden Penny Semovita","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-12-06","sentTime":"11:42:25 WAT","lastDate":"2025-04-06","lastTime":"00:45:16 WAT"},{"id":163,"subject":"PHDN Budget Shift request template - 04122024 V2.pdf","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-12-06","sentTime":"09:40:24 WAT","lastDate":"2025-01-15","lastTime":"12:24:48 WAT"},{"id":164,"subject":"When Kehinde Cooks Sponsorship 12.2.24.pdf","team":"Alpha","client":"FMN","brand":"Golden Penny M.B","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-12-03","sentTime":"12:19:44 WAT","lastDate":"2024-12-04","lastTime":"10:16:55 WAT"},{"id":165,"subject":"CloseUp Project Knowles November.pdf, CloseUp Project Knowles October 1...","team":"Alpha","client":"Unilever","brand":"Closeup","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-12-03","sentTime":"12:15:03 WAT","lastDate":"2024-12-09","lastTime":"09:15:43 WAT"},{"id":166,"subject":"Honey Well Noodles Media plan radio Dec 2024- May 2025  OOH  261124 (00...","team":"Alpha","client":"Unilever","brand":"Honeywell Pasta","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-12-03","sentTime":"12:04:06 WAT","lastDate":"2025-04-03","lastTime":"00:33:53 WAT"},{"id":167,"subject":"ICT_Balance payment_Sophos_18.11.2024.pdf","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2024-11-18","sentTime":"12:04:42 WAT","lastDate":"2024-11-18","lastTime":"12:17:23 WAT"},{"id":168,"subject":"HoneyWell Pasta Media Plan Radio OOH 08.11.2024 v5 (Final).pdf","team":"Alpha","client":"FMN","brand":"Honeywell Pasta","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-11-15","sentTime":"08:36:06 WAT","lastDate":"2025-03-16","lastTime":"00:13:43 WAT"},{"id":169,"subject":"JUMIA EXPANSION PLAN OCT RADIO CAMPAIGN..pdf, JUMIA BLACK FRIDAY OCT AN...","team":"ACE","client":"Ecart","brand":"Jumia","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-11-15","sentTime":"08:28:49 WAT","lastDate":"2025-03-16","lastTime":"00:13:41 WAT"},{"id":170,"subject":"Approved Martell B24 Media Plan-DocusignR1.pdf, Chivas FY24 Media plan-...","team":"Emerald","client":"Pernod Ricard","brand":"Martell","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-11-04","sentTime":"16:00:38 WAT","lastDate":"2025-03-05","lastTime":"00:12:32 WAT"},{"id":171,"subject":"Nixoxoderm Docusign.pdf","team":"Alpha","client":"SC Johnson","brand":"Nixoderm","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-11-01","sentTime":"16:16:55 WAT","lastDate":"2025-03-02","lastTime":"00:14:28 WAT"},{"id":172,"subject":"DOCUSIGN for ROYCO EFFECT OCTOBER CAMPAIGN _24092024.pdf, DOCUSIGN for ...","team":"Switch","client":"Unilever","brand":"Royco","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-10-31","sentTime":"13:30:08 WAT","lastDate":"2024-11-01","lastTime":"09:41:49 WAT"},{"id":173,"subject":"DOCUSIGN for REXONA ROLL ON  OCT 2024  LAUNCH MEDIA PLAN.pdf","team":"Switch","client":"Unilever","brand":"Rexona","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-10-28","sentTime":"13:21:19 WAT","lastDate":"2024-11-03","lastTime":"20:52:46 WAT"},{"id":174,"subject":"DOCUSIGN For Knorr October Media Plan.pdf","team":"Switch","client":"Unilever","brand":"Knorr","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-10-28","sentTime":"13:17:58 WAT","lastDate":"2024-10-30","lastTime":"10:08:26 WAT"},{"id":175,"subject":"Martell B24 Media plan.pdf, Chivas B24 Media plan (with BNXN Upweight) ...","team":"Emerald","client":"Pernod Ricard","brand":"Martell","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-10-28","sentTime":"10:38:07 WAT","lastDate":"2024-11-04","lastTime":"15:43:06 WAT"},{"id":176,"subject":"MTN Data Depletion-2024.pdf","team":"Emerald","client":"MTN","brand":"MTN","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-10-26","sentTime":"16:39:08 WAT","lastDate":"2024-10-28","lastTime":"10:58:19 WAT"},{"id":177,"subject":"Martell B24 media planR2.pdf, Chivas B24 Media plan (with BNXN Upweight...","team":"Emerald","client":"Pernod Ricard","brand":"Martell","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-10-24","sentTime":"19:59:27 WAT","lastDate":"2024-10-26","lastTime":"16:41:55 WAT"},{"id":178,"subject":"MTN Data Depletion-2024.pdf","team":"Emerald","client":"MTN","brand":"MTN","status":"Declined","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-10-24","sentTime":"18:13:55 WAT","lastDate":"2024-10-25","lastTime":"11:49:01 WAT"},{"id":179,"subject":"Martell B24 media planR1.pdf, Chivas B24 Media plan (with BNXN Upweight...","team":"Emerald","client":"Pernod Ricard","brand":"Martell","status":"Declined","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-10-24","sentTime":"16:35:49 WAT","lastDate":"2024-10-24","lastTime":"18:38:53 WAT"},{"id":180,"subject":"CLOSE UP x SKY GIRLS.pdf, CLOSEUP PROJECT KNOWLES SEPTEMBER 2024.pdf, P...","team":"Alpha","client":"Unilever","brand":"Closeup","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-10-22","sentTime":"20:49:51 WAT","lastDate":"2024-10-24","lastTime":"04:08:27 WAT"},{"id":181,"subject":"CLOSE UP OOH LED SCHEDULE.pdf, Unilever_Closeup_Knowles_March_-_Dec_202...","team":"Alpha","client":"Unilever","brand":"Closeup","status":"Declined","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-10-22","sentTime":"20:44:35 WAT","lastDate":"2024-10-23","lastTime":"09:07:00 WAT"},{"id":182,"subject":"Glenfiddich ROLLS ROYCE Amplification Plan.pdf","team":"CRU","client":"William Grant & Sons","brand":"Glenfiddich","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-10-22","sentTime":"20:35:42 WAT","lastDate":"2025-02-20","lastTime":"00:13:39 WAT"},{"id":183,"subject":"MTNF Science Lab Commissioning TV Coverage Plan 16.10.2024.pdf","team":"Emerald","client":"MTN","brand":"MTN","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-10-22","sentTime":"20:28:53 WAT","lastDate":"2024-10-23","lastTime":"12:36:52 WAT"},{"id":184,"subject":"TECNO Spark 30 ATL Media Plan 18_10_24.pdf","team":"ACE","client":"Transsion","brand":"Tecno","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-10-22","sentTime":"20:24:01 WAT","lastDate":"2024-10-30","lastTime":"10:26:26 WAT"},{"id":185,"subject":"Infinix Hot50 Media Plan 22_10_24 - Approved.pdf","team":"ACE","client":"Transsion","brand":"Infinix","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-10-22","sentTime":"20:20:48 WAT","lastDate":"2024-10-29","lastTime":"08:45:42 WAT"},{"id":186,"subject":"Infinix Hot50 Media Plan 22_10_24 - Approved.pdf","team":"ACE","client":"Transsion","brand":"Infinix","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-10-22","sentTime":"20:15:43 WAT","lastDate":"2024-10-22","lastTime":"20:17:21 WAT"},{"id":187,"subject":"PHDN_ICT_18102024","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2024-10-18","sentTime":"12:26:41 WAT","lastDate":"2024-10-18","lastTime":"20:01:19 WAT"},{"id":188,"subject":"BBN TASK PRIZE SCHEDULE.pdf","team":"ACE","client":"PZ Cussons","brand":"Premier Cool","status":"Declined","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-10-07","sentTime":"11:48:22 WAT","lastDate":"2024-10-19","lastTime":"21:05:32 WAT"},{"id":189,"subject":"Unilever_Closeup_Knowles_March_-_Dec_2024_OOH_Media_Plan__28thMay24_ (S...","team":"Alpha","client":"Unilever","brand":"Closeup","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-10-07","sentTime":"10:10:55 WAT","lastDate":"2024-10-08","lastTime":"09:57:57 WAT"},{"id":190,"subject":"MTN Data YouTube Media Plan 29.08.2024 Final.pdf","team":"Emerald","client":"MTN","brand":"MTN","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-10-04","sentTime":"17:03:43 WAT","lastDate":"2024-10-05","lastTime":"21:01:09 WAT"},{"id":191,"subject":"MTNCS -H1 2024 Abridged Annual Financial Campaign August 2024 05.08.202...","team":"Emerald","client":"MTN","brand":"MTN","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-10-04","sentTime":"17:00:56 WAT","lastDate":"2025-02-02","lastTime":"00:19:54 WAT"},{"id":192,"subject":"MTNF- Scholarship Award Ceremony TV Coverage.pdf","team":"Emerald","client":"MTN","brand":"MTN","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-10-04","sentTime":"16:58:00 WAT","lastDate":"2025-02-02","lastTime":"00:19:49 WAT"},{"id":193,"subject":"MTNCS -H1 2024 Abridged Annual Financial Campaign August 2024 05.08.202...","team":"Emerald","client":"MTN","brand":"MTN","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-10-04","sentTime":"16:55:39 WAT","lastDate":"2025-02-02","lastTime":"00:19:58 WAT"},{"id":194,"subject":"MTNCS Notice of AGM Meeting April 2024 PT4..pdf","team":"Emerald","client":"MTN","brand":"MTN","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-10-04","sentTime":"16:52:23 WAT","lastDate":"2025-02-02","lastTime":"00:19:48 WAT"},{"id":195,"subject":"Jumia September Radio Media Plan 120924 Docusign.pdf","team":"ACE","client":"Ecart","brand":"Jumia","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-10-04","sentTime":"16:41:52 WAT","lastDate":"2025-02-02","lastTime":"00:19:44 WAT"},{"id":196,"subject":"Jumia Aug Radio Media Plan 240724 Docusign.pdf","team":"ACE","client":"Ecart","brand":"Jumia","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-10-04","sentTime":"16:38:39 WAT","lastDate":"2025-02-02","lastTime":"00:19:52 WAT"},{"id":197,"subject":"RedBull Classic Cartoon Aug media plan - Docusign.pdf, RedBull Classic ...","team":"ACE","client":"Fareast","brand":"Redbull","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-10-04","sentTime":"16:35:09 WAT","lastDate":"2025-02-02","lastTime":"00:19:44 WAT"},{"id":198,"subject":"VASELINE MEDIA.pdf","team":"Switch","client":"Unilever","brand":"Vaseline","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-10-04","sentTime":"16:22:08 WAT","lastDate":"2024-10-11","lastTime":"07:38:57 WAT"},{"id":199,"subject":"Unilever_Closeup_Knowles_March_-_Dec_2024_OOH_Media_Plan__28thMay24_ (S...","team":"Alpha","client":"Unilever","brand":"Closeup","status":"Declined","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-10-04","sentTime":"16:20:17 WAT","lastDate":"2024-10-04","lastTime":"18:12:47 WAT"},{"id":200,"subject":"DOCUSIGN FOR COWBELL NCP OCT-NOV 2024 updated_organized.pdf","team":"Switch","client":"Promasidor","brand":"Cowbell","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-10-04","sentTime":"16:12:46 WAT","lastDate":"2025-02-02","lastTime":"00:19:51 WAT"},{"id":201,"subject":"Vaseline_Media_TV_Radio_Digital_FY24_080424_April_-_May.pdf, Pepsodent_...","team":"Switch","client":"Unilever","brand":"Vaseline","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"YEBOAH BILLY","sentDate":"2024-10-04","sentTime":"16:10:04 WAT","lastDate":"2024-10-07","lastTime":"09:47:56 WAT"},{"id":202,"subject":"Joy Nourishing Media Plan 23rdSep24_V1 - Approved Docusign- 041024.pdf","team":"ACE","client":"PZ CBS","brand":"Joy","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-10-04","sentTime":"10:13:52 WAT","lastDate":"2024-10-15","lastTime":"08:21:18 WAT"},{"id":203,"subject":"BBN TASK PRIZE SCHEDULE.pdf","team":"ACE","client":"PZ Cussons","brand":"Premier Cool","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-10-02","sentTime":"14:21:51 WAT","lastDate":"2024-10-07","lastTime":"11:49:13 WAT"},{"id":204,"subject":"DOCUSIGN for REXONA ROLL ON  JUNE 2024  LAUNCH MEDIA PLAN_DIGITAL -upda...","team":"Switch","client":"Unilever","brand":"Rexona","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-10-02","sentTime":"14:08:20 WAT","lastDate":"2024-10-03","lastTime":"10:53:02 WAT"},{"id":205,"subject":"DOCUSIGN for REXONA ROLL ON  JULY 2024  LAUNCH MEDIA PLAN_DIGITAL.pdf, ...","team":"Switch","client":"Unilever","brand":"Rexona","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-10-02","sentTime":"12:57:35 WAT","lastDate":"2024-10-03","lastTime":"10:54:28 WAT"},{"id":206,"subject":"DOCUSIGN For Knorr August Upweight Media Plan.pdf, DOCUSIGN For Knorr S...","team":"Switch","client":"Unilever","brand":"Knorr","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-10-02","sentTime":"12:50:27 WAT","lastDate":"2024-10-03","lastTime":"14:55:31 WAT"},{"id":207,"subject":"DOCUSIGN for REXONA ROLL ON  SEPTEMBER 2024  LAUNCH MEDIA PLAN_DIGITAL ...","team":"Switch","client":"Unilever","brand":"Rexona","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-10-02","sentTime":"11:54:06 WAT","lastDate":"2024-10-03","lastTime":"10:51:59 WAT"},{"id":208,"subject":"NIXODEM INFLUENCER LAUNCH.pdf","team":"Alpha","client":"SC Johnson","brand":"Nixoderm","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-10-02","sentTime":"10:49:15 WAT","lastDate":"2024-11-01","lastTime":"16:17:41 WAT"},{"id":209,"subject":"Joy Nourishing Media Plan 23rdSep24_V1 - Approved Docusign.pdf","team":"ACE","client":"PZ CBS","brand":"Joy","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-10-02","sentTime":"10:38:07 WAT","lastDate":"2024-10-07","lastTime":"10:55:38 WAT"},{"id":210,"subject":"MTN CORPORATE SERVICES NOTICE OF ANNUAL GENERAL MEETING PRESS APRIL CAM...","team":"Emerald","client":"MTN","brand":"MTN","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-09-30","sentTime":"10:01:12 WAT","lastDate":"2025-01-29","lastTime":"00:20:49 WAT"},{"id":211,"subject":"MTN CORPORATE SERVICES NOTICE OF ANNUAL GENERAL MEETING PRESS APRIL CAM...","team":"Emerald","client":"MTN","brand":"MTN","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-09-30","sentTime":"09:59:45 WAT","lastDate":"2025-01-29","lastTime":"00:20:45 WAT"},{"id":212,"subject":"MTNCS - 2023 Abridged Annual Financial Campaign 11.03.2024.pdf","team":"Emerald","client":"MTN","brand":"MTN","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-09-30","sentTime":"09:58:48 WAT","lastDate":"2025-01-29","lastTime":"00:20:49 WAT"},{"id":213,"subject":"Golden Penny Pasta Radio Schedule 27.02.2024 R1.pdf, Pasta Ramadan Medi...","team":"Alpha","client":"FMN","brand":"Golden Penny Pasta","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-09-30","sentTime":"09:56:33 WAT","lastDate":"2025-01-29","lastTime":"00:20:45 WAT"},{"id":214,"subject":"MTNCS - Notice Annual General Meeting Campaign 29.04.2024 PT3.pdf","team":"Emerald","client":"MTN","brand":"MTN","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-09-30","sentTime":"09:55:47 WAT","lastDate":"2025-01-29","lastTime":"00:20:48 WAT"},{"id":215,"subject":"MTNCS -Q1 2024 Abridged Annual Financial Campaign May 2024 06.05.2024.pdf","team":"Emerald","client":"MTN","brand":"MTN","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-09-30","sentTime":"09:55:07 WAT","lastDate":"2025-01-29","lastTime":"00:20:46 WAT"},{"id":216,"subject":"Copy of Executed Raid 2024 WMD Phase 1 costing ( media plan).pdf, Copy ...","team":"Alpha","client":"SC Johnson","brand":"Raid","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-09-30","sentTime":"09:54:32 WAT","lastDate":"2025-01-29","lastTime":"00:20:51 WAT"},{"id":217,"subject":"Mecure Media Plan 07_05_2024.pdf","team":"Emerald","client":"Mecure","brand":"Mecure","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-09-30","sentTime":"09:53:32 WAT","lastDate":"2025-01-29","lastTime":"00:20:49 WAT"},{"id":218,"subject":"PHDN_ICT_MONITOR_230924","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2024-09-23","sentTime":"06:22:49 WAT","lastDate":"2024-09-23","lastTime":"06:54:29 WAT"},{"id":219,"subject":"PHDN_ICT_PANELS_230924","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2024-09-23","sentTime":"06:20:16 WAT","lastDate":"2024-09-23","lastTime":"06:54:57 WAT"},{"id":220,"subject":"PHDN_ICT_O365_Renewal_9.9.24.pdf","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2024-09-09","sentTime":"13:31:41 WAT","lastDate":"2024-09-10","lastTime":"11:15:28 WAT"},{"id":221,"subject":"PHD_ICT_Cameras_30.08.24.pdf","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2024-08-30","sentTime":"15:58:45 WAT","lastDate":"2024-08-30","lastTime":"18:05:39 WAT"},{"id":222,"subject":"PHDN_ICT_ Internet Renewal_30.08.24","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2024-08-30","sentTime":"10:07:31 WAT","lastDate":"2024-08-30","lastTime":"11:16:35 WAT"},{"id":223,"subject":"PHDN_ICT_270824.pdf","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2024-08-27","sentTime":"09:03:19 WAT","lastDate":"2024-08-27","lastTime":"12:58:35 WAT"},{"id":224,"subject":"Spread Media plan TV Radio OOH 060624 R2.pdf, Golden penny oil TV Radio...","team":"Alpha","client":"FMN","brand":"Golden Penny Oil","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-08-26","sentTime":"12:36:08 WAT","lastDate":"2024-12-25","lastTime":"00:29:33 WAT"},{"id":225,"subject":"CloseUp Project Knowles August 2024 - TV Radio  Digital 10 Jul 2024.pdf...","team":"Alpha","client":"Unilever","brand":"Closeup","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-08-26","sentTime":"12:07:31 WAT","lastDate":"2024-08-28","lastTime":"09:57:15 WAT"},{"id":226,"subject":"PHDN_ICT_190824..pdf","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2024-08-19","sentTime":"13:03:13 WAT","lastDate":"2024-08-19","lastTime":"17:13:43 WAT"},{"id":227,"subject":"PHDN_ICT_190824..pdf","team":"ICT","client":"PHD","brand":"Internal","status":"Voided","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2024-08-19","sentTime":"11:37:51 WAT","lastDate":"2024-08-19","lastTime":"13:01:22 WAT"},{"id":228,"subject":"MTN X EPL Sponsorship Media Plan 13.08.24.pdf","team":"Emerald","client":"MTN","brand":"MTN","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-08-16","sentTime":"18:10:12 WAT","lastDate":"2024-08-21","lastTime":"08:36:12 WAT"},{"id":229,"subject":"MTN X EPL Sponsorship Media Plan 13.08.24.pdf","team":"Emerald","client":"MTN","brand":"MTN","status":"Declined","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-08-16","sentTime":"13:24:10 WAT","lastDate":"2024-08-16","lastTime":"15:38:50 WAT"},{"id":230,"subject":"Premier Cool Morning Fresh & Robb BBN Media plan 070824 - Docusign.pdf","team":"ACE","client":"PZ CBS","brand":"Premier Cool","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-08-07","sentTime":"10:02:42 WAT","lastDate":"2024-08-08","lastTime":"11:18:13 WAT"},{"id":231,"subject":"Premier Cool BBN Media plan 250724.pdf","team":"ACE","client":"PZ CBS","brand":"Premier Cool","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-07-31","sentTime":"15:43:59 WAT","lastDate":"2024-11-29","lastTime":"00:54:27 WAT"},{"id":232,"subject":"Kremela 2024 Media Plan _FINAL.pdf, Promasidor","team":"Switch","client":"Promasidor","brand":"Kremela","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-07-31","sentTime":"11:57:56 WAT","lastDate":"2024-08-09","lastTime":"18:31:04 WAT"},{"id":233,"subject":"DOCUSIGN for Knorr Consumer Promo July 2024 Media Plan_.pdf, DOCUSIGN f...","team":"Switch","client":"Unilever","brand":"Knorr","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-07-31","sentTime":"11:44:51 WAT","lastDate":"2024-08-05","lastTime":"09:53:12 WAT"},{"id":234,"subject":"Premier Cool BBN Media plan 250724.pdf","team":"ACE","client":"PZ CBS","brand":"Premier Cool","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-07-29","sentTime":"16:05:30 WAT","lastDate":"2024-07-30","lastTime":"11:47:10 WAT"},{"id":235,"subject":"Approved Premier Cool FY25 Media Plan_22July24_v5.pdf","team":"ACE","client":"PZ CBS","brand":"Premier Cool","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-07-29","sentTime":"12:10:01 WAT","lastDate":"2024-07-29","lastTime":"12:22:43 WAT"},{"id":236,"subject":"Premier Cool BBN Media plan 250724.pdf","team":"ACE","client":"PZ CBS","brand":"Premier Cool","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-07-26","sentTime":"11:46:32 WAT","lastDate":"2024-08-07","lastTime":"09:45:29 WAT"},{"id":237,"subject":"Pepsodent July 2024 Media plan - Deployed to revised N70m 240724.pdf","team":"Alpha","client":"Unilever","brand":"Pepsodent","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-07-25","sentTime":"10:10:07 WAT","lastDate":"2024-08-05","lastTime":"09:51:59 WAT"},{"id":238,"subject":"DOCUSIGN for Vaseline Media TV Radio Digital 230724 August 2.pdf","team":"Alpha","client":"Unilever","brand":"Vaseline","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-07-24","sentTime":"23:27:44 WAT","lastDate":"2024-08-05","lastTime":"12:15:38 WAT"},{"id":239,"subject":"Approved Premier Cool FY25 Media Plan_22July24_v5.pdf","team":"ACE","client":"PZ CBS","brand":"Premier Cool","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-07-23","sentTime":"14:53:39 WAT","lastDate":"2024-11-21","lastTime":"00:58:55 WAT"},{"id":240,"subject":"DOCUSIGN for Pepsodent July 2024 Media plan - Deployed (revised N70m) (...","team":"Alpha","client":"Unilever","brand":"Pepsodent","status":"Declined","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-07-22","sentTime":"10:15:50 WAT","lastDate":"2024-07-22","lastTime":"10:19:11 WAT"},{"id":241,"subject":"Infinix Radio Hype Media plan 010724 - Revised.pdf","team":"ACE","client":"Transsion","brand":"Infinix","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-07-16","sentTime":"16:08:09 WAT","lastDate":"2024-07-23","lastTime":"08:56:46 WAT"},{"id":242,"subject":"DOCUSIGN for Vaseline Media OOH  Radio 20th June  24.pdf 2.pdf","team":"Alpha","client":"Unilever","brand":"Vaseline","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-07-16","sentTime":"15:38:55 WAT","lastDate":"2024-07-18","lastTime":"10:58:02 WAT"},{"id":243,"subject":"PHDN_ICT_LAPTOP_15072024","team":"ICT","client":"PHD","brand":"Internal","status":"Declined","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2024-07-15","sentTime":"06:48:58 WAT","lastDate":"2024-07-15","lastTime":"07:20:26 WAT"},{"id":244,"subject":"Infinix Radio Hype Media plan 010724.pdf","team":"ACE","client":"Transsion","brand":"Infinix","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-07-14","sentTime":"15:00:34 WAT","lastDate":"2024-11-12","lastTime":"01:07:49 WAT"},{"id":245,"subject":"DOCUSIGN for Pepsodent June 2024 Media plan - 270524.pdf","team":"Alpha","client":"Unilever","brand":"Pepsodent","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-07-09","sentTime":"15:46:58 WAT","lastDate":"2024-07-11","lastTime":"07:53:21 WAT"},{"id":246,"subject":"DOCUSIGN for Vaseline Media OOH  Radio 20th June  24.pdf, DOCUSIGN for ...","team":"Alpha","client":"Unilever","brand":"Vaseline","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-07-09","sentTime":"15:28:38 WAT","lastDate":"2024-07-11","lastTime":"07:53:54 WAT"},{"id":247,"subject":"Infinix Radio Hype Media plan 010724.pdf","team":"ACE","client":"Transsion","brand":"Infinix","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-07-09","sentTime":"15:18:54 WAT","lastDate":"2024-07-12","lastTime":"09:28:44 WAT"},{"id":248,"subject":"HPZ Media plan 050724.pdf","team":"ACE","client":"HPZ","brand":"Haier thermocool","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-07-05","sentTime":"15:11:56 WAT","lastDate":"2024-07-10","lastTime":"09:48:10 WAT"},{"id":249,"subject":"HPZ Media plan Docusign 050724.pdf","team":"ACE","client":"HPZ","brand":"Haier thermocool","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-07-05","sentTime":"09:47:54 WAT","lastDate":"2024-07-05","lastTime":"14:42:28 WAT"},{"id":250,"subject":"PREMIER COOL FY25 MEDIA PLAN 270624 V3.pdf","team":"ACE","client":"PZ CBS","brand":"Premier Cool","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-07-03","sentTime":"15:22:51 WAT","lastDate":"2024-11-01","lastTime":"01:35:16 WAT"},{"id":251,"subject":"PHDN_ICT_SWIFT_SETUP_29062024","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2024-06-29","sentTime":"15:33:04 WAT","lastDate":"2024-06-30","lastTime":"09:41:08 WAT"},{"id":252,"subject":"Morning Fresh FY25 Media Plan_10X Multi Action Campaign_We See Her_5thJ...","team":"ACE","client":"PZ CBS","brand":"Morning Fresh","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-06-28","sentTime":"16:35:26 WAT","lastDate":"2024-07-02","lastTime":"09:10:55 WAT"},{"id":253,"subject":"Jumia Anniversary OOH Campaign Approved media plan.pdf","team":"ACE","client":"Ecart","brand":"Jumia","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-06-28","sentTime":"16:30:46 WAT","lastDate":"2024-10-27","lastTime":"02:29:22 WAT"},{"id":254,"subject":"Morning Fresh FY25 Media Plan_10X Multi Action Campaign_We See Her_5thJ...","team":"ACE","client":"PZ CBS","brand":"Jumia","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-06-27","sentTime":"13:15:58 WAT","lastDate":"2024-06-28","lastTime":"16:37:24 WAT"},{"id":255,"subject":"PHDN_ICT_INTERNET_27062024","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2024-06-27","sentTime":"12:23:32 WAT","lastDate":"2024-06-28","lastTime":"09:41:03 WAT"},{"id":256,"subject":"PHDN_ICT_INTERNET_27062024","team":"ICT","client":"PHD","brand":"Internal","status":"Voided","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2024-06-27","sentTime":"12:22:09 WAT","lastDate":"2024-06-27","lastTime":"12:22:49 WAT"},{"id":257,"subject":"Morning Fresh FY25 Media Plan_10X Multi Action Campaign_We See Her_5thJ...","team":"ACE","client":"PZ CBS","brand":"Morning Fresh","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-06-20","sentTime":"13:01:21 WAT","lastDate":"2024-06-27","lastTime":"13:17:02 WAT"},{"id":258,"subject":"MTN FOUNDATION ASAP ADVOCACY WALK TV CAMPAIGN MAY 2024.pdf","team":"Emerald","client":"MTN","brand":"MTN","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-06-20","sentTime":"05:31:16 WAT","lastDate":"2024-10-19","lastTime":"02:03:54 WAT"},{"id":259,"subject":"MTN CONSUMER MARKETING ATL Q2 APRIL - JUNE 2024 CAMPAIGN..pdf","team":"Emerald","client":"MTN","brand":"MTN","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-06-20","sentTime":"05:18:56 WAT","lastDate":"2024-06-21","lastTime":"20:25:11 WAT"},{"id":260,"subject":"Morning Fresh FY25 Media Plan_10X Multi Action Campaign_We See Her_5thJ...","team":"ACE","client":"PZ CBS","brand":"Morning Fresh","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-06-20","sentTime":"04:51:21 WAT","lastDate":"2024-06-20","lastTime":"13:02:35 WAT"},{"id":261,"subject":"Chivas B24 Media Plan - 11.06.2024 (With Upweight asset).pdf","team":"Emerald","client":"Pernod Ricard","brand":"Chivas","status":"Declined","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-06-11","sentTime":"20:30:05 WAT","lastDate":"2024-06-11","lastTime":"20:46:15 WAT"},{"id":262,"subject":"DOCUSIGN for Royco May 2024 Media Plan_12042024.pdf, DOCUSIGN for Knorr...","team":"Switch","client":"Unilever","brand":"Royco","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-06-11","sentTime":"09:47:28 WAT","lastDate":"2024-06-12","lastTime":"08:25:57 WAT"},{"id":263,"subject":"PHD_ICT_100624","team":"ICT","client":"PHD","brand":"Internal","status":"Declined","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2024-06-10","sentTime":"18:49:57 WAT","lastDate":"2024-06-13","lastTime":"10:30:41 WAT"},{"id":264,"subject":"Golden Penny Pasta Radio Schedule 27.02.2024 R1.pdf, Pasta Ramadan Medi...","team":"Alpha","client":"FMN","brand":"Golden Penny Pasta","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-06-10","sentTime":"11:19:49 WAT","lastDate":"2024-10-09","lastTime":"02:08:38 WAT"},{"id":265,"subject":"CloseUp Project Knowles Apr 2024 - TV & Digital r1 02 Apr 2024 v2 - Dat...","team":"Alpha","client":"Unilever","brand":"Closeup","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-06-10","sentTime":"11:15:07 WAT","lastDate":"2024-06-11","lastTime":"11:38:14 WAT"},{"id":266,"subject":"Pepsodent Q1 2024 March Media plan - 150324 - Updated March Only.pdf, P...","team":"Alpha","client":"Unilever","brand":"Pepsodent","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-06-10","sentTime":"11:03:53 WAT","lastDate":"2024-10-09","lastTime":"02:08:54 WAT"},{"id":267,"subject":"CloseUp_Jumia Advert.pdf, Pepsodent_Jumia Advert.pdf","team":"Alpha","client":"Unilever","brand":"Closeup","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-06-10","sentTime":"10:54:08 WAT","lastDate":"2024-06-12","lastTime":"08:25:15 WAT"},{"id":268,"subject":"Golden Penny Spread Plan 27.06.23 R4.pdf","team":"Alpha","client":"FMN","brand":"Golden Penny Spread","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-06-06","sentTime":"10:40:04 WAT","lastDate":"2024-10-05","lastTime":"02:13:14 WAT"},{"id":269,"subject":"MTN FTH OOH Schedule 14thDec23_V12.pdf","team":"Emerald","client":"MTN","brand":"MTN","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-06-06","sentTime":"10:39:03 WAT","lastDate":"2024-10-05","lastTime":"02:13:29 WAT"},{"id":270,"subject":"Semovita TV Radio OOH Media Plan 03.07.2023 R3 -  (6months plan) - Appr...","team":"Alpha","client":"Unilever","brand":"Golden Penny Semovita","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-06-06","sentTime":"10:37:48 WAT","lastDate":"2024-10-05","lastTime":"02:13:27 WAT"},{"id":271,"subject":"PFIed Golden Penny Noodles Radio (May - Jul '23) 250523 Main.pdf","team":"Alpha","client":"Unilever","brand":"Golden Penny Noodles","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-06-06","sentTime":"10:35:03 WAT","lastDate":"2024-10-05","lastTime":"02:13:28 WAT"},{"id":272,"subject":"Optimized tactical functional Morning Fresh FY24 Media Plan 3rdJan24_v1...","team":"ACE","client":"PZ CBS","brand":"Morning Fresh","status":"Declined","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-06-06","sentTime":"07:50:24 WAT","lastDate":"2024-06-13","lastTime":"08:28:47 WAT"},{"id":273,"subject":"MTN Nigeria Capital Markets Day Media Plan 06.11.2023.pdf","team":"Emerald","client":"MTN","brand":"MTN","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-06-06","sentTime":"07:49:23 WAT","lastDate":"2024-10-05","lastTime":"02:13:08 WAT"},{"id":274,"subject":"FAMILY FEUD SPONSORSHIP 26 01 2024.pdf","team":"Alpha","client":"FMN","brand":"Golden Penny M.B","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-06-06","sentTime":"07:47:30 WAT","lastDate":"2024-06-10","lastTime":"06:50:27 WAT"},{"id":275,"subject":"Unilever_Closeup_Knowles_March_-_Dec_2024_OOH_Media_Plan__28thMay24_ (P...","team":"Alpha","client":"Unilever","brand":"Closeup","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-06-05","sentTime":"15:52:17 WAT","lastDate":"2024-06-06","lastTime":"13:31:34 WAT"},{"id":276,"subject":"Cost of Purchasing Ocular - v1.pdf","team":"Research","client":"PHD","brand":"PHD","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-06-05","sentTime":"15:49:43 WAT","lastDate":"2024-06-06","lastTime":"13:39:32 WAT"},{"id":277,"subject":"Vaseline Media Radio Media Plan (PO14941999) June-August v1.pdf, PEPSOD...","team":"Alpha","client":"Unilever","brand":"Vaseline","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-06-05","sentTime":"15:20:10 WAT","lastDate":"2024-06-06","lastTime":"13:38:46 WAT"},{"id":278,"subject":"Martell B25 Strategy Deck_Final_05Jun2024.pdf","team":"Emerald","client":"Pernod Ricard","brand":"Martell","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-06-05","sentTime":"15:08:19 WAT","lastDate":"2024-10-04","lastTime":"02:10:04 WAT"},{"id":279,"subject":"FMN - Amaizing Day Media Plan Children Day 2024 R5 24.04.24.pdf","team":"Alpha","client":"FMN","brand":"Amaizing Day","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-06-04","sentTime":"14:03:42 WAT","lastDate":"2024-10-03","lastTime":"02:16:55 WAT"},{"id":280,"subject":"Morning Fresh FY25 Media Plan 21stMay24_10X Multi Action Campaign_We Se...","team":"ACE","client":"PZ CBS","brand":"Morning Fresh","status":"Declined","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-06-04","sentTime":"10:05:42 WAT","lastDate":"2024-06-29","lastTime":"22:12:08 WAT"},{"id":281,"subject":"Pepsodent May 2024 Media plan - 080524.pdf","team":"Alpha","client":"Unilever","brand":"Pepsodent","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-05-27","sentTime":"17:40:09 WAT","lastDate":"2024-05-29","lastTime":"13:19:31 WAT"},{"id":282,"subject":"PHD_ICT_200524","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2024-05-20","sentTime":"09:01:29 WAT","lastDate":"2024-05-20","lastTime":"09:44:26 WAT"},{"id":283,"subject":"Mecure Media Plan 07_05_2024.pdf","team":"Emerald","client":"Mecure","brand":"Mecure","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-05-15","sentTime":"09:25:47 WAT","lastDate":"2024-09-13","lastTime":"02:06:47 WAT"},{"id":284,"subject":"PHD_ICT_130524","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2024-05-13","sentTime":"13:45:01 WAT","lastDate":"2024-05-13","lastTime":"16:48:00 WAT"},{"id":285,"subject":"Mecure Media Plan 07_05_2024.pdf","team":"Emerald","client":"Mecure","brand":"Mecure","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-05-13","sentTime":"09:38:16 WAT","lastDate":"2024-05-15","lastTime":"09:27:20 WAT"},{"id":286,"subject":"Mecure Media Plan 07_05_2024.pdf","team":"Emerald","client":"Mecure","brand":"Mecure","status":"Declined","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-05-10","sentTime":"15:02:55 WAT","lastDate":"2024-05-13","lastTime":"09:10:37 WAT"},{"id":287,"subject":"ALPHA_RAID_090524","team":"Alpha","client":"SC Johnson","brand":"Raid","status":"Completed","sender":"Uche Obilom","recipient":"DOZIE OKAFOR","sentDate":"2024-05-09","sentTime":"13:22:07 WAT","lastDate":"2024-05-17","lastTime":"13:43:47 WAT"},{"id":288,"subject":"MTNCS -Q1 2024 Abridged Annual Financial Campaign May 2024 06.05.2024.pdf","team":"Emerald","client":"MTN","brand":"MTN","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-05-08","sentTime":"10:25:33 WAT","lastDate":"2024-09-06","lastTime":"02:00:20 WAT"},{"id":289,"subject":"Copy of Executed Raid 2024 WMD Phase 1 costing ( media plan).pdf, Copy ...","team":"Alpha","client":"SC Johnson","brand":"Raid","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-05-08","sentTime":"10:19:40 WAT","lastDate":"2024-09-06","lastTime":"02:00:35 WAT"},{"id":290,"subject":"PHD_ICT_Upgrade_070524","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2024-05-07","sentTime":"13:17:44 WAT","lastDate":"2024-05-08","lastTime":"09:32:47 WAT"},{"id":291,"subject":"CRU_ICT_060524","team":"CRU","client":"PHD","brand":"PHD","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2024-05-06","sentTime":"14:05:59 WAT","lastDate":"2024-05-06","lastTime":"18:36:58 WAT"},{"id":292,"subject":"CloseUp Orisun Movie Sponsorship.pdf, CloseUp ARCON Fine (1).pdf, Close...","team":"Alpha","client":"Unilever","brand":"Closeup","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-05-06","sentTime":"10:10:47 WAT","lastDate":"2024-05-07","lastTime":"10:27:54 WAT"},{"id":293,"subject":"CloseUp ARCON Fine (1).pdf, CloseUp Nigezie Movie Sponsorship.pdf, Clos...","team":"Alpha","client":"Unilever","brand":"Closeup","status":"Declined","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-05-04","sentTime":"10:03:59 WAT","lastDate":"2024-05-04","lastTime":"21:40:46 WAT"},{"id":294,"subject":"MTNCS - Notice Annual General Meeting Campaign 29.04.2024 PT3.pdf","team":"Emerald","client":"MTN","brand":"MTN","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-05-04","sentTime":"09:56:30 WAT","lastDate":"2024-09-02","lastTime":"01:53:50 WAT"},{"id":295,"subject":"GLENFIDDICH FY24 MEDIA PLAN JANUARY-DECEMBER 2024 25TH APRIL 2024.pdf","team":"ACE","client":"William Grant & Sons","brand":"Glenfiddich","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-05-02","sentTime":"16:16:24 WAT","lastDate":"2024-05-30","lastTime":"08:42:07 WAT"},{"id":296,"subject":"PHDN_ICT_Docusign_240424","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2024-04-25","sentTime":"13:30:36 WAT","lastDate":"2024-04-25","lastTime":"13:36:34 WAT"},{"id":297,"subject":"PHDN_ICT_EQUIPMENT_240424","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2024-04-25","sentTime":"13:01:23 WAT","lastDate":"2024-04-25","lastTime":"21:20:33 WAT"},{"id":298,"subject":"ICT Equipment & Maintenance 240424.pdf","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2024-04-25","sentTime":"12:40:50 WAT","lastDate":"2024-04-25","lastTime":"12:46:53 WAT"},{"id":299,"subject":"Golden Penny Pasta Radio Schedule 27.02.2024 R1.pdf, Pasta Ramadan Medi...","team":"Alpha","client":"FMN","brand":"Golden Penny Pasta","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-04-24","sentTime":"12:41:53 WAT","lastDate":"2024-08-23","lastTime":"01:54:34 WAT"},{"id":300,"subject":"Pepsodent April 2024 Media plan - 020424.pdf, Pepsodent Q1 2024 March M...","team":"Alpha","client":"Unilever","brand":"Pepsodent","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-04-24","sentTime":"10:39:58 WAT","lastDate":"2024-04-29","lastTime":"10:46:00 WAT"},{"id":301,"subject":"CloseUp Project Knowles Apr 2024 - TV  Digital r1 02 Apr 2024 v2 - Dat ...","team":"Alpha","client":"Unilever","brand":"Closeup","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-04-24","sentTime":"10:31:18 WAT","lastDate":"2024-04-25","lastTime":"08:41:03 WAT"},{"id":302,"subject":"Royco April 2024 Media Plan_03042024.pdf","team":"Switch","client":"Unilever","brand":"Royco","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-04-16","sentTime":"11:45:31 WAT","lastDate":"2024-04-17","lastTime":"09:20:45 WAT"},{"id":303,"subject":"CAMON 30 MEDIA BUDGET_13032024_Approved Rv1.pdf","team":"ACE","client":"Transsion","brand":"Tecno","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-04-15","sentTime":"10:21:55 WAT","lastDate":"2024-04-16","lastTime":"09:28:07 WAT"},{"id":304,"subject":"MTN CORPORATE SERVICES NOTICE OF ANNUAL GENERAL MEETING PRESS APRIL CAM...","team":"Emerald","client":"MTN","brand":"MTN","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-04-14","sentTime":"23:07:18 WAT","lastDate":"2024-08-13","lastTime":"01:55:02 WAT"},{"id":305,"subject":"MTN CORPORATE SERVICES NOTICE OF ANNUAL GENERAL MEETING PRESS APRIL CAM...","team":"Emerald","client":"MTN","brand":"MTN","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-04-14","sentTime":"23:04:02 WAT","lastDate":"2024-08-13","lastTime":"01:55:02 WAT"},{"id":306,"subject":"DOCUSIGNG for Knorr IFTAR WITH DEBOLA OF LAGOS RAMADAN SPONSORSHIP 2024...","team":"Switch","client":"Unilever","brand":"Knorr","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-04-14","sentTime":"22:56:02 WAT","lastDate":"2024-04-29","lastTime":"08:19:38 WAT"},{"id":307,"subject":"TECNO Special Season Promo Media Plan 21.03.2024 rv1.pdf","team":"ACE","client":"Transsion","brand":"Tecno","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-04-14","sentTime":"22:35:05 WAT","lastDate":"2024-04-15","lastTime":"10:38:10 WAT"},{"id":308,"subject":"Infinix Media Plan 02_04_24.pdf","team":"ACE","client":"Transsion","brand":"Infinix","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-04-14","sentTime":"22:16:01 WAT","lastDate":"2024-08-13","lastTime":"01:55:02 WAT"},{"id":309,"subject":"MTNCS - 2023 Abridged Annual Financial Campaign 11.03.2024.pdf","team":"Emerald","client":"MTN","brand":"MTN","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-04-14","sentTime":"22:11:02 WAT","lastDate":"2024-08-13","lastTime":"01:54:59 WAT"},{"id":310,"subject":"Tecno 2024 AMVCA Media Plan 18_03_24.pdf","team":"ACE","client":"Transsion","brand":"Tecno","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-04-04","sentTime":"11:37:42 WAT","lastDate":"2024-04-05","lastTime":"11:00:33 WAT"},{"id":311,"subject":"MTNN-Q1 2024 ATL Media Plan 12_03_24 rv6 APPROVED.pdf","team":"Emerald","client":"MTN","brand":"MTN","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-03-18","sentTime":"18:03:02 WAT","lastDate":"2024-03-20","lastTime":"10:51:47 WAT"},{"id":312,"subject":"DOCUSIGN  for Knorr and Royco March 2024 Campaigns","team":"Switch","client":"Unilever","brand":"Knorr","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-03-18","sentTime":"16:55:05 WAT","lastDate":"2024-03-22","lastTime":"09:43:56 WAT"},{"id":313,"subject":"MTNF - Yellopreneur Phase 2 Press Conference TV Coverage Media Plan 26....","team":"Emerald","client":"MTN","brand":"MTN","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-03-17","sentTime":"21:14:03 WAT","lastDate":"2024-07-16","lastTime":"01:19:55 WAT"},{"id":314,"subject":"TECNO Valentine Media Budget_V2_24012024_Approved.pdf","team":"ACE","client":"Transsion","brand":"Tecno","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-03-17","sentTime":"21:11:45 WAT","lastDate":"2024-03-18","lastTime":"17:11:55 WAT"},{"id":315,"subject":"MTN FBTH Mar -May 2024 OOH Campaign Approved Plan.pdf","team":"Emerald","client":"MTN","brand":"MTN","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-03-17","sentTime":"21:08:21 WAT","lastDate":"2024-07-16","lastTime":"01:19:54 WAT"},{"id":316,"subject":"Jumia Tech Week March 2024 OOH Campaign Approved Media Plan.pdf","team":"ACE","client":"Ecart","brand":"Jumia","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-03-17","sentTime":"21:06:13 WAT","lastDate":"2024-07-16","lastTime":"01:19:49 WAT"},{"id":317,"subject":"Unilever Knorr and Royco January and February 2024 Media Plans","team":"Switch","client":"Unilever","brand":"Knorr","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-03-07","sentTime":"08:56:12 WAT","lastDate":"2024-03-11","lastTime":"09:15:21 WAT"},{"id":318,"subject":"Unilever CloseUp Project Knowles February 2024- TV, Radio & Digital and MPS Payment","team":"Alpha","client":"Unilever","brand":"Closeup","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-03-07","sentTime":"08:36:09 WAT","lastDate":"2024-03-11","lastTime":"09:14:33 WAT"},{"id":319,"subject":"MixtaAfrica_Greenlife_Webinar_Plan.pdf","team":"Switch","client":"MixtaAfrica","brand":"MixtaAfrica","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-02-26","sentTime":"09:24:15 WAT","lastDate":"2024-02-26","lastTime":"10:41:21 WAT"},{"id":320,"subject":"Cost of Purchasing MI System (MPS).pdf","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-02-13","sentTime":"22:59:20 WAT","lastDate":"2024-02-20","lastTime":"08:46:12 WAT"},{"id":321,"subject":"MTNN-Q1 2024 ATL Media Plan 10_02_24 APPROVED pdf.pdf","team":"Emerald","client":"MTN","brand":"MTN","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-02-13","sentTime":"22:56:30 WAT","lastDate":"2024-02-15","lastTime":"08:26:08 WAT"},{"id":322,"subject":"LOAN AGREEMENT_TBWA x PHD 0224.docx","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2024-02-09","sentTime":"14:34:44 WAT","lastDate":"2024-02-09","lastTime":"14:43:05 WAT"},{"id":323,"subject":"PHDN_MTN5G_ Renewal_Others.docx","team":"Emerald","client":"MTN","brand":"MTN","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2024-02-07","sentTime":"13:16:10 WAT","lastDate":"2024-02-07","lastTime":"14:08:05 WAT"},{"id":324,"subject":"MTN Nigeria Capital Markets Day Media Plan 06.11.2023.pdf","team":"Emerald","client":"MTN","brand":"MTN","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-02-02","sentTime":"12:18:54 WAT","lastDate":"2024-06-02","lastTime":"01:26:08 WAT"},{"id":325,"subject":"JUMIA Q1 2024 RADIO MEDIA PLAN 22.01.23.pdf","team":"ACE","client":"Ecart","brand":"Jumia","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-02-01","sentTime":"15:27:11 WAT","lastDate":"2024-06-01","lastTime":"01:18:18 WAT"},{"id":326,"subject":"Duo_By_Mixta_Webinar_Plan_V3.pdf","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-01-30","sentTime":"10:43:28 WAT","lastDate":"2024-01-30","lastTime":"17:58:29 WAT"},{"id":327,"subject":"Duo_By_Mixta_Webinar_Plan_V3.pdf","team":"ICT","client":"PHD","brand":"Internal","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-01-29","sentTime":"18:59:23 WAT","lastDate":"2024-01-30","lastTime":"10:41:52 WAT"},{"id":328,"subject":"FAMILY FEUD SPONSORSHIP 26 01 2024.pdf","team":"Alpha","client":"FMN","brand":"Golden Penny M.B","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-01-29","sentTime":"11:41:06 WAT","lastDate":"2024-05-29","lastTime":"01:07:53 WAT"},{"id":329,"subject":"DOCUSIGN for Rexona AFCON 2024_Media Plan_24012024.pdf","team":"Switch","client":"Unilever","brand":"Rexona","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-01-26","sentTime":"16:45:25 WAT","lastDate":"2024-02-07","lastTime":"06:19:41 WAT"},{"id":330,"subject":"Copy of Close Up - BON Awards Media Plan Balance Budget.pdf, Copy of Cl...","team":"Alpha","client":"Unilever","brand":"Closeup","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-01-22","sentTime":"18:25:09 WAT","lastDate":"2024-01-23","lastTime":"13:16:00 WAT"},{"id":331,"subject":"PZ CBS Premier Cool FY'24 OOH Campaign Media Plan - DocuSign (002) - Up...","team":"ACE","client":"PZ CBS","brand":"Premier Cool","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-01-22","sentTime":"18:18:28 WAT","lastDate":"2024-03-04","lastTime":"08:46:00 WAT"},{"id":332,"subject":"Executed Play House Media Plan - 06 Dec 2023 v10 final.pdf","team":"Alpha","client":"Playhouse","brand":"Playhouse","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-01-22","sentTime":"18:00:15 WAT","lastDate":"2024-01-25","lastTime":"21:00:18 WAT"},{"id":333,"subject":"Transsion Tecno Spark 20 Bus Branding OOH Media Plan 8thJan24_V2.pdf","team":"ACE","client":"Transsion","brand":"Tecno","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-01-22","sentTime":"17:42:22 WAT","lastDate":"2024-01-23","lastTime":"12:41:32 WAT"},{"id":334,"subject":"CloseUp Project Knowles January 2024 - AFCON Bal Plan (Love All).pdf, C...","team":"Alpha","client":"Unilever","brand":"Closeup","status":"Declined","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-01-22","sentTime":"17:38:33 WAT","lastDate":"2024-01-23","lastTime":"09:15:16 WAT"},{"id":335,"subject":"Executed Play House Media Plan - 06 Dec 2023 v10 final.pdf","team":"Alpha","client":"Playhouse","brand":"Playhouse","status":"Declined","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-01-18","sentTime":"11:14:21 WAT","lastDate":"2024-01-19","lastTime":"12:22:07 WAT"},{"id":336,"subject":"Optimized tactical functional Morning Fresh FY24 Media Plan 3rdJan24_v1...","team":"ACE","client":"PZ CBS","brand":"Morning Fresh","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-01-18","sentTime":"10:41:42 WAT","lastDate":"2024-05-18","lastTime":"01:11:52 WAT"},{"id":337,"subject":"PZ CBS Premier Cool FY'24 OOH Campaign Media Plan - DocuSign.pdf","team":"ACE","client":"PZ CBS","brand":"Premier Cool","status":"Declined","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-01-18","sentTime":"10:37:01 WAT","lastDate":"2024-01-18","lastTime":"10:39:41 WAT"},{"id":338,"subject":"TECNO Spark 20 ATL Bugdet_151223.pdf","team":"ACE","client":"Transsion","brand":"Tecno","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-01-18","sentTime":"10:33:00 WAT","lastDate":"2024-01-19","lastTime":"09:05:43 WAT"},{"id":339,"subject":"Lipton Dec 2023 TV,Radio,Digital&OOH Media Plan.pdf, Lipton Jan 2024 TV...","team":"ACE","client":"Ekaterra","brand":"Lipton","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-01-18","sentTime":"10:28:45 WAT","lastDate":"2024-01-21","lastTime":"13:48:20 WAT"},{"id":340,"subject":"Tecno 2024 Bulk Deal Proposition Media Plan.pdf","team":"ACE","client":"Transsion","brand":"Tecno","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-01-15","sentTime":"12:57:19 WAT","lastDate":"2024-01-16","lastTime":"12:26:14 WAT"},{"id":341,"subject":"TECNO Spark 20 ATL Bugdet_151223.pdf","team":"ACE","client":"Transsion","brand":"Tecno","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-01-15","sentTime":"12:48:26 WAT","lastDate":"2024-01-18","lastTime":"10:29:51 WAT"},{"id":342,"subject":"CloseUp Project Knowles January 2024 - AFCON Bal Plan (Love All).pdf, C...","team":"Alpha","client":"Unilever","brand":"Closeup","status":"Declined","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2024-01-15","sentTime":"12:39:11 WAT","lastDate":"2024-01-22","lastTime":"09:17:14 WAT"},{"id":343,"subject":"Sunda International January 2024 Print Media Plan-30_12_23.pdf","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-12-31","sentTime":"15:00:07 WAT","lastDate":"2024-01-03","lastTime":"13:12:15 WAT"},{"id":344,"subject":"Close Up - Big Brother Amplification Plan v2.pdf, CloseUp Project Knowl...","team":"Alpha","client":"Unilever","brand":"Closeup","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-12-20","sentTime":"16:05:46 WAT","lastDate":"2023-12-21","lastTime":"12:40:53 WAT"},{"id":345,"subject":"DOCUSIGN for Knorr Eat for Good December 2023 Media Plan_16112023.pdf","team":"Switch","client":"Unilever","brand":"Knorr","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-12-20","sentTime":"15:44:24 WAT","lastDate":"2023-12-21","lastTime":"12:40:12 WAT"},{"id":346,"subject":"MTN RITC TV Coverage Media Plan.pdf","team":"Emerald","client":"MTN","brand":"MTN","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-12-20","sentTime":"15:36:47 WAT","lastDate":"2024-04-19","lastTime":"00:38:05 WAT"},{"id":347,"subject":"MTN MoMo Smart Bus Shelter Media Plan.pdf","team":"Emerald","client":"MTN","brand":"MTN","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-12-20","sentTime":"14:25:39 WAT","lastDate":"2023-12-30","lastTime":"09:02:49 WAT"},{"id":348,"subject":"MTN FTH OOH Schedule 14thDec23_V12.pdf","team":"Emerald","client":"MTN","brand":"MTN","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-12-20","sentTime":"14:17:38 WAT","lastDate":"2024-04-19","lastTime":"00:38:22 WAT"},{"id":349,"subject":"Approved  ICM Re-printing  Installation cost 11thDec23_V2.pdf","team":"ICT","client":"PHD","brand":"Internal","status":"Declined","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-12-19","sentTime":"09:48:25 WAT","lastDate":"2023-12-19","lastTime":"10:35:01 WAT"},{"id":350,"subject":"Chocoh OOH Radio 30sec Media Plan 170723.pdf","team":"Alpha","client":"FMN","brand":"Golden Penny Chocoh","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-12-05","sentTime":"19:29:33 WAT","lastDate":"2024-04-04","lastTime":"00:19:29 WAT"},{"id":351,"subject":"Golden Penny Spread Plan 27.06.23 R4.pdf","team":"Alpha","client":"FMN","brand":"Golden Penny Spread","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-12-05","sentTime":"19:28:56 WAT","lastDate":"2024-04-04","lastTime":"00:19:30 WAT"},{"id":352,"subject":"Semovita TV Radio OOH Media Plan 03.07.2023 R3 -  (6months plan) - Appr...","team":"Alpha","client":"FMN","brand":"Golden Penny Noodles","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-12-05","sentTime":"19:27:31 WAT","lastDate":"2024-04-04","lastTime":"00:19:32 WAT"},{"id":353,"subject":"PFIed Golden Penny Noodles Radio (May - Jul '23) 250523 Main.pdf","team":"Alpha","client":"FMN","brand":"Golden Penny Noodles","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-12-05","sentTime":"19:26:32 WAT","lastDate":"2023-12-05","lastTime":"19:30:20 WAT"},{"id":354,"subject":"PFIed Golden Penny Noodles Radio (May - Jul '23) 250523 Main.pdf","team":"Alpha","client":"FMN","brand":"Golden Penny Noodles","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-12-05","sentTime":"19:26:04 WAT","lastDate":"2023-12-05","lastTime":"19:30:34 WAT"},{"id":355,"subject":"PFIed Golden Penny Noodles Radio (May - Jul '23) 250523 Main.pdf","team":"Alpha","client":"FMN","brand":"Golden Penny Noodles","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-12-05","sentTime":"19:25:28 WAT","lastDate":"2024-04-04","lastTime":"00:19:35 WAT"},{"id":356,"subject":"Golden Penny Radio Schedule 21.06.23 R3 (3).pdf","team":"Alpha","client":"FMN","brand":"Golden Penny Noodles","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-12-05","sentTime":"19:24:54 WAT","lastDate":"2024-04-04","lastTime":"00:19:30 WAT"},{"id":357,"subject":"DOCUSIGN for Royco November 2023 Media Plan_02112023.pdf","team":"Switch","client":"Unilever","brand":"Royco","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-11-30","sentTime":"13:46:25 WAT","lastDate":"2023-12-20","lastTime":"09:35:04 WAT"},{"id":358,"subject":"DOCUSIGN for Knorr Eat for Good November 2023 Media Plan_8112023.pdf, D...","team":"Switch","client":"Unilever","brand":"Knorr","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-11-30","sentTime":"13:43:40 WAT","lastDate":"2023-12-15","lastTime":"09:19:57 WAT"},{"id":359,"subject":"DocuSign- MTN Champs Schedule Grand Finale Abuja","team":"Emerald","client":"MTN","brand":"MTN","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-11-29","sentTime":"14:07:27 WAT","lastDate":"2023-11-29","lastTime":"16:33:01 WAT"},{"id":360,"subject":"MTN End Of Year Sponsorship Leveraging Plan","team":"Emerald","client":"MTN","brand":"MTN","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-11-27","sentTime":"13:14:31 WAT","lastDate":"2023-11-28","lastTime":"08:46:29 WAT"},{"id":361,"subject":"Close up Media Plans","team":"Alpha","client":"Unilever","brand":"Closeup","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-11-27","sentTime":"13:04:16 WAT","lastDate":"2023-11-29","lastTime":"08:20:24 WAT"},{"id":362,"subject":"Closeup X Rema Live Show Media Plan.pdf","team":"Alpha","client":"Unilever","brand":"Closeup","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-11-24","sentTime":"19:03:44 WAT","lastDate":"2023-11-28","lastTime":"09:30:59 WAT"},{"id":363,"subject":"MTNCS - Abridged Financials Q3 2023 Print Campaign 06.11.2023.pdf","team":"Emerald","client":"MTN","brand":"MTN","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-11-24","sentTime":"18:07:08 WAT","lastDate":"2023-11-27","lastTime":"13:05:53 WAT"},{"id":364,"subject":"Lipton August digital campaign regulatory approval schedule.pdf","team":"ACE","client":"Ekaterra","brand":"Lipton","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-11-15","sentTime":"11:21:15 WAT","lastDate":"2023-11-16","lastTime":"20:19:37 WAT"},{"id":365,"subject":"MTNCS - Expression Of Interest for Enterprise Business 2023 Campaign 2....","team":"Emerald","client":"MTN","brand":"MTN","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-11-15","sentTime":"11:14:56 WAT","lastDate":"2024-03-15","lastTime":"00:18:52 WAT"},{"id":366,"subject":"MTNCS - Abridged Financials Q3 2023 Print Campaign 06.11.2023.pdf, Docu...","team":"Emerald","client":"MTN","brand":"MTN","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-11-15","sentTime":"11:11:14 WAT","lastDate":"2024-03-15","lastTime":"00:18:55 WAT"},{"id":367,"subject":"ZeBet Radio Campaign Nov 2023 - April 2024 (PHD) 12.10.2023.pdf, ZeBet ...","team":"Switch","client":"SV Gaming","brand":"Betking","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-11-02","sentTime":"15:19:18 WAT","lastDate":"2023-11-13","lastTime":"10:09:40 WAT"},{"id":368,"subject":"Knorr October - December 2023 OOH.pdf","team":"Switch","client":"Unilever","brand":"Knorr","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-11-01","sentTime":"10:37:25 WAT","lastDate":"2023-11-03","lastTime":"12:38:23 WAT"},{"id":369,"subject":"ZeBet Radio Campaign Nov 2023 - April 2024 (PHD) 12.10.2023.pdf, ZeBet ...","team":"Switch","client":"SV Gaming","brand":"Betking","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-10-31","sentTime":"14:58:01 WAT","lastDate":"2023-11-01","lastTime":"10:55:50 WAT"},{"id":370,"subject":"TECNO Black Friday Promo Media Plan 23.10.2023.pdf","team":"ACE","client":"Transsion","brand":"Tecno","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-10-31","sentTime":"14:27:51 WAT","lastDate":"2023-11-02","lastTime":"10:09:18 WAT"},{"id":371,"subject":"DOCUSIGN Knorr Eat for Good October 2023 Upweighted Media Plan_19102023.pdf","team":"Switch","client":"Unilever","brand":"Knorr","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-10-31","sentTime":"14:24:51 WAT","lastDate":"2023-11-03","lastTime":"14:13:14 WAT"},{"id":372,"subject":"MTN MoMo Billionaire Promo Media Plan 12.10.2023..pdf","team":"Emerald","client":"MTN","brand":"MTN","status":"Declined","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-10-31","sentTime":"13:53:09 WAT","lastDate":"2023-11-17","lastTime":"08:27:20 WAT"},{"id":373,"subject":"Unilever Royco and Knorr 2023 Media Plan","team":"Switch","client":"Unilever","brand":"Knorr","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-10-25","sentTime":"15:16:01 WAT","lastDate":"2023-10-31","lastTime":"09:59:16 WAT"},{"id":374,"subject":"Unilever Royco and Knorr 2023 Media Plans","team":"Switch","client":"Unilever","brand":"Knorr","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-10-25","sentTime":"15:10:37 WAT","lastDate":"2023-11-01","lastTime":"11:39:22 WAT"},{"id":375,"subject":"Approved MTN OOH FTH Schedule 23rdSep'23_v6.pdf","team":"Emerald","client":"MTN","brand":"MTN","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-10-23","sentTime":"10:43:08 WAT","lastDate":"2024-02-21","lastTime":"00:15:55 WAT"},{"id":376,"subject":"MTNN-Q4 ATL Media Plan APPROVED-11.10.2023.pdf","team":"Emerald","client":"MTN","brand":"MTN","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-10-23","sentTime":"10:37:48 WAT","lastDate":"2023-10-23","lastTime":"12:33:04 WAT"},{"id":377,"subject":"ROBB FY24 Radio Media Plan Oct - Nov 2023 - Approved.pdf","team":"ACE","client":"PZ CBS","brand":"Robb","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-10-23","sentTime":"10:34:34 WAT","lastDate":"2023-10-31","lastTime":"08:52:26 WAT"},{"id":378,"subject":"ROBB FY24 Radio Media Plan Oct - Nov 2023 - Approved.pdf","team":"ACE","client":"PZ CBS","brand":"Robb","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-10-16","sentTime":"11:08:31 WAT","lastDate":"2023-10-19","lastTime":"12:54:52 WAT"},{"id":379,"subject":"HPZ PROMO ADDTIONAL MEDIA PLAN OCT - NOV 2023 - APPROVED.pdf","team":"ACE","client":"HPZ","brand":"Haier thermocool","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-10-16","sentTime":"11:04:53 WAT","lastDate":"2023-10-20","lastTime":"07:00:54 WAT"},{"id":380,"subject":"Knorr EFG DocuSign.pdf, Knorr JF 2023 DocuSign.pdf, Royco Sept 2023 Doc...","team":"Switch","client":"Unilever","brand":"Knorr","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-10-09","sentTime":"15:28:42 WAT","lastDate":"2023-10-09","lastTime":"18:07:18 WAT"},{"id":381,"subject":"Lipton August digital campaign regulatory approval schedule.pdf","team":"ACE","client":"Ekaterra","brand":"Lipton","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-10-03","sentTime":"14:12:21 WAT","lastDate":"2023-11-03","lastTime":"14:39:59 WAT"},{"id":382,"subject":"MTN X Gida Journals Media Plan 3.10.2023.pdf","team":"Emerald","client":"MTN","brand":"MTN","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-10-03","sentTime":"14:06:55 WAT","lastDate":"2023-10-04","lastTime":"06:19:16 WAT"},{"id":383,"subject":"Golden Penny Noodles  Chicken Radio (Sept- Nov'23) 17.08.2023._v2.pdf","team":"Alpha","client":"FMN","brand":"Golden Penny Noodles","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-09-28","sentTime":"10:56:42 WAT","lastDate":"2024-01-27","lastTime":"00:16:50 WAT"},{"id":384,"subject":"Golden Penny Naija Soup Festival 06 Sep 2023 - Lagos.pdf","team":"Alpha","client":"FMN","brand":"Golden Penny Noodles","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-09-28","sentTime":"10:54:55 WAT","lastDate":"2024-01-27","lastTime":"00:16:51 WAT"},{"id":385,"subject":"Golden Penny Lagos Western Avenue Mar - Aug '24 OOH Schedule 22_09_23_....","team":"Alpha","client":"FMN","brand":"Golden Penny Noodles","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-09-28","sentTime":"10:53:06 WAT","lastDate":"2024-01-27","lastTime":"00:16:58 WAT"},{"id":386,"subject":"CHIVAS PALACE CAMEROON MEDIA PLAN.pdf, CHIVAS CELEBRATE THE NIGHT CAMER...","team":"Emerald","client":"Pernod Ricard","brand":"Chivas","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-09-28","sentTime":"10:46:31 WAT","lastDate":"2023-09-29","lastTime":"14:13:14 WAT"},{"id":387,"subject":"TECNO X AFCON 2024 Sponsorship Media Plan 21_09_23.pdf","team":"ACE","client":"Transsion","brand":"Tecno","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-09-25","sentTime":"11:54:18 WAT","lastDate":"2023-10-13","lastTime":"10:24:16 WAT"},{"id":388,"subject":"MARTELL B24 MEDIA PLAN, CHIVAS B24 MEDIA PLAN.","team":"Emerald","client":"Pernod Ricard","brand":"Martell","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-09-18","sentTime":"17:03:19 WAT","lastDate":"2023-09-21","lastTime":"07:54:54 WAT"},{"id":389,"subject":"MARTELL B24 MEDIA PLAN, CHIVAS B24 MEDIA PLAN.","team":"Emerald","client":"Pernod Ricard","brand":"Martell","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-09-18","sentTime":"16:46:55 WAT","lastDate":"2023-09-18","lastTime":"17:02:30 WAT"},{"id":390,"subject":"MARTELL B24 MEDIA PLAN, CHIVAS B24 MEDIA PLAN.","team":"Emerald","client":"Pernod Ricard","brand":"Martell","status":"Declined","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-09-17","sentTime":"15:01:03 WAT","lastDate":"2023-09-18","lastTime":"10:48:47 WAT"},{"id":391,"subject":"Chivas_Regal FC Media Plan 2023 V2.pdf","team":"Emerald","client":"Pernod Ricard","brand":"Chivas","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-09-14","sentTime":"18:00:01 WAT","lastDate":"2023-09-25","lastTime":"16:17:02 WAT"},{"id":392,"subject":"Unilever Royco and Knorr 2023 Media Plans","team":"Switch","client":"Unilever","brand":"Knorr","status":"Declined","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-09-10","sentTime":"17:15:42 WAT","lastDate":"2023-09-26","lastTime":"09:25:47 WAT"},{"id":393,"subject":"Unilever Royco and Knorr 2023 Media Plan","team":"Switch","client":"Unilever","brand":"Knorr","status":"Declined","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-09-10","sentTime":"16:53:48 WAT","lastDate":"2023-09-18","lastTime":"08:54:02 WAT"},{"id":394,"subject":"Repairs and Maintenance Memo PHDN.pdf","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2023-09-07","sentTime":"17:15:51 WAT","lastDate":"2023-09-07","lastTime":"17:22:38 WAT"},{"id":395,"subject":"Remis Laptop Memo.pdf","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2023-09-07","sentTime":"15:52:18 WAT","lastDate":"2023-09-07","lastTime":"21:07:08 WAT"},{"id":396,"subject":"Memo for M365 License Renewal ($)","team":"ICT","client":"PHD","brand":"Internal","status":"Completed","sender":"Uche Obilom","recipient":"Multiple","sentDate":"2023-09-05","sentTime":"16:45:00 WAT","lastDate":"2023-09-06","lastTime":"11:40:03 WAT"},{"id":397,"subject":"Betking H2 2023 Media Plan_11072023 (5) (1).pdf","team":"Switch","client":"SV Gaming","brand":"Betking","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-09-04","sentTime":"11:14:31 WAT","lastDate":"2023-09-07","lastTime":"10:52:41 WAT"},{"id":398,"subject":"PZ Cussons Premier Cool FY24 TV_Media Plan_28Aug23_v11_Approved.pdf","team":"ACE","client":"PZ CBS","brand":"Premier Cool","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-09-01","sentTime":"11:00:01 WAT","lastDate":"2023-10-03","lastTime":"21:39:35 WAT"},{"id":399,"subject":"MTN X EPL Sponsorship Media Plan 16_08_23.pdf","team":"Emerald","client":"MTN","brand":"MTN","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-08-28","sentTime":"13:17:11 WAT","lastDate":"2023-08-28","lastTime":"15:36:40 WAT"},{"id":400,"subject":"Red Bull - Dance your style OOH & Digital Campaign 24.08.23.pdf","team":"ACE","client":"Fareast","brand":"Redbull","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-08-26","sentTime":"11:50:00 WAT","lastDate":"2023-08-28","lastTime":"11:27:00 WAT"},{"id":401,"subject":"Jumia FY`23 H2 Media plan 23Aug23_V13","team":"ACE","client":"Ecart","brand":"Jumia","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-08-26","sentTime":"09:09:35 WAT","lastDate":"2023-12-25","lastTime":"00:18:08 WAT"},{"id":402,"subject":"Betking H2 2023 Media Plan_11072023","team":"Switch","client":"SV Gaming","brand":"Betking","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-08-24","sentTime":"14:26:19 WAT","lastDate":"2023-12-23","lastTime":"00:14:48 WAT"},{"id":403,"subject":"Jeff Asset Amplification_18Aug2023.pdf","team":"Emerald","client":"Pernod Ricard","brand":"Pernod Ricard","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-08-24","sentTime":"14:21:04 WAT","lastDate":"2023-08-31","lastTime":"10:36:04 WAT"},{"id":404,"subject":"Jeff Asset Amplification_18Aug2023","team":"Alpha","client":"Annalect","brand":"Annalect Fee","status":"Declined","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-08-23","sentTime":"18:33:35 WAT","lastDate":"2023-08-24","lastTime":"09:09:29 WAT"},{"id":405,"subject":"HP_Nigeria_FY23_Q3_LOB_LocalPO_HP AFTB_ Media Plan_REVISED.pdf","team":"ACE","client":"HPZ","brand":"Haier thermocool","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-08-22","sentTime":"14:20:48 WAT","lastDate":"2023-09-05","lastTime":"06:31:47 WAT"},{"id":406,"subject":"PZ HPZ RADIO PROMO MEDIA PLAN - APPROVED.pdf","team":"ACE","client":"HPZ","brand":"Haier thermocool","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-08-22","sentTime":"11:44:06 WAT","lastDate":"2023-09-28","lastTime":"13:57:12 WAT"},{"id":407,"subject":"Bet9ja Media Plan OOH Media plan 17.8.23_v8.pdf","team":"Switch","client":"SV Gaming","brand":"Betking","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-08-22","sentTime":"11:26:52 WAT","lastDate":"2023-12-21","lastTime":"00:17:01 WAT"},{"id":408,"subject":"Nigeria_FY23_Q3_LOB_LocalPO_HP AFTB_ Media Plan_REVISED.pdf","team":"ACE","client":"HPZ","brand":"Haier thermocool","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-08-21","sentTime":"08:55:58 WAT","lastDate":"2023-08-21","lastTime":"09:11:27 WAT"},{"id":409,"subject":"HP_Nigeria_FY23_Q3_LOB_LocalPO_HP AFTB_ Media Plan_REVISED.pdf","team":"ACE","client":"HPZ","brand":"Haier thermocool","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-08-21","sentTime":"08:49:34 WAT","lastDate":"2023-10-09","lastTime":"08:08:01 WAT"},{"id":410,"subject":"PZ HPZ RADIO PROMO MEDIA PLAN - APPROVED.pdf","team":"ACE","client":"HPZ","brand":"Haier thermocool","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-08-18","sentTime":"17:30:49 WAT","lastDate":"2023-08-21","lastTime":"09:48:03 WAT"},{"id":411,"subject":"MTN X EPL Sponsorship Media Plan 16_08_23.pdf","team":"Emerald","client":"MTN","brand":"MTN","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-08-18","sentTime":"17:22:37 WAT","lastDate":"2023-08-23","lastTime":"12:59:47 WAT"},{"id":412,"subject":"Golden Penny Semovita Pimp My Pot Additional Budget Schedule 17.08.2023.pdf","team":"Alpha","client":"FMN","brand":"Golden Penny Semovita","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-08-18","sentTime":"17:16:58 WAT","lastDate":"2023-12-17","lastTime":"00:17:42 WAT"},{"id":413,"subject":"TECNO Mid Year Sales Radio Media Plan 02_06_23 v2.pdf","team":"ACE","client":"Transsion","brand":"Tecno","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"nnam","sentDate":"2023-08-16","sentTime":"12:36:07 WAT","lastDate":"2023-08-16","lastTime":"12:38:19 WAT"},{"id":414,"subject":"TECNO Mid Year Sales Radio Media Plan 02_06_23 v2.pdf","team":"ACE","client":"Transsion","brand":"Tecno","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"nnam","sentDate":"2023-08-16","sentTime":"12:28:39 WAT","lastDate":"2023-08-16","lastTime":"12:35:06 WAT"},{"id":415,"subject":"MTNF - Call for Application-Scholarship Awards Radio Hypes 04.05.2023v1.pdf","team":"Emerald","client":"MTN","brand":"MTN","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-08-16","sentTime":"12:16:27 WAT","lastDate":"2023-12-15","lastTime":"00:16:48 WAT"},{"id":416,"subject":"MTN ICT and Business Skills Training Phase 6 Media Plan 08.08.2023.pdf","team":"Emerald","client":"MTN","brand":"MTN","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-08-16","sentTime":"12:13:23 WAT","lastDate":"2023-12-15","lastTime":"00:16:34 WAT"},{"id":417,"subject":"TECNO Mid Year Sales Radio Media Plan 02_06_23 v2.pdf","team":"ACE","client":"Transsion","brand":"Tecno","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-08-16","sentTime":"11:58:14 WAT","lastDate":"2023-12-15","lastTime":"00:16:43 WAT"},{"id":418,"subject":"HPZ_EPL_Commercial Package Plan 5 July 2023RV.pdf","team":"ACE","client":"HPZ","brand":"Haier thermocool","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-08-16","sentTime":"10:55:31 WAT","lastDate":"2023-09-28","lastTime":"14:00:08 WAT"},{"id":419,"subject":"MTN_Yellopreneur Initiative Applicants Conference Media Plan August 2023 10...","team":"Emerald","client":"MTN","brand":"MTN","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-08-16","sentTime":"09:53:08 WAT","lastDate":"2023-12-15","lastTime":"00:16:45 WAT"},{"id":420,"subject":"MTNN-Q3 Media Plan 06_07_23 - APPROVED.pdf","team":"Emerald","client":"MTN","brand":"MTN","status":"Declined","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-08-16","sentTime":"09:49:05 WAT","lastDate":"2023-08-21","lastTime":"10:30:09 WAT"},{"id":421,"subject":"HP_Nigeria_FY23_Q3_LOB_LocalPO_HP AFTB_ Media Plan_22_05_2023.pdf","team":"ACE","client":"HPZ","brand":"Haier thermocool","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-08-16","sentTime":"09:39:29 WAT","lastDate":"2023-10-09","lastTime":"08:08:28 WAT"},{"id":422,"subject":"Unilever_August_2023_Media_Plans_Approval","team":"Alpha","client":"Unilever","brand":"Vaseline","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-08-16","sentTime":"09:36:55 WAT","lastDate":"2023-09-05","lastTime":"09:50:51 WAT"},{"id":423,"subject":"Unilever_Vaseline_Radio_&_Digtal_Media_Plan_August_2023.pdf","team":"Alpha","client":"Unilever","brand":"Vaseline","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-08-16","sentTime":"09:19:02 WAT","lastDate":"2023-09-04","lastTime":"09:18:57 WAT"},{"id":424,"subject":"Huggies Digital APCON vetting schedule 16.03.23.pdf, Huggies OOH APCON ...","team":"Alpha","client":"Kimberly Clark","brand":"Huggies","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-08-07","sentTime":"16:01:01 WAT","lastDate":"2023-10-20","lastTime":"05:54:48 WAT"},{"id":425,"subject":"Annalect Fee Media Schedule.pdf","team":"Alpha","client":"Kimberly Clark","brand":"Huggies","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-08-07","sentTime":"15:53:58 WAT","lastDate":"2023-10-20","lastTime":"05:55:46 WAT"},{"id":426,"subject":"Huggies 2023 TV ( DC 15secs) media plan (Apr - May)  28.03.2023.pdf, Hu...","team":"Alpha","client":"Kimberly Clark","brand":"Huggies","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-08-07","sentTime":"15:50:53 WAT","lastDate":"2023-10-04","lastTime":"08:54:16 WAT"},{"id":427,"subject":"Kimberly Clark Huggies Pant Feb 2023 Media Schedule 20_02_23.pdf, Kimbe...","team":"Alpha","client":"Kimberly Clark","brand":"Huggies","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-08-07","sentTime":"12:59:10 WAT","lastDate":"2023-10-20","lastTime":"05:57:48 WAT"},{"id":428,"subject":"Huggies 2023 TV ( Pant 15secs) media plan (Mar)  pdf.pdf, Huggies 2023 ...","team":"Alpha","client":"Kimberly Clark","brand":"Huggies","status":"Declined","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-08-07","sentTime":"12:53:53 WAT","lastDate":"2023-08-07","lastTime":"14:30:08 WAT"},{"id":429,"subject":"Huggies FY2023 MEDIA PLAN DIGITAL -April  (docu).pdf, Huggies Mother's ...","team":"Alpha","client":"Kimberly Clark","brand":"Huggies","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-08-04","sentTime":"18:06:08 WAT","lastDate":"2023-08-06","lastTime":"19:24:24 WAT"},{"id":430,"subject":"Huggies May Digital campaign (IG&Youtube)(Docu).pdf, Huggies FY2023 MED...","team":"Alpha","client":"Kimberly Clark","brand":"Huggies","status":"Declined","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-08-04","sentTime":"16:11:06 WAT","lastDate":"2023-08-04","lastTime":"17:52:27 WAT"},{"id":431,"subject":"Huggies 2023 TV ( Pant 15secs) media plan (Mar)  pdf.pdf, Huggies 2023 ...","team":"Alpha","client":"Kimberly Clark","brand":"Huggies","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-08-04","sentTime":"14:55:11 WAT","lastDate":"2023-08-11","lastTime":"08:23:42 WAT"},{"id":432,"subject":"PRN OOH Approved JC Decaux portfolio deal Schedule Chivas & Martell 03....","team":"Emerald","client":"Pernod Ricard","brand":"Martell","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-08-04","sentTime":"14:42:52 WAT","lastDate":"2023-08-18","lastTime":"10:19:58 WAT"},{"id":433,"subject":"PFIed Golden Penny Noodles Radio (May - Jul '23) 250523 Main.pdf","team":"Alpha","client":"FMN","brand":"Golden Penny Noodles","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-08-04","sentTime":"14:06:49 WAT","lastDate":"2023-12-03","lastTime":"00:13:36 WAT"},{"id":434,"subject":"Golden Penny Spread Plan 27.06.23 R4.pdf","team":"Alpha","client":"FMN","brand":"Golden Penny Spread","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-08-04","sentTime":"13:59:14 WAT","lastDate":"2023-12-03","lastTime":"00:13:33 WAT"},{"id":435,"subject":"Golden Penny Radio Schedule 21.06.23 R3 (3).pdf","team":"Alpha","client":"FMN","brand":"Golden Penny Spread","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-08-04","sentTime":"13:44:19 WAT","lastDate":"2023-12-03","lastTime":"00:13:35 WAT"},{"id":436,"subject":"Chocoh OOH Radio 30sec Media Plan 170723.pdf","team":"Alpha","client":"FMN","brand":"Golden Penny Chocoh","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-08-04","sentTime":"13:12:26 WAT","lastDate":"2023-12-03","lastTime":"00:13:18 WAT"},{"id":437,"subject":"MTNN MoMO Thematic Campaign August - October 2023 Media Plan.pdf","team":"Emerald","client":"MTN","brand":"MTN","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-08-03","sentTime":"16:32:09 WAT","lastDate":"2023-08-03","lastTime":"17:37:00 WAT"},{"id":438,"subject":"Semovita TV Radio OOH Media Plan 03.07.2023 R3 -  (6months plan) - Appr...","team":"Alpha","client":"FMN","brand":"Golden Penny Semovita","status":"Voided","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-08-02","sentTime":"11:46:12 WAT","lastDate":"2023-12-01","lastTime":"00:14:53 WAT"},{"id":439,"subject":"Joy Soap Radio_OOH-Media Plan 11July23 DocuSign.pdf","team":"ACE","client":"PZ CBS","brand":"Joy","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-08-02","sentTime":"09:42:24 WAT","lastDate":"2023-08-15","lastTime":"17:14:05 WAT"},{"id":440,"subject":"Lipton August digital campaign regulatory approval schedule.pdf","team":"ACE","client":"Ekaterra","brand":"Lipton","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-08-01","sentTime":"11:45:01 WAT","lastDate":"2023-08-03","lastTime":"11:21:54 WAT"},{"id":441,"subject":"Close Up - Media plan July 2023 15 June 2023 - Blue Ivy v2.pdf, Close U...","team":"Alpha","client":"Unilever","brand":"Closeup","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-07-27","sentTime":"17:31:58 WAT","lastDate":"2023-08-02","lastTime":"08:37:48 WAT"},{"id":442,"subject":"HPZ_ EPL_Commercial Package Plan 5July2023RV.pdf","team":"ACE","client":"HPZ","brand":"Haier thermocool","status":"Declined","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-07-27","sentTime":"17:05:07 WAT","lastDate":"2023-08-16","lastTime":"10:35:36 WAT"},{"id":443,"subject":"Lipton August digital campaign regulatory approval schedule.pdf","team":"ACE","client":"Ekaterra","brand":"Lipton","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-07-26","sentTime":"11:54:39 WAT","lastDate":"2023-07-26","lastTime":"14:47:58 WAT"},{"id":444,"subject":"Lipton August digital campaign regulatory approval schedule.pdf","team":"ACE","client":"Ekaterra","brand":"Lipton","status":"Completed","sender":"Nnamdi Okwudinma","recipient":"Multiple","sentDate":"2023-07-26","sentTime":"11:31:36 WAT","lastDate":"2023-07-26","lastTime":"11:33:50 WAT"}]</script>
+<script>const RAW_DATA = JSON.parse(document.getElementById('envelope-data').textContent);
+
+const TEAM_COLORS = {
+  "Alpha": "var(--t-alpha)",
+  "ACE": "var(--t-ace)",
+  "Emerald": "var(--t-emerald)",
+  "ICT": "var(--t-ict)",
+  "Switch": "var(--t-switch)",
+  "CRU": "var(--t-cru)",
+  "PHD": "var(--t-phd)",
+  "Research": "var(--t-research)"
+};
+
+const STATUS_COLORS = {
+  "Completed": { fg: "var(--c-completed)", bg: "var(--c-completed-bg)" },
+  "Sent": { fg: "var(--c-sent)", bg: "var(--c-sent-bg)" },
+  "Voided": { fg: "var(--c-voided)", bg: "var(--c-voided-bg)" },
+  "Declined": { fg: "var(--c-declined)", bg: "var(--c-declined-bg)" }
+};
+
+let state = { team: [], client: [], status: [], period: [], search: "" };
+let openGroups = new Set();
+let expandedYears = new Set();
+let PERIOD_YEAR_MAP = {};
+let PERIOD_COUNTS = {};
+
+function fmtDate(iso){
+  const d = new Date(iso + "T00:00:00");
+  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  return `${String(d.getDate()).padStart(2,'0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function periodKey(iso){
+  const d = new Date(iso + "T00:00:00");
+  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  return `${months[d.getMonth()]} ${d.getFullYear()}`;
+}
+function periodSortVal(iso){
+  const d = new Date(iso + "T00:00:00");
+  return d.getFullYear()*12 + d.getMonth();
+}
+
+const PLACEHOLDERS = { team: "All Teams", client: "All Clients", status: "All Status", period: "All Time" };
+
+function buildMultiSelect(key, values, labelFn){
+  const root = document.getElementById(`${key}Filter`);
+  const optionsWrap = root.querySelector('.msel-options');
+  const btn = root.querySelector('.msel-btn');
+
+  optionsWrap.innerHTML = "";
+  values.forEach(v=>{
+    const opt = document.createElement('label');
+    opt.className = "msel-option";
+    const count = labelFn ? labelFn(v) : "";
+    opt.innerHTML = `<input type="checkbox" value="${v}"> <span>${v}</span> ${count ? `<span class="msel-option-count">${count}</span>` : ""}`;
+    optionsWrap.appendChild(opt);
+    opt.addEventListener('click', e=>e.stopPropagation());
+    opt.querySelector('input').addEventListener('change', e=>{
+      const arr = state[key];
+      if(e.target.checked){ if(!arr.includes(v)) arr.push(v); }
+      else { state[key] = arr.filter(x=>x!==v); }
+      refreshMselLabel(key);
+      render();
+    });
+  });
+
+  btn.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    const wasOpen = root.classList.contains('open');
+    document.querySelectorAll('.msel.open').forEach(m=>m.classList.remove('open'));
+    if(!wasOpen) root.classList.add('open');
+  });
+
+  root.querySelector('[data-act="all"]').addEventListener('click', (e)=>{
+    e.stopPropagation();
+    state[key] = [...values];
+    optionsWrap.querySelectorAll('input[type=checkbox]').forEach(cb=>cb.checked=true);
+    refreshMselLabel(key);
+    render();
+  });
+  root.querySelector('[data-act="clear"]').addEventListener('click', (e)=>{
+    e.stopPropagation();
+    state[key] = [];
+    optionsWrap.querySelectorAll('input[type=checkbox]').forEach(cb=>cb.checked=false);
+    refreshMselLabel(key);
+    render();
+  });
+}
+
+function buildPeriodMultiSelect(){
+  const root = document.getElementById('periodFilter');
+  const btn = root.querySelector('.msel-btn');
+
+  btn.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    const wasOpen = root.classList.contains('open');
+    document.querySelectorAll('.msel.open').forEach(m=>m.classList.remove('open'));
+    if(!wasOpen) root.classList.add('open');
+  });
+
+  root.querySelector('[data-act="all"]').addEventListener('click', (e)=>{
+    e.stopPropagation();
+    state.period = Object.values(PERIOD_YEAR_MAP).flat();
+    refreshMselLabel('period');
+    renderPeriodOptions();
+    render();
+  });
+  root.querySelector('[data-act="clear"]').addEventListener('click', (e)=>{
+    e.stopPropagation();
+    state.period = [];
+    refreshMselLabel('period');
+    renderPeriodOptions();
+    render();
+  });
+
+  renderPeriodOptions();
+}
+
+function renderPeriodOptions(){
+  const root = document.getElementById('periodFilter');
+  const optionsWrap = root.querySelector('.msel-options');
+  const years = Object.keys(PERIOD_YEAR_MAP).sort((a,b)=>b-a);
+
+  optionsWrap.innerHTML = years.map(year=>{
+    const monthKeys = PERIOD_YEAR_MAP[year];
+    const allChecked = monthKeys.every(k=>state.period.includes(k));
+    const isExpanded = expandedYears.has(year);
+    const totalCount = monthKeys.reduce((s,k)=>s+PERIOD_COUNTS[k],0);
+    return `
+      <div class="msel-year">
+        <div class="msel-year-row">
+          <button type="button" class="msel-year-toggle" data-year="${year}" title="Show months">${isExpanded ? '▾' : '▸'}</button>
+          <input type="checkbox" class="msel-year-checkbox" data-year="${year}" ${allChecked ? 'checked' : ''}>
+          <span class="msel-year-label">${year}</span>
+          <span class="msel-option-count">${totalCount}</span>
+        </div>
+        <div class="msel-month-list" style="display:${isExpanded ? 'block' : 'none'}">
+          ${monthKeys.map(k=>`
+            <label class="msel-option msel-month-option">
+              <input type="checkbox" value="${k}" ${state.period.includes(k) ? 'checked' : ''}>
+              <span>${k.split(' ')[0]}</span>
+              <span class="msel-option-count">${PERIOD_COUNTS[k]}</span>
+            </label>
+          `).join("")}
+        </div>
+      </div>`;
+  }).join("");
+
+  optionsWrap.querySelectorAll('.msel-year-checkbox').forEach(cb=>{
+    const year = cb.getAttribute('data-year');
+    const monthKeys = PERIOD_YEAR_MAP[year];
+    const allChecked = monthKeys.every(k=>state.period.includes(k));
+    const someChecked = monthKeys.some(k=>state.period.includes(k));
+    cb.indeterminate = someChecked && !allChecked;
+  });
+
+  optionsWrap.querySelectorAll('.msel-year-row, .msel-month-option').forEach(el=>{
+    el.addEventListener('click', e=>e.stopPropagation());
+  });
+
+  optionsWrap.querySelectorAll('.msel-year-toggle').forEach(toggle=>{
+    toggle.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      const year = toggle.getAttribute('data-year');
+      if(expandedYears.has(year)) expandedYears.delete(year); else expandedYears.add(year);
+      renderPeriodOptions();
+    });
+  });
+
+  optionsWrap.querySelectorAll('.msel-year-checkbox').forEach(cb=>{
+    cb.addEventListener('click', e=>e.stopPropagation());
+    cb.addEventListener('change', ()=>{
+      const year = cb.getAttribute('data-year');
+      const monthKeys = PERIOD_YEAR_MAP[year];
+      if(cb.checked){
+        monthKeys.forEach(k=>{ if(!state.period.includes(k)) state.period.push(k); });
+      } else {
+        state.period = state.period.filter(k=>!monthKeys.includes(k));
+      }
+      refreshMselLabel('period');
+      renderPeriodOptions();
+      render();
+    });
+  });
+
+  optionsWrap.querySelectorAll('.msel-month-option input[type=checkbox]').forEach(cb=>{
+    cb.addEventListener('click', e=>e.stopPropagation());
+    cb.addEventListener('change', ()=>{
+      const v = cb.value;
+      if(cb.checked){ if(!state.period.includes(v)) state.period.push(v); }
+      else { state.period = state.period.filter(x=>x!==v); }
+      refreshMselLabel('period');
+      renderPeriodOptions();
+      render();
+    });
+  });
+}
+
+
+function refreshMselLabel(key){
+  const root = document.getElementById(`${key}Filter`);
+  const labelSpan = root.querySelector('.msel-btn-label');
+  const selected = state[key];
+  if(selected.length === 0){
+    labelSpan.innerHTML = `<span class="msel-placeholder">${PLACEHOLDERS[key]}</span>`;
+    return;
+  }
+  if(key === 'period'){
+    const years = Object.keys(PERIOD_YEAR_MAP);
+    const chips = [];
+    years.forEach(year=>{
+      const monthKeys = PERIOD_YEAR_MAP[year];
+      const selectedMonths = monthKeys.filter(k=>selected.includes(k));
+      if(selectedMonths.length === monthKeys.length && selectedMonths.length > 0){
+        chips.push(year);
+      } else if(selectedMonths.length > 0){
+        chips.push(`${year} (${selectedMonths.length}mo)`);
+      }
+    });
+    if(chips.length <= 2){
+      labelSpan.innerHTML = chips.map(c=>`<span class="msel-chip">${c}</span>`).join("");
+    } else {
+      labelSpan.innerHTML = `<span class="msel-chip">${chips.length} periods selected</span>`;
+    }
+    return;
+  }
+  if(selected.length <= 2){
+    labelSpan.innerHTML = selected.map(v=>`<span class="msel-chip">${v}</span>`).join("");
+  } else {
+    labelSpan.innerHTML = `<span class="msel-chip">${selected.length} selected</span>`;
+  }
+}
+
+document.addEventListener('click', ()=>{
+  document.querySelectorAll('.msel.open').forEach(m=>m.classList.remove('open'));
+});
+
+function initFilterOptions(){
+  const teams = [...new Set(RAW_DATA.map(r=>r.team))];
+  const teamCounts = {};
+  teams.forEach(t => teamCounts[t] = RAW_DATA.filter(r=>r.team===t).length);
+  teams.sort((a,b)=>teamCounts[b]-teamCounts[a]);
+  buildMultiSelect('team', teams, t=>teamCounts[t]);
+
+  const clients = [...new Set(RAW_DATA.map(r=>r.client))].sort();
+  const clientCounts = {};
+  clients.forEach(c => clientCounts[c] = RAW_DATA.filter(r=>r.client===c).length);
+  buildMultiSelect('client', clients, c=>clientCounts[c]);
+
+  const statuses = ["Completed","Sent","Voided","Declined"];
+  const statusCounts = {};
+  statuses.forEach(s => statusCounts[s] = RAW_DATA.filter(r=>r.status===s).length);
+  buildMultiSelect('status', statuses, s=>statusCounts[s]);
+
+  const periods = [...new Set(RAW_DATA.map(r=>periodKey(r.sentDate)))];
+  periods.sort((a,b)=>{
+    const pa = RAW_DATA.find(r=>periodKey(r.sentDate)===a).sentDate;
+    const pb = RAW_DATA.find(r=>periodKey(r.sentDate)===b).sentDate;
+    return periodSortVal(pb) - periodSortVal(pa);
+  });
+  PERIOD_COUNTS = {};
+  periods.forEach(p => PERIOD_COUNTS[p] = RAW_DATA.filter(r=>periodKey(r.sentDate)===p).length);
+  PERIOD_YEAR_MAP = {};
+  periods.forEach(p=>{
+    const year = p.split(' ')[1];
+    PERIOD_YEAR_MAP[year] = PERIOD_YEAR_MAP[year] || [];
+    PERIOD_YEAR_MAP[year].push(p);
+  });
+  const MONTH_ORDER = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  Object.keys(PERIOD_YEAR_MAP).forEach(year=>{
+    PERIOD_YEAR_MAP[year].sort((a,b)=> MONTH_ORDER.indexOf(a.split(' ')[0]) - MONTH_ORDER.indexOf(b.split(' ')[0]));
+  });
+  buildPeriodMultiSelect();
+
+  document.getElementById('searchBox').addEventListener('input', e=>{ state.search = e.target.value.trim().toLowerCase(); render(); });
+}
+
+function resetFilters(){
+  state = { team: [], client: [], status: [], period: [], search: "" };
+  ['team','client','status'].forEach(key=>{
+    const root = document.getElementById(`${key}Filter`);
+    root.querySelectorAll('input[type=checkbox]').forEach(cb=>cb.checked=false);
+    refreshMselLabel(key);
+  });
+  refreshMselLabel('period');
+  renderPeriodOptions();
+  document.getElementById('searchBox').value = "";
+  render();
+}
+
+function selectTeamCard(team){
+  const root = document.getElementById('teamFilter');
+  const cb = root.querySelector(`input[value="${team}"]`);
+  if(!cb) return;
+  if(state.team.length === 1 && state.team[0] === team){
+    state.team = [];
+    cb.checked = false;
+  } else {
+    state.team = [team];
+    root.querySelectorAll('input[type=checkbox]').forEach(c=>c.checked = (c.value === team));
+  }
+  refreshMselLabel('team');
+  render();
+}
+
+function getFiltered(){
+  return RAW_DATA.filter(r=>{
+    if(state.team.length && !state.team.includes(r.team)) return false;
+    if(state.client.length && !state.client.includes(r.client)) return false;
+    if(state.status.length && !state.status.includes(r.status)) return false;
+    if(state.period.length && !state.period.includes(periodKey(r.sentDate))) return false;
+    if(state.search){
+      const hay = (r.subject + " " + r.brand + " " + r.sender + " " + r.client).toLowerCase();
+      if(!hay.includes(state.search)) return false;
+    }
+    return true;
+  });
+}
+
+// Same as getFiltered(), but ignores the team slicer itself so the
+// team cards can show how the OTHER active slicers affect each team.
+function getFilteredExceptTeam(){
+  return RAW_DATA.filter(r=>{
+    if(state.client.length && !state.client.includes(r.client)) return false;
+    if(state.status.length && !state.status.includes(r.status)) return false;
+    if(state.period.length && !state.period.includes(periodKey(r.sentDate))) return false;
+    if(state.search){
+      const hay = (r.subject + " " + r.brand + " " + r.sender + " " + r.client).toLowerCase();
+      if(!hay.includes(state.search)) return false;
+    }
+    return true;
+  });
+}
+
+function renderCards(){
+  const grid = document.getElementById('cardsGrid');
+  grid.innerHTML = "";
+  const dataForCards = getFilteredExceptTeam();
+  const teams = [...new Set(RAW_DATA.map(r=>r.team))];
+  const agg = teams.map(t=>{
+    const rows = dataForCards.filter(r=>r.team===t);
+    const clients = new Set(rows.map(r=>r.client));
+    const brands = new Set(rows.map(r=>r.brand));
+    return { team:t, count: rows.length, clients: clients.size, brands: brands.size };
+  });
+  agg.sort((a,b)=>b.count-a.count);
+
+  agg.forEach(a=>{
+    const color = TEAM_COLORS[a.team] || "var(--lemon)";
+    const isActive = state.team.length === 1 && state.team[0] === a.team;
+    const card = document.createElement('div');
+    card.className = "team-card" + (isActive ? " active" : "");
+    card.style.setProperty('--accent', color);
+    card.onclick = () => selectTeamCard(a.team);
+    card.innerHTML = `
+      <div class="team-name">${a.team}</div>
+      <div class="team-count">${a.count}<span>envelopes</span></div>
+      <div class="team-meta">${a.clients} client${a.clients!==1?'s':''} · ${a.brands} brand${a.brands!==1?'s':''}</div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function statusBadge(status){
+  const c = STATUS_COLORS[status] || {fg:'#ccc', bg:'rgba(255,255,255,0.08)'};
+  return `<span class="status-badge" style="color:${c.fg}; background:${c.bg}">${status}</span>`;
+}
+
+function renderAstChart(filtered){
+  const wrap = document.getElementById('astBarChart');
+  const teams = [...new Set(RAW_DATA.map(r=>r.team))];
+  const counts = teams.map(t=>({ team:t, count: filtered.filter(r=>r.team===t).length }))
+    .sort((a,b)=>b.count-a.count);
+  const max = Math.max(1, ...counts.map(c=>c.count));
+  document.getElementById('astChartSub').textContent = `${counts.filter(c=>c.count>0).length} of ${teams.length} teams`;
+  wrap.innerHTML = counts.map(c=>{
+    const h = Math.round((c.count / max) * 100);
+    const color = TEAM_COLORS[c.team] || "var(--lemon)";
+    return `
+      <div class="vbar-col">
+        <div class="vbar-value">${c.count}</div>
+        <div class="vbar" style="height:${h}%; background:${color};"></div>
+        <div class="vbar-label" title="${c.team}">${c.team}</div>
+      </div>`;
+  }).join("");
+}
+
+function renderClientChart(filtered){
+  const wrap = document.getElementById('clientBarChart');
+  const clients = [...new Set(RAW_DATA.map(r=>r.client))];
+  const counts = clients.map(c=>({ client:c, count: filtered.filter(r=>r.client===c).length }))
+    .filter(c=>c.count>0)
+    .sort((a,b)=>b.count-a.count);
+  const max = Math.max(1, ...counts.map(c=>c.count));
+  document.getElementById('clientChartSub').textContent = `${counts.length} clients`;
+  if(counts.length === 0){
+    wrap.innerHTML = `<div style="color:var(--faint); font-size:12px; padding:20px 0; text-align:center;">No data for current filters</div>`;
+    return;
+  }
+  wrap.innerHTML = counts.map(c=>{
+    const w = Math.round((c.count / max) * 100);
+    return `
+      <div class="hbar-row">
+        <div class="hbar-label" title="${c.client}">${c.client}</div>
+        <div class="hbar-track"><div class="hbar-fill" style="width:${w}%"></div></div>
+        <div class="hbar-value">${c.count}</div>
+      </div>`;
+  }).join("");
+}
+
+function renderStatusPie(filtered){
+  const statuses = ["Completed","Sent","Voided","Declined"];
+  const total = filtered.length;
+  document.getElementById('pieTotal').textContent = total;
+  const pie = document.getElementById('statusPie');
+  const legend = document.getElementById('statusLegend');
+
+  if(total === 0){
+    pie.style.background = "rgba(255,255,255,0.06)";
+    legend.innerHTML = `<div style="color:var(--faint); font-size:12px;">No data for current filters</div>`;
+    return;
+  }
+
+  const counts = statuses.map(s=>({ status:s, count: filtered.filter(r=>r.status===s).length }))
+    .filter(s=>s.count>0);
+
+  let cursor = 0;
+  const segments = counts.map(c=>{
+    const pct = (c.count/total)*100;
+    const start = cursor;
+    const end = cursor + pct;
+    cursor = end;
+    const color = STATUS_COLORS[c.status].fg.replace('var(--','').replace(')','');
+    return { ...c, pct, start, end, colorVar: STATUS_COLORS[c.status].fg };
+  });
+
+  const rootStyles = getComputedStyle(document.documentElement);
+  const resolveColor = (v) => v.startsWith('var(') ? rootStyles.getPropertyValue(v.slice(4,-1)).trim() : v;
+
+  const gradientParts = segments.map(s=> `${resolveColor(s.colorVar)} ${s.start}% ${s.end}%`).join(", ");
+  pie.style.background = `conic-gradient(${gradientParts})`;
+
+  legend.innerHTML = segments.map(s=>`
+    <div class="pie-legend-item">
+      <span class="pie-dot" style="background:${resolveColor(s.colorVar)}"></span>
+      <span class="pie-legend-name">${s.status}</span>
+      <span class="pie-legend-pct" style="color:${resolveColor(s.colorVar)}">${s.pct.toFixed(1)}%</span>
+      <span class="pie-legend-count">(${s.count})</span>
+    </div>
+  `).join("");
+}
+
+function renderCharts(filtered){
+  renderAstChart(filtered);
+  renderClientChart(filtered);
+  renderStatusPie(filtered);
+}
+
+function renderTable(){
+  const filtered = getFiltered();
+  document.getElementById('shownCount').textContent = filtered.length;
+  document.getElementById('totalCount').textContent = RAW_DATA.length;
+  document.getElementById('panelCount').textContent = `${filtered.length} record${filtered.length!==1?'s':''}`;
+
+  renderCharts(filtered);
+
+  const tbody = document.getElementById('recordsTbody');
+
+  if(filtered.length === 0){
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="big">🗂️</div>No envelopes match these filters.<br>Try adjusting or resetting your filters.</div></td></tr>`;
+    return;
+  }
+
+  const rows = filtered.slice().sort((a,b)=> new Date(b.sentDate) - new Date(a.sentDate));
+
+  tbody.innerHTML = rows.map(r=>{
+    const color = TEAM_COLORS[r.team] || "var(--lemon)";
+    return `
+      <tr>
+        <td><span class="group-dot" style="background:${color}; display:inline-block; margin-right:7px;"></span>${r.team}</td>
+        <td class="muted-cell">${r.client}</td>
+        <td class="muted-cell">${r.brand}</td>
+        <td>${statusBadge(r.status)}</td>
+        <td class="muted-cell">${r.sender}</td>
+        <td class="muted-cell">${r.recipient}</td>
+        <td class="date-cell">${fmtDate(r.sentDate)}</td>
+      </tr>`;
+  }).join("");
+}
+
+function updateHeader(){
+  document.getElementById('totalBadge').textContent = RAW_DATA.length;
+  const maxDate = RAW_DATA.reduce((m,r)=> r.lastDate > m ? r.lastDate : m, RAW_DATA[0].lastDate);
+  document.getElementById('asAtPill').textContent = "As at: " + fmtDate(maxDate);
+}
+
+function exportCSV(){
+  const filtered = getFiltered();
+  const headers = ["Subject","Team","Client","Brand","Status","Sender","Recipient","Sent On (Date)","Sent On (Time)","Last Activity (Date)","Last Activity (Time)"];
+  const rows = filtered.map(r=>[r.subject,r.team,r.client,r.brand,r.status,r.sender,r.recipient,r.sentDate,r.sentTime,r.lastDate,r.lastTime]);
+  const csv = [headers, ...rows].map(row=>
+    row.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",")
+  ).join("\n");
+  const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = "docusign_envelopes_export.csv";
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function render(){
+  renderCards();
+  renderTable();
+}
+
+document.getElementById('exportBtn').addEventListener('click', exportCSV);
+document.getElementById('fileInput').addEventListener('change', ()=>{
+  alert("This demo dashboard is preloaded with your Envelope Report data. To load a new file, re-upload it in chat and ask for a refreshed dashboard.");
+});
+
+initFilterOptions();
+updateHeader();
+render();
+</script>
+</body>
+</html>
